@@ -3,9 +3,9 @@ import { Maybe } from './baseTypes';
 export type RoleType = 'role_owner' | 'role_editor' | 'role_viewer';
 
 export type EntityRole = {
-  roleId: string,
-  name: string,
-  rightIds: string[],
+  roleId: RoleType;
+  name: string;
+  rightIds: string[];
 };
 
 export type EntityUser = {
@@ -31,13 +31,18 @@ export type EntityTeam = {
   utcTimeUpdated?: Maybe<number>;
 };
 
+export type TrackTemplate = 'CHILD_MILESTONES' | 'PET_MILESTONES';
+
 export type EntityTrack = {
-  trackId: string,
-  version: number,
-  name: string,
-  description?: Maybe<string>,
-  imgUrl?: Maybe<string>,
-  utcTimeCreated: number,
+  trackId: string;
+  trackType: 'CUSTOM' | 'TEMPLATE';
+  trackTemplate?: TrackTemplate;
+  trackVersion?: number;
+  name: string;
+  description?: Maybe<string>;
+  imgUrl?: Maybe<string>;
+  utcTimeCreated: number;
+  utcTimeUpdated?: Maybe<number>;
 };
 
 
