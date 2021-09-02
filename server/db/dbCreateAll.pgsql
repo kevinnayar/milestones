@@ -2,10 +2,8 @@
 CREATE TABLE IF NOT EXISTS roles (
   role_id VARCHAR NOT NULL UNIQUE,
   name VARCHAR NOT NULL,
-  right_ids VARCHAR[] NOT NULL -- [teamCreate, teamRead, teamUpdate, teamDelete]
+  right_ids VARCHAR[] NOT NULL
 );
-
-CREATE INDEX ON roles ("role_id");
 
 INSERT INTO
   roles (role_id, name, right_ids)
@@ -29,7 +27,7 @@ CREATE TABLE IF NOT EXISTS users (
   utc_time_updated BIGINT
 );
 
-CREATE INDEX ON users ("user_id");
+CREATE INDEX ON users ("email");
 
 -- teams
 CREATE TABLE IF NOT EXISTS teams (
@@ -42,8 +40,6 @@ CREATE TABLE IF NOT EXISTS teams (
   utc_time_updated BIGINT
 );
 
-CREATE INDEX ON teams ("team_id");
-
 -- tracks
 CREATE TABLE IF NOT EXISTS tracks (
   track_id VARCHAR NOT NULL UNIQUE,
@@ -54,8 +50,6 @@ CREATE TABLE IF NOT EXISTS tracks (
   utc_time_created BIGINT NOT NULL
 );
 
-CREATE INDEX ON tracks ("track_id");
-
 -- track_state
 CREATE TABLE IF NOT EXISTS track_state (
   track_id VARCHAR NOT NULL,
@@ -65,6 +59,7 @@ CREATE TABLE IF NOT EXISTS track_state (
   utc_time_created BIGINT NOT NULL
 );
 
+CREATE INDEX ON track_state ("track_id");
 CREATE INDEX ON track_state ("track_id", "utc_time_created");
 
 
