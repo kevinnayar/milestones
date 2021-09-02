@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable import/no-dynamic-require */
 import * as fs from 'fs';
 import * as path from 'path';
 import config from '../shared/config/serverConfig';
@@ -26,6 +24,7 @@ try {
 
     for (const name of services) {
       const source = path.join(__dirname, `../server/services/${name}/api`);
+      /* eslint-disable @typescript-eslint/no-var-requires, import/no-dynamic-require */
       const { handler } = require(source);
 
       const service: ServiceDefinition = {
