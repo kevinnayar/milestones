@@ -1,4 +1,4 @@
-import { Maybe } from './baseTypes';
+import { Maybe, SimpleDate } from './baseTypes';
 
 export type RoleType = 'role_owner' | 'role_editor' | 'role_viewer';
 
@@ -31,16 +31,19 @@ export type EntityTeam = {
   utcTimeUpdated?: Maybe<number>;
 };
 
+export type TrackType = 'CUSTOM' | 'TEMPLATE';
+
 export type TrackTemplate = 'CHILD_MILESTONES' | 'PET_MILESTONES';
 
 export type EntityTrack = {
   trackId: string;
-  trackType: 'CUSTOM' | 'TEMPLATE';
-  trackTemplate?: TrackTemplate;
-  trackVersion?: number;
+  trackType: TrackType;
+  trackTemplate?: Maybe<TrackTemplate>;
+  trackVersion?: Maybe<number>;
   name: string;
   description?: Maybe<string>;
   imgUrl?: Maybe<string>;
+  startDate: SimpleDate;
   utcTimeCreated: number;
   utcTimeUpdated?: Maybe<number>;
 };

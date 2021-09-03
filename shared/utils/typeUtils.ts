@@ -54,18 +54,55 @@ export function isNumberInRangeOrThrow(value: any, rangeMin: number, rangeMax: n
 }
 
 export function isSimpleDateOrThrow(value: any, msg: string): SimpleDate {
-  if (value.day === undefined) throw new Error(`${msg} - day not defined`);
-  if (value.month === undefined) throw new Error(`${msg} - month not defined`);
-  if (value.year === undefined) throw new Error(`${msg} - year not defined`);
+  if (value.days === undefined) throw new Error(`${msg} - day not defined`);
+  if (value.months === undefined) throw new Error(`${msg} - month not defined`);
+  if (value.years === undefined) throw new Error(`${msg} - year not defined`);
+  return value;
+}
 
-  const day = isNumberInRangeOrThrow(value.day, 0, 31, `${msg} - day`);
-  const month = isNumberInRangeOrThrow(value.month, 0, 12, `${msg} - month`);
-  const year = isNumberInRangeOrThrow(value.year, 0, 5000, `${msg} - year`);
-
+export function isAbsoluteDateOrThrow(value: any, msg: string): SimpleDate {
+  const date: SimpleDate = isSimpleDateOrThrow(value, msg);
+  const days = isNumberInRangeOrThrow(date.days, 1, 31, `${msg} - day`);
+  const months = isNumberInRangeOrThrow(date.months, 1, 12, `${msg} - month`);
+  const years = isNumberInRangeOrThrow(date.years, 1, 5000, `${msg} - year`);
   return {
-    day,
-    month,
-    year,
+    days,
+    months,
+    years,
   };
 }
+
+export function isRelativeDateOrThrow(value: any, msg: string): SimpleDate {
+  const date: SimpleDate = isSimpleDateOrThrow(value, msg);
+  const days = isNumberInRangeOrThrow(date.days, 0, 31, `${msg} - day`);
+  const months = isNumberInRangeOrThrow(date.months, 0, 12, `${msg} - month`);
+  const years = isNumberInRangeOrThrow(date.years, 0, 5000, `${msg} - year`);
+  return {
+    days,
+    months,
+    years,
+  };
+}
+
+
+// export function isRelativeDateOrThrow(): SimpleDate {
+
+// }
+
+// const milestones: Milestone[] = [
+//   {
+//     id: 'birth',
+//     name: 'Birth! 👶',
+//     description: 'Happy Birthday!',
+//     range: {
+//       start: {
+//         years: 0,
+//         months: 0,
+//         days: 0,
+//       },
+//       stop: null,
+//     },
+//   },
+
+
 
