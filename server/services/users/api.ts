@@ -10,7 +10,7 @@ import {
   inStringUnionOrThrow,
   isValidEmailOrThrow,
 } from '../../../shared/utils/typeUtils';
-import { dbUserCreate } from './db';
+import { dbUserCreate, dbUserEmailExists } from './db';
 import { dbTeamExists } from '../teams/db';
 import { ServiceHandlerOpts, DBClient } from '../../types';
 import { Maybe } from '../../../shared/types/baseTypes';
@@ -29,17 +29,15 @@ class UsersHandler {
   createUser = async (req: Request, res: Response) => {
     this.log.info(logReq(req));
 
-    const userId = createGuid('user');
+    const email = isValidEmailOrThrow(req.body.email, 'A valid email is required');
+    const emailExists = await dbUserEmailExists(this.client, email);
+    if (emailExists) {
+      return badRequestException(res, `A user with email '${email}' already exists`);
+    }
+
+    const teamId: Maybe<string> = isStrictStringNullVoidOrThrow(req.body.teamId, 'A valid team is required');
     const allowedRoles: RoleType[] = ['role_owner', 'role_editor', 'role_viewer'];
     const roleId: RoleType = inStringUnionOrThrow(req.body.roleId, allowedRoles, 'A valid role is required');
-    const teamId: Maybe<string> = isStrictStringNullVoidOrThrow(req.body.teamId, 'A valid team is required');
-    const displayName = isStrictStringOrThrow(req.body.displayName, 'Display name is required');
-    const firstName = isStrictStringOrThrow(req.body.firstName, 'First name is required');
-    const lastName = isStrictStringOrThrow(req.body.lastName, 'Last name is required');
-    const email = isValidEmailOrThrow(req.body.email, 'A valid email is required');
-    const utcTimestamp = DateTime.now().toMillis();
-
-    // TODO: check is email is unique, add an email index
 
     if (roleId === 'role_owner' && teamId) {
       return badRequestException(res, 'Cannot create user as owner of an existing team');
@@ -55,6 +53,12 @@ class UsersHandler {
         return badRequestException(res, `Cannot created user as viewer/editor because team: '${teamId}' doesn't exist`);
       }
     }
+
+    const userId = createGuid('user');
+    const displayName = isStrictStringOrThrow(req.body.displayName, 'Display name is required');
+    const firstName = isStrictStringOrThrow(req.body.firstName, 'First name is required');
+    const lastName = isStrictStringOrThrow(req.body.lastName, 'Last name is required');
+    const utcTimestamp = DateTime.now().toMillis();
 
     const user: EntityUser = {
       userId,

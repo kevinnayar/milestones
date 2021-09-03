@@ -4,8 +4,11 @@ import { ServiceHandlerOpts, DBClient } from '../../types';
 import { Logger, logReq } from '../../../shared/helpers/logger';
 import { handleRequest } from '../../api/apiUtils';
 import { createGuid } from '../../../shared/utils/baseUtils';
+import { forbiddenException } from '../../api/apiExceptions';
 import { getInitTrackState } from './utils';
+import { userCan } from '../users/utils';
 import { dbTrackCreate } from './db';
+import { dbUserGetRights, dbUserInTeam } from '../users/db';
 import {
   isStrictStringOrThrow,
   inStringUnionOrThrow,
@@ -29,11 +32,19 @@ class TracksHandler {
   createTrack = async (req: Request, res: Response) => {
     this.log.info(logReq(req));
 
-    // user id
-    // team id
-    // is user in team, can create?
+    const userId = req.params.userId;
+    const userRights = await dbUserGetRights(this.client, userId);
+    const userCanCreate = userCan('create', userRights);
+    if (!userCanCreate) {
+      return forbiddenException(res);
+    }
 
-    const teamId = isStrictStringOrThrow(req.body.teamId, 'A team is required');
+    const teamId = req.params.teamId;
+    const userInTeam = await dbUserInTeam(this.client, userId, teamId);
+    if (!userInTeam) {
+      return forbiddenException(res, `User '${userId}' is not in this team '${teamId}'`);
+    }
+
     const trackId = createGuid('track');
     const allowedTracks: TrackType[] = ['CUSTOM', 'TEMPLATE'];
     const trackType: TrackType = inStringUnionOrThrow(req.body.trackType, allowedTracks, 'A valid track type is required');
@@ -50,7 +61,6 @@ class TracksHandler {
 
       trackState = getInitTrackState(trackTemplate, trackVersion);
     }
-
 
     const name = isStrictStringOrThrow(req.body.name, 'A name is required');
     const description: Maybe<string> = isStrictStringNullVoidOrThrow(req.body.description, 'A valid team is required');
@@ -78,5 +88,5 @@ export function handler(opts: ServiceHandlerOpts) {
   const { app } = opts;
   const tracks = new TracksHandler(opts);
 
-  app.post('/api/v1/tracks/create', handleRequest(tracks.createTrack));
+  app.post('/api/v1/users/:userId/teams/:teamId/tracks/create', handleRequest(tracks.createTrack));
 }

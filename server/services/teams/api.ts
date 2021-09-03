@@ -26,7 +26,7 @@ class TeamsHandler {
   createTeam = async (req: Request, res: Response) => {
     this.log.info(logReq(req));
 
-    const userId = isStrictStringOrThrow(req.body.userId, 'User is required');
+    const userId = req.params.userId;
     const userIsOwner = await dbUserExistsAndIsOwner(this.client, userId);
     if (!userIsOwner) {
       return badRequestException(res, `User: ${userId} does not have permissions to create a team`);
@@ -57,5 +57,5 @@ export function handler(opts: ServiceHandlerOpts) {
   const { app } = opts;
   const team = new TeamsHandler(opts);
 
-  app.post('/api/v1/teams/create', handleRequest(team.createTeam));
+  app.post('/api/v1/users/:userId/teams/create', handleRequest(team.createTeam));
 }
