@@ -31,7 +31,7 @@ export function inStringUnionOrThrow<U extends string>(value: string, unionList:
 export function isValidEmail(value: string, msg: string): string {
   // https://html.spec.whatwg.org/multipage/input.html#e-mail-state-(type=email)
   const lowered = value.toLowerCase();
-  const match = lowered.match(/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/i);
+  const match = lowered.match(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/i);
   if (!match) throw new Error(msg);
   return lowered;
 }
@@ -84,7 +84,6 @@ export function isRelativeDateOrThrow(value: any, msg: string): SimpleDate {
   };
 }
 
-
 // export function isRelativeDateOrThrow(): SimpleDate {
 
 // }
@@ -103,6 +102,3 @@ export function isRelativeDateOrThrow(value: any, msg: string): SimpleDate {
 //       stop: null,
 //     },
 //   },
-
-
-

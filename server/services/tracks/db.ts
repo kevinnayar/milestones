@@ -1,7 +1,12 @@
 import { EntityTrack } from 'shared/types/entityTypes';
 import { DBClient } from '../../types';
 
-export async function dbTrackCreate(client: DBClient, teamId: string, track: EntityTrack, trackState: any): Promise<string> {
+export async function dbTrackCreate(
+  client: DBClient,
+  teamId: string,
+  track: EntityTrack,
+  trackState: any,
+): Promise<string> {
   const trackQuery = `
     INSERT INTO tracks (
       id,

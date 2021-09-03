@@ -1,55 +1,57 @@
 import { Request, Response } from 'express';
 import { DateTime } from 'luxon';
-import { Logger, logReq } from '../../../shared/helpers/logger';
+import Logger from '../../../shared/helpers/Logger';
 import { handleRequest } from '../../api/apiUtils';
 import { badRequestException } from '../../api/apiExceptions';
-import { createGuid } from '../../../shared/utils/baseUtils';
+import { validTeamCreateParams } from './utils';
+import { createGuid, formatError } from '../../../shared/utils/baseUtils';
 import {
   isStrictStringOrThrow,
   isStrictStringNullVoidOrThrow,
 } from '../../../shared/utils/typeUtils';
 import { dbTeamCreate } from './db';
-import { dbUserExistsAndIsOwner } from '../users/db';
+import { dbUserCan } from '../roles/db';
 import { ServiceHandlerOpts, DBClient } from '../../types';
 import { EntityTeam } from '../../../shared/types/entityTypes';
 
 class TeamsHandler {
   client: DBClient;
-  log: Logger;
+  logger: Logger;
 
   constructor(opts: ServiceHandlerOpts) {
-    const { client, log } = opts;
+    const { client, logger } = opts;
     this.client = client;
-    this.log = log;
+    this.logger = logger;
   }
 
   createTeam = async (req: Request, res: Response) => {
-    this.log.info(logReq(req));
+    this.logger.logRequest(req);
 
-    const userId = req.params.userId;
-    const userIsOwner = await dbUserExistsAndIsOwner(this.client, userId);
-    if (!userIsOwner) {
-      return badRequestException(res, `User: ${userId} does not have permissions to create a team`);
+    try {
+      const userId = req.params.userId;
+      const canCreate = await dbUserCan(this.client, 'create', userId);
+      if (!canCreate) {
+        return badRequestException(res, `User: ${userId} does not have permissions to create a team`);
+      }
+
+      const teamId = createGuid('team');
+      const params = validTeamCreateParams(req.body);
+      const utcTimestamp = DateTime.now().toMillis();
+
+      const team: EntityTeam = {
+        ...params,
+        teamId,
+        trackIds: [],
+        utcTimeCreated: utcTimestamp,
+        utcTimeUpdated: utcTimestamp,
+      };
+
+      await dbTeamCreate(this.client, userId, team);
+
+      return res.status(200).json({ team });
+    } catch (e) {
+      return badRequestException(res, formatError(e));
     }
-
-    const teamId = createGuid('team');
-    const trackIds = [];
-    const name = isStrictStringOrThrow(req.body.name, 'Team name is required');
-    const description = isStrictStringNullVoidOrThrow(req.body.description, 'Description is invalid');
-    const utcTimestamp = DateTime.now().toMillis();
-
-    const team: EntityTeam = {
-      teamId,
-      trackIds,
-      name,
-      description,
-      utcTimeCreated: utcTimestamp,
-      utcTimeUpdated: utcTimestamp,
-    };
-
-    await dbTeamCreate(this.client, userId, team);
-
-    return res.status(200).json({ team });
   };
 }
 

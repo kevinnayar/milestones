@@ -1,82 +1,68 @@
 import { Request, Response } from 'express';
 import { DateTime } from 'luxon';
-import { Logger, logReq } from '../../../shared/helpers/logger';
+import Logger from '../../../shared/helpers/Logger';
 import { handleRequest } from '../../api/apiUtils';
 import { badRequestException } from '../../api/apiExceptions';
-import { createGuid } from '../../../shared/utils/baseUtils';
-import {
-  isStrictStringOrThrow,
-  isStrictStringNullVoidOrThrow,
-  inStringUnionOrThrow,
-  isValidEmailOrThrow,
-} from '../../../shared/utils/typeUtils';
+import { createGuid, formatError } from '../../../shared/utils/baseUtils';
+import { validUserCreateParams, userRemovePII } from './utils';
 import { dbUserCreate, dbUserEmailExists } from './db';
 import { dbTeamExists } from '../teams/db';
 import { ServiceHandlerOpts, DBClient } from '../../types';
-import { Maybe } from '../../../shared/types/baseTypes';
-import { EntityUser, RoleType } from '../../../shared/types/entityTypes';
+import { EntityUser, UserCreateParams } from '../../../shared/types/entityTypes';
 
 class UsersHandler {
   client: DBClient;
-  log: Logger;
+  logger: Logger;
 
   constructor(opts: ServiceHandlerOpts) {
-    const { client, log } = opts;
+    const { client, logger } = opts;
     this.client = client;
-    this.log = log;
+    this.logger = logger;
   }
 
   createUser = async (req: Request, res: Response) => {
-    this.log.info(logReq(req));
+    this.logger.logRequest(req);
 
-    const email = isValidEmailOrThrow(req.body.email, 'A valid email is required');
-    const emailExists = await dbUserEmailExists(this.client, email);
-    if (emailExists) {
-      return badRequestException(res, `A user with email '${email}' already exists`);
-    }
+    try {
+      const userId = createGuid('user');
+      const params: UserCreateParams = validUserCreateParams(req.body);
+      const utcTimestamp = DateTime.now().toMillis();
 
-    const teamId: Maybe<string> = isStrictStringNullVoidOrThrow(req.body.teamId, 'A valid team is required');
-    const allowedRoles: RoleType[] = ['role_owner', 'role_editor', 'role_viewer'];
-    const roleId: RoleType = inStringUnionOrThrow(req.body.roleId, allowedRoles, 'A valid role is required');
-
-    if (roleId === 'role_owner' && teamId) {
-      return badRequestException(res, 'Cannot create user as owner of an existing team');
-    }
-
-    if (roleId === 'role_viewer' || roleId === 'role_editor') {
-      if (!teamId) {
-        return badRequestException(res, 'Cannot create user as viewer/editor without an existing team');
+      const emailExists = await dbUserEmailExists(this.client, params.email);
+      if (emailExists) {
+        return badRequestException(res, `A user with email '${params.email}' already exists`);
       }
 
-      const teamExists = await dbTeamExists(this.client, teamId);
-      if (!teamExists) {
-        return badRequestException(res, `Cannot created user as viewer/editor because team: '${teamId}' doesn't exist`);
+      if (params.roleId === 'role_owner' && params.teamId) {
+        return badRequestException(res, 'Cannot create user as owner of an existing team');
       }
+
+      if (params.roleId === 'role_viewer' || params.roleId === 'role_editor') {
+        if (!params.teamId) {
+          return badRequestException(res, 'Cannot create user as viewer/editor without an existing team');
+        }
+
+        const teamExists = await dbTeamExists(this.client, params.teamId);
+        if (!teamExists) {
+          return badRequestException(res, `Cannot created user as viewer/editor because team: '${params.teamId}' doesn't exist`);
+        }
+      }
+
+      const user: EntityUser = {
+        ...params,
+        userId,
+        utcTimeCreated: utcTimestamp,
+        utcTimeUpdated: utcTimestamp,
+      };
+
+      await dbUserCreate(this.client, user);
+
+      const userNoPII = userRemovePII(user);
+
+      return res.status(200).json({ user: userNoPII });
+    } catch (e) {
+      return badRequestException(res, formatError(e));
     }
-
-    const userId = createGuid('user');
-    const displayName = isStrictStringOrThrow(req.body.displayName, 'Display name is required');
-    const firstName = isStrictStringOrThrow(req.body.firstName, 'First name is required');
-    const lastName = isStrictStringOrThrow(req.body.lastName, 'Last name is required');
-    const utcTimestamp = DateTime.now().toMillis();
-
-    const user: EntityUser = {
-      userId,
-      roleId,
-      displayName,
-      firstName,
-      lastName,
-      email,
-      utcTimeCreated: utcTimestamp,
-      utcTimeUpdated: utcTimestamp,
-    };
-
-    await dbUserCreate(this.client, user);
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
-    const { roleId: _r, firstName: _f, lastName: _l, email: _e, ...userNoPII } = user;
-
-    return res.status(200).json({ user: userNoPII });
   };
 }
 

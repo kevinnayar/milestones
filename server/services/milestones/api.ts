@@ -1,19 +1,19 @@
 import { Request, Response } from 'express';
 import { ServiceHandlerOpts, DBClient } from '../../types';
-import { Logger, logReq } from '../../../shared/helpers/logger';
+import Logger from '../../../shared/helpers/Logger';
 
 class MilestonesHandler {
   client: DBClient;
-  log: Logger;
+  logger: Logger;
 
   constructor(opts: ServiceHandlerOpts) {
-    const { client, log } = opts;
+    const { client, logger } = opts;
     this.client = client;
-    this.log = log;
+    this.logger = logger;
   }
 
   getData = async (req: Request, res: Response) => {
-    this.log.info(logReq(req));
+    this.logger.logRequest(req);
     // const milestones: Milestone[] = [
     //   {
     //     id: 'birth',

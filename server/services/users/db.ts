@@ -4,7 +4,7 @@ import { EntityUser } from '../../../shared/types/entityTypes';
 export async function dbUserCreate(client: DBClient, user: EntityUser): Promise<string> {
   const query = `
     INSERT INTO users (
-      id,
+      user_id,
       role_id,
       team_id,
       display_name,
@@ -15,6 +15,7 @@ export async function dbUserCreate(client: DBClient, user: EntityUser): Promise<
       utc_time_updated
     )
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    RETURNING user_id
     ;
   `;
   const values = [
@@ -31,20 +32,6 @@ export async function dbUserCreate(client: DBClient, user: EntityUser): Promise<
 
   await client.query(query, values);
   return user.userId;
-}
-
-export async function dbUserGetRights(client: DBClient, userId: string): Promise<string[]> {
-  const query = `
-    SELECT roles.right_ids
-      FROM roles
-      JOIN users ON users.role_id = roles.id
-      WHERE users.id = $1
-    ;
-  `;
-  const values = [userId];
-  const rows = await client.one(query, values);
-  const rightIds = rows.length ? rows[0].right_ids : [];
-  return rightIds;
 }
 
 export async function dbUserExistsAndIsOwner(client: DBClient, userId: string): Promise<boolean> {
@@ -70,8 +57,6 @@ export async function dbUserInTeam(client: DBClient, userId: string, teamId: str
   const exists = rows && rows.length ? rows[0].exists : false;
   return exists;
 }
-
-
 
 
 

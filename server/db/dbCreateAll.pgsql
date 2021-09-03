@@ -1,12 +1,12 @@
 -- roles
 CREATE TABLE IF NOT EXISTS roles (
-  id VARCHAR NOT NULL UNIQUE,
+  role_id VARCHAR NOT NULL UNIQUE,
   name VARCHAR NOT NULL,
   right_ids VARCHAR[] NOT NULL
 );
 
 INSERT INTO
-  roles (id, name, right_ids)
+  roles (role_id, name, right_ids)
 VALUES
   ('role_owner', 'Owner', '{"team_create", "team_read", "team_update", "team_delete"}'),
   ('role_editor', 'Editor', '{"team_read", "team_update"}'),
@@ -15,7 +15,7 @@ VALUES
 
 -- users
 CREATE TABLE IF NOT EXISTS users (
-  id VARCHAR NOT NULL UNIQUE,
+  user_id VARCHAR NOT NULL UNIQUE,
   role_id VARCHAR NOT NULL,
   team_id VARCHAR,
   display_name VARCHAR NOT NULL,
@@ -31,7 +31,7 @@ CREATE INDEX ON users ("email");
 
 -- teams
 CREATE TABLE IF NOT EXISTS teams (
-  id VARCHAR NOT NULL UNIQUE,
+  team_id VARCHAR NOT NULL UNIQUE,
   track_ids VARCHAR[],
   name VARCHAR NOT NULL,
   description VARCHAR,
@@ -42,21 +42,18 @@ CREATE TABLE IF NOT EXISTS teams (
 
 -- tracks
 CREATE TABLE IF NOT EXISTS tracks (
-  id VARCHAR NOT NULL UNIQUE,
-  type VARCHAR NOT NULL,
-  template VARCHAR,
+  track_id VARCHAR NOT NULL UNIQUE,
   version SMALLINT,
   name VARCHAR NOT NULL,
   description VARCHAR,
   img_url VARCHAR,
-  start_date JSONB,
   utc_time_created BIGINT NOT NULL
 );
 
 -- track_state
 CREATE TABLE IF NOT EXISTS track_state (
   track_id VARCHAR NOT NULL,
-  milestone_id VARCHAR NOT NULL,
+  milestone_id VARCHAR NOT NULL, -- "CUSTOM" | "<MILESTONE_ID>"
   action VARCHAR NOT NULL,
   state JSONB NOT NULL,
   utc_time_created BIGINT NOT NULL

@@ -2,7 +2,7 @@ import { EntityTeam } from 'shared/types/entityTypes';
 import { DBClient } from '../../types';
 
 export async function dbTeamExists(client: DBClient, teamId: string): Promise<boolean> {
-  const query = 'SELECT EXISTS (SELECT TRUE FROM teams WHERE id = $1)';
+  const query = 'SELECT EXISTS (SELECT TRUE FROM teams WHERE team_id = $1)';
   const values = [teamId];
   const rows = await client.query(query, values);
   const exists = rows && rows.length ? rows[0].exists : false;
@@ -15,14 +15,14 @@ export async function dbTeamCreate(client: DBClient, userId: string, team: Entit
       SET
         team_id = $1,
         utc_time_updated = $2
-      WHERE id = $3
+      WHERE user_id = $3
     ;
   `;
   const userValues = [team.teamId, team.utcTimeCreated, userId];
 
   const teamQuery = `
     INSERT INTO teams (
-      id,
+      team_id,
       track_ids,
       name,
       description,
@@ -30,6 +30,7 @@ export async function dbTeamCreate(client: DBClient, userId: string, team: Entit
       utc_time_updated
     )
     VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING team_id
     ;
   `;
   const teamValues = [

@@ -74,3 +74,15 @@ export function internalServerErrorException(res: Response, errorMaybe?: string)
   return baseException(code, res, error);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+

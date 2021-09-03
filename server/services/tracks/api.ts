@@ -1,81 +1,50 @@
 import { Request, Response } from 'express';
 import { DateTime } from 'luxon';
 import { ServiceHandlerOpts, DBClient } from '../../types';
-import { Logger, logReq } from '../../../shared/helpers/logger';
+import Logger from '../../../shared/helpers/Logger';
 import { handleRequest } from '../../api/apiUtils';
 import { createGuid } from '../../../shared/utils/baseUtils';
 import { forbiddenException } from '../../api/apiExceptions';
-import { getInitTrackState } from './utils';
-import { userCan } from '../users/utils';
+import { getInitTrackState, validateTrackCreateParams } from './utils';
 import { dbTrackCreate } from './db';
-import { dbUserGetRights, dbUserInTeam } from '../users/db';
-import {
-  isStrictStringOrThrow,
-  inStringUnionOrThrow,
-  isStrictStringNullVoidOrThrow,
-  isAbsoluteDateOrThrow,
-  isNumberOrThrow,
-} from '../../../shared/utils/typeUtils';
-import { EntityTrack, TrackType, TrackTemplate } from '../../../shared/types/entityTypes';
-import { Maybe } from '../../../shared/types/baseTypes';
+import { dbUserInTeam } from '../users/db';
+import { dbUserCan } from '../roles/db';
+import { EntityTrack } from '../../../shared/types/entityTypes';
 
 class TracksHandler {
   client: DBClient;
-  log: Logger;
+  logger: Logger;
 
   constructor(opts: ServiceHandlerOpts) {
-    const { client, log } = opts;
+    const { client, logger } = opts;
     this.client = client;
-    this.log = log;
+    this.logger = logger;
   }
 
   createTrack = async (req: Request, res: Response) => {
-    this.log.info(logReq(req));
+    this.logger.logRequest(req);
 
     const userId = req.params.userId;
-    const userRights = await dbUserGetRights(this.client, userId);
-    const userCanCreate = userCan('create', userRights);
-    if (!userCanCreate) {
-      return forbiddenException(res);
-    }
+    const userCanCreate = dbUserCan(this.client, 'create', userId);
+    if (!userCanCreate) return forbiddenException(res);
 
     const teamId = req.params.teamId;
     const userInTeam = await dbUserInTeam(this.client, userId, teamId);
-    if (!userInTeam) {
-      return forbiddenException(res, `User '${userId}' is not in this team '${teamId}'`);
-    }
+    if (!userInTeam) return forbiddenException(res, `User '${userId}' is not in this team '${teamId}'`);
 
     const trackId = createGuid('track');
-    const allowedTracks: TrackType[] = ['CUSTOM', 'TEMPLATE'];
-    const trackType: TrackType = inStringUnionOrThrow(req.body.trackType, allowedTracks, 'A valid track type is required');
+    const params = validateTrackCreateParams(req.body);
+    const utcTimestamp = DateTime.now().toMillis();
 
-    let trackState = {};
-    let trackVersion: void | number;
-    let trackTemplate: void | TrackTemplate;
-
-    if (trackType === 'TEMPLATE') {
-      trackVersion = isNumberOrThrow(req.body.trackVersion, 'Track version is invalid');
-
-      const allowedTemplates: TrackTemplate[] = ['CHILD_MILESTONES', 'PET_MILESTONES'];
-      trackTemplate = inStringUnionOrThrow(req.body.trackTemplate, allowedTemplates, 'A valid track template is required');
-
-      trackState = getInitTrackState(trackTemplate, trackVersion);
-    }
-
-    const name = isStrictStringOrThrow(req.body.name, 'A name is required');
-    const description: Maybe<string> = isStrictStringNullVoidOrThrow(req.body.description, 'A valid team is required');
-    const startDate = isAbsoluteDateOrThrow(req.body.startDate, 'A valid start date is required');
-    const utcTimeCreated = DateTime.now().toMillis();
+    const trackState = params.config.type === 'TEMPLATE'
+      ? getInitTrackState(params.config.template, params.config.version)
+      : {};
 
     const track: EntityTrack = {
+      ...params,
       trackId,
-      trackType,
-      trackTemplate,
-      trackVersion,
-      name,
-      description,
-      startDate,
-      utcTimeCreated,
+      utcTimeCreated: utcTimestamp,
+      utcTimeUpdated: utcTimestamp,
     };
 
     await dbTrackCreate(this.client, teamId, track, trackState);

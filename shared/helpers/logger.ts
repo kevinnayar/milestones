@@ -1,48 +1,36 @@
 import * as chalk from 'chalk';
 import { Request } from 'express';
 
-export function logReq(req: Request) {
-  const messages = [
-    `url=${req.url}`,
-    `method=${req.method}`,
-    `params=${JSON.stringify(req.params)}`,
-    `query=${JSON.stringify(req.query)}`,
-    `body=${JSON.stringify(req.body)}`,
-  ];
-  return messages.join(',');
-}
+export default class Logger {
+  namespace: string;
 
-export type Logger = {
-  info: (..._messages: any) => void;
-  warn: (..._messages: any) => void;
-  error: (_e: Error | string) => void;
-};
-
-export default function logger(namespace: string): Logger {
-  function info(...messages: any) {
-    console.info(chalk.magenta(namespace), chalk.green('[INFO]'), ...messages);
+  constructor(namespace: string) {
+    this.namespace = namespace;
   }
 
-  function warn(...messages: any) {
-    console.info(chalk.magenta(namespace), chalk.yellow('[WARN]'), ...messages);
+  info(...messages: any) {
+    console.log(chalk.magenta(this.namespace), chalk.green('[INFO]'), ...messages);
   }
 
-  function error(e: Error | string) {
-    const err =
-      e instanceof Error
-        ? {
-          name: e.name,
-          message: e.message,
-          stack: e.stack,
-        }
-        : e;
-
-    console.error(chalk.magenta(namespace), chalk.red('[ERROR]'), err);
+  warn(...messages: any) {
+    console.info(chalk.magenta(this.namespace), chalk.yellow('[WARN]'), ...messages);
   }
 
-  return {
-    info,
-    warn,
-    error,
-  };
+  error(e: Error | string) {
+    const err = e instanceof Error ? { name: e.name, message: e.message, stack: e.stack } : e;
+
+    console.error(chalk.magenta(this.namespace), chalk.red('[ERROR]'), err);
+  }
+
+  logRequest(req: Request) {
+    const msgs = [
+      `url=${req.url}`,
+      `method=${req.method}`,
+      `params=${JSON.stringify(req.params)}`,
+      `query=${JSON.stringify(req.query)}`,
+      `body=${JSON.stringify(req.body)}`,
+    ].join(',');
+
+    this.info(msgs);
+  }
 }

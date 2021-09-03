@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import config from '../shared/config/serverConfig';
-import logger from '../shared/helpers/logger';
+import Logger from '../shared/helpers/Logger';
 import app from '../server/api/api';
 import client from '../server/db/db';
 import { ServiceHandlerOpts } from '../server/types';
@@ -13,7 +13,8 @@ type ServiceDefinition = {
 
 try {
   const apiServer = app.listen(config.api.port, () => {
-    logger('api').info(`API Server: ${config.api.baseUrl}`);
+    const logger = new Logger('api');
+    logger.info(`API Server: ${config.api.baseUrl}`);
   });
 
   apiServer.keepAliveTimeout = 0;
@@ -23,25 +24,28 @@ try {
     if (err) throw new Error('problem running api');
 
     for (const name of services) {
-      const source = path.join(__dirname, `../server/services/${name}/api`);
-      /* eslint-disable @typescript-eslint/no-var-requires, import/no-dynamic-require */
-      const { handler } = require(source);
+      const file = `../server/services/${name}/api.ts`;
+      const validFile = fs.existsSync(path.join(__dirname, file)) ? path.join(__dirname, file) : null;
 
-      const service: ServiceDefinition = {
-        name: `api:service:${name}`,
-        handler,
-      };
+      if (validFile) {
+        /* eslint-disable @typescript-eslint/no-var-requires, import/no-dynamic-require */
+        const { handler } = require(validFile);
 
-      const log = logger(service.name);
+        const service: ServiceDefinition = {
+          name: `api:service:${name}`,
+          handler,
+        };
 
-      const opts: ServiceHandlerOpts = {
-        app,
-        client,
-        log,
-      };
+        const opts: ServiceHandlerOpts = {
+          app,
+          client,
+          logger: new Logger(service.name),
+        };
 
-      service.handler(opts);
-      log.info('✅ Ready');
+        service.handler(opts);
+
+        opts.logger.info('✅ Ready');
+      }
     }
   });
 } catch (e) {
