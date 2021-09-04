@@ -10,9 +10,15 @@ import { UserCreateParams, RoleType, EntityUser, UserNoPII } from '../../../shar
 
 export function validUserCreateParams(params: any): UserCreateParams {
   const roleId: RoleType = inStringUnionOrThrow(params.roleId, getValidRoles(), 'A valid role is required');
-  const teamId: Maybe<string> = isStrictStringNullVoidOrThrow(params.teamId, 'Team ID is in an invalid format');
+  const teamId: Maybe<string> = isStrictStringNullVoidOrThrow(
+    params.teamId,
+    'Optional value team ID is in an invalid format',
+  );
+  const imgUrl: Maybe<string> = isStrictStringNullVoidOrThrow(
+    params.imgUrl,
+    'Optional value image URL is in an invalid format',
+  );
   const displayName = isStrictStringOrThrow(params.displayName, 'Display name is required');
-  const imgUrl: Maybe<string> = isStrictStringNullVoidOrThrow(params.imgUrl, 'Image URL is in an invalid format');
   const firstName = isStrictStringOrThrow(params.firstName, 'First name is required');
   const lastName = isStrictStringOrThrow(params.lastName, 'Last name is required');
   const email = isValidEmailOrThrow(params.email, 'A valid email is required');
@@ -35,6 +41,3 @@ export function userRemovePII(user: EntityUser): UserNoPII {
   const { roleId: _r, firstName: _f, lastName: _l, email: _e, ...userNoPII } = user;
   return userNoPII;
 }
-
-
-

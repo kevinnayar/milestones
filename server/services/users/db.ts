@@ -4,7 +4,7 @@ import { EntityUser } from '../../../shared/types/entityTypes';
 export async function dbUserCreate(client: DBClient, user: EntityUser): Promise<string> {
   const query = `
     INSERT INTO users (
-      user_id,
+      id,
       role_id,
       team_id,
       display_name,
@@ -15,7 +15,6 @@ export async function dbUserCreate(client: DBClient, user: EntityUser): Promise<
       utc_time_updated
     )
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-    RETURNING user_id
     ;
   `;
   const values = [

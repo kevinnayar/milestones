@@ -1,7 +1,7 @@
 export type ThemeType = 'light' | 'dark';
 
 export default class ThemeHelper {
-  themeKey = 'SEQUEL_THEME_KEY';
+  themeKey = '__MILESTONES_THEME_KEY__';
   defaultThemeMode: ThemeType = 'light';
   storage: Storage;
 

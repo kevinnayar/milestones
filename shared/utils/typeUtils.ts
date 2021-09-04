@@ -84,21 +84,5 @@ export function isRelativeDateOrThrow(value: any, msg: string): SimpleDate {
   };
 }
 
-// export function isRelativeDateOrThrow(): SimpleDate {
 
-// }
 
-// const milestones: Milestone[] = [
-//   {
-//     id: 'birth',
-//     name: 'Birth! 👶',
-//     description: 'Happy Birthday!',
-//     range: {
-//       start: {
-//         years: 0,
-//         months: 0,
-//         days: 0,
-//       },
-//       stop: null,
-//     },
-//   },

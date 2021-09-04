@@ -1,12 +1,30 @@
-import { EntityTrack } from 'shared/types/entityTypes';
+import { isStrictStringOrThrow } from '../../../shared/utils/typeUtils';
+import { EntityTrack, TrackState, MilestoneAction } from '../../../shared/types/entityTypes';
 import { DBClient } from '../../types';
 
 export async function dbTrackCreate(
   client: DBClient,
   teamId: string,
   track: EntityTrack,
-  trackState: any,
+  trackState: TrackState,
 ): Promise<string> {
+  const milestoneId = isStrictStringOrThrow(trackState.list[0], 'Missing starting milestone');
+  const milestoneAction: MilestoneAction = 'INIT';
+  const trackStateQuery = `
+    INSERT INTO track_state (
+      track_id,
+      milestone_id,
+      milestone_action,
+      track_state,
+      utc_time_created
+    )
+    VALUES ($1, $2, $3, $4, $5)
+    ;
+  `;
+  const trackStateValues = [track.trackId, milestoneId, milestoneAction, trackState, track.utcTimeCreated];
+
+  const trackTemplate = track.config.type === 'TEMPLATE' ? track.config.template : null;
+  const trackVersion = track.config.type === 'TEMPLATE' ? track.config.version : null;
   const trackQuery = `
     INSERT INTO tracks (
       id,
@@ -15,21 +33,21 @@ export async function dbTrackCreate(
       version,
       name,
       description,
-      start_date,
-      utc_time_created
+      utc_time_created,
+      utc_time_updated
     )
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     ;
   `;
   const trackValues = [
     track.trackId,
-    track.trackType,
-    track.trackTemplate,
-    track.trackVersion,
+    track.config.type,
+    trackTemplate,
+    trackVersion,
     track.name,
     track.description,
-    track.startDate,
     track.utcTimeCreated,
+    track.utcTimeUpdated,
   ];
 
   const teamQuery = `
@@ -41,19 +59,6 @@ export async function dbTrackCreate(
     ;
   `;
   const teamValues = [track.trackId, track.utcTimeCreated, teamId];
-
-  const trackStateQuery = `
-    INSERT INTO track_state (
-      track_id,
-      milestone_id,
-      action,
-      state,
-      utc_time_created
-    )
-    VALUES ($1, $2, $3, $4, $5)
-    ;
-  `;
-  const trackStateValues = [track.trackId, '__INIT__', 'CREATE', trackState, track.utcTimeCreated];
 
   await client.tx(async (t) => {
     await t.query(trackQuery, trackValues);

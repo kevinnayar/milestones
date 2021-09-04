@@ -2,14 +2,14 @@ import { Request, Response } from 'express';
 import { DateTime } from 'luxon';
 import { ServiceHandlerOpts, DBClient } from '../../types';
 import Logger from '../../../shared/helpers/Logger';
-import { handleRequest } from '../../api/apiUtils';
+import { handleRequest, forbiddenException, badRequestException } from '../../api/apiUtils';
 import { createGuid } from '../../../shared/utils/baseUtils';
-import { forbiddenException } from '../../api/apiExceptions';
-import { getInitTrackState, validateTrackCreateParams } from './utils';
+import { instantiateTrackState } from '../../../shared/utils/trackStateUtils';
+import { validateTrackCreateParams } from './utils';
 import { dbTrackCreate } from './db';
 import { dbUserInTeam } from '../users/db';
 import { dbUserCan } from '../roles/db';
-import { EntityTrack } from '../../../shared/types/entityTypes';
+import { EntityTrack, TrackState } from '../../../shared/types/entityTypes';
 
 class TracksHandler {
   client: DBClient;
@@ -25,8 +25,8 @@ class TracksHandler {
     this.logger.logRequest(req);
 
     const userId = req.params.userId;
-    const userCanCreate = dbUserCan(this.client, 'create', userId);
-    if (!userCanCreate) return forbiddenException(res);
+    const canCreate = await dbUserCan(this.client, 'create', userId);
+    if (!canCreate) return forbiddenException(res, `User: ${userId} does not have permissions to create a team`);
 
     const teamId = req.params.teamId;
     const userInTeam = await dbUserInTeam(this.client, userId, teamId);
@@ -36,9 +36,9 @@ class TracksHandler {
     const params = validateTrackCreateParams(req.body);
     const utcTimestamp = DateTime.now().toMillis();
 
-    const trackState = params.config.type === 'TEMPLATE'
-      ? getInitTrackState(params.config.template, params.config.version)
-      : {};
+    if (params.config.type === 'CUSTOM') {
+      return badRequestException(res, 'A track type of \'CUSTOM\' is not supported');
+    }
 
     const track: EntityTrack = {
       ...params,
@@ -46,6 +46,12 @@ class TracksHandler {
       utcTimeCreated: utcTimestamp,
       utcTimeUpdated: utcTimestamp,
     };
+
+    const trackState: TrackState = instantiateTrackState(
+      params.startDate,
+      params.config.template,
+      params.config.version,
+    );
 
     await dbTrackCreate(this.client, teamId, track, trackState);
 

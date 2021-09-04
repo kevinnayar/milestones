@@ -12,7 +12,7 @@ export async function dbUserGetRights(client: DBClient, userId: string): Promise
   `;
   const values = [userId];
   const rows = await client.one(query, values);
-  const rightIds: RightType[] = rows.length ? rows[0].right_ids as any : [];
+  const rightIds: RightType[] = rows.right_ids ? rows.right_ids : [];
   return rightIds;
 }
 

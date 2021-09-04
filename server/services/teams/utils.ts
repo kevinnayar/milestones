@@ -6,9 +6,12 @@ export function validTeamCreateParams(params: any): TeamCreateParams {
   const name = isStrictStringOrThrow(params.name, 'Team name is required');
   const description: Maybe<string> = isStrictStringNullVoidOrThrow(
     params.description,
-    'Image URL is in an invalid format',
+    'Optional value description is in an invalid format',
   );
-  const imgUrl: Maybe<string> = isStrictStringNullVoidOrThrow(params.imgUrl, 'Image URL is in an invalid format');
+  const imgUrl: Maybe<string> = isStrictStringNullVoidOrThrow(
+    params.imgUrl,
+    'Optional value image URL is in an invalid format',
+  );
 
   const validParams: TeamCreateParams = {
     name,

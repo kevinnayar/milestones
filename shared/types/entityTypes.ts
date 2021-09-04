@@ -1,8 +1,7 @@
-import { Maybe, SimpleDate } from './baseTypes';
+import { Maybe, SimpleDate, RelativeRange, AbsoluteRange } from './baseTypes';
 
 // roles
 export type RightType = 'create' | 'read' | 'update' | 'delete';
-
 export type RoleType = 'role_owner' | 'role_editor' | 'role_viewer';
 
 export type EntityRole = {
@@ -93,6 +92,27 @@ export type TrackCreateParams = {
   imgUrl?: Maybe<string>;
   startDate: SimpleDate;
 };
+
+// milestones
+export type MilestoneAction = 'INIT' | 'ADD' | 'EDIT' | 'INCOMPLETE' | 'COMPLETE' | 'DELETE';
+export type MilestoneStatus = 'MARKER' | 'INCOMPLETE' | 'COMPLETE';
+
+export type EntityMilestone = {
+  id: string;
+  name: string;
+  description: string;
+  ranges: {
+    relative: RelativeRange;
+    absolute?: AbsoluteRange;
+  };
+  status: MilestoneStatus;
+};
+
+export type TrackState = {
+  list: string[];
+  map: { [k: string]: EntityMilestone };
+};
+
 
 
 

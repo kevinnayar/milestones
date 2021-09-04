@@ -1,14 +1,9 @@
 import { Request, Response } from 'express';
 import { DateTime } from 'luxon';
 import Logger from '../../../shared/helpers/Logger';
-import { handleRequest } from '../../api/apiUtils';
-import { badRequestException } from '../../api/apiExceptions';
+import { handleRequest, forbiddenException } from '../../api/apiUtils';
 import { validTeamCreateParams } from './utils';
-import { createGuid, formatError } from '../../../shared/utils/baseUtils';
-import {
-  isStrictStringOrThrow,
-  isStrictStringNullVoidOrThrow,
-} from '../../../shared/utils/typeUtils';
+import { createGuid } from '../../../shared/utils/baseUtils';
 import { dbTeamCreate } from './db';
 import { dbUserCan } from '../roles/db';
 import { ServiceHandlerOpts, DBClient } from '../../types';
@@ -27,31 +22,27 @@ class TeamsHandler {
   createTeam = async (req: Request, res: Response) => {
     this.logger.logRequest(req);
 
-    try {
-      const userId = req.params.userId;
-      const canCreate = await dbUserCan(this.client, 'create', userId);
-      if (!canCreate) {
-        return badRequestException(res, `User: ${userId} does not have permissions to create a team`);
-      }
-
-      const teamId = createGuid('team');
-      const params = validTeamCreateParams(req.body);
-      const utcTimestamp = DateTime.now().toMillis();
-
-      const team: EntityTeam = {
-        ...params,
-        teamId,
-        trackIds: [],
-        utcTimeCreated: utcTimestamp,
-        utcTimeUpdated: utcTimestamp,
-      };
-
-      await dbTeamCreate(this.client, userId, team);
-
-      return res.status(200).json({ team });
-    } catch (e) {
-      return badRequestException(res, formatError(e));
+    const userId = req.params.userId;
+    const canCreate = await dbUserCan(this.client, 'create', userId);
+    if (!canCreate) {
+      return forbiddenException(res, `User: ${userId} does not have permissions to create a team`);
     }
+
+    const teamId = createGuid('team');
+    const params = validTeamCreateParams(req.body);
+    const utcTimestamp = DateTime.now().toMillis();
+
+    const team: EntityTeam = {
+      ...params,
+      teamId,
+      trackIds: [],
+      utcTimeCreated: utcTimestamp,
+      utcTimeUpdated: utcTimestamp,
+    };
+
+    await dbTeamCreate(this.client, userId, team);
+
+    return res.status(200).json({ team });
   };
 }
 

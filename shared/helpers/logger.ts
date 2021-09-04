@@ -23,14 +23,14 @@ export default class Logger {
   }
 
   logRequest(req: Request) {
-    const msgs = [
-      `url=${req.url}`,
-      `method=${req.method}`,
-      `params=${JSON.stringify(req.params)}`,
-      `query=${JSON.stringify(req.query)}`,
-      `body=${JSON.stringify(req.body)}`,
-    ].join(',');
+    const messages = {
+      url: req.url,
+      method: req.method,
+      params: JSON.stringify(req.params),
+      query: JSON.stringify(req.query),
+      body: JSON.stringify(req.body),
+    };
 
-    this.info(msgs);
+    console.log(chalk.magenta(this.namespace), chalk.cyan('[REQUEST]'), messages);
   }
 }
