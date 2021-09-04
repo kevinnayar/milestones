@@ -1,0 +1,160 @@
+@import "./reset.css";
+
+$gray-100: #F7FAFC;
+$gray-200: #EDF2F7;
+$gray-300: #E2E8F0;
+$gray-400: #CBD5E0;
+$gray-500: #A0AEC0;
+$gray-600: #718096;
+$gray-700: #4A5568;
+$gray-800: #2D3748;
+$gray-900: #1A202C;
+
+
+$color-blue: #2196f3;
+$color-white: $gray-100;
+$color-black: $gray-900;
+
+$color-error: #f44336;
+$color-warning: #ff9800;
+$color-info: $color-blue;
+$color-success: #4caf50;
+
+$font-montserrat: Montserrat, sans-serif;
+$font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, 
+            Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+$font-mono: Courier, monospace, monospace;
+
+$transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+
+body {
+  font-family: $font-system;
+  font-size: 62.5%;
+  margin: 0;
+  padding: 0;
+  transition: $transition;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+}
+
+h1 {
+  font-size: 3.2em;
+  margin-bottom: 0.6em;
+}
+
+h2 {
+  font-size: 2.4em;
+  margin-bottom: 0.45em;
+}
+
+h3 {
+  font-size: 2em;
+  margin-bottom: 0.33em;
+}
+
+h4 {
+  font-size: 1.8em;
+  margin-bottom: 0.2em;
+}
+
+h5 {
+  font-size: 1.6em;
+  margin-bottom: 0.15em;
+}
+
+h6 {
+  font-size: 1.3em;
+  margin-bottom: 0.15em;
+}
+
+p, ul li {
+  font-size: 1.3em;
+  margin-bottom: 0.15em;
+}
+
+blockquote {
+  margin-left: 0;
+  padding-left: 48px;
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none;
+  transition: $transition;
+  color: $color-blue;
+  
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+button {
+  transition: $transition;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+}
+
+// #EDF0F3 -> 200
+// #39404F -> 700
+
+body.light {
+  $color-bg: $gray-100;
+  $color-subtle-bg: $gray-200;
+
+  $color-text: $gray-800;
+  $color-subtle-text: $gray-600;
+
+  $color-border: $gray-900;
+
+  background: $color-bg;
+  color: $color-text;
+
+  // imports
+  @import '../../components/AppHeader/app-header.scss';
+  @import '../../components/AppContent/app-content.scss';
+  @import '../../components/AppFooter/app-footer.scss';
+
+  @import '../../components/ThemeSwitch/theme-switch.scss';
+  @import '../../components/Branding/branding.scss';
+  @import '../../components/MainNav/main-nav.scss';
+  @import '../../components/Alert/alert.scss';
+  @import '../../components/DataViewer/data-viewer.scss';
+}
+
+body.dark {
+  $color-bg: $gray-800;
+  $color-subtle-bg: $gray-700;
+
+  $color-text: $gray-300;
+  $color-subtle-text: $gray-500;
+  
+  $color-border: $gray-400;
+
+  background: $color-bg;
+  color: $color-text;
+  
+  // imports
+  @import '../../components/AppHeader/app-header.scss';
+  @import '../../components/AppContent/app-content.scss';
+  @import '../../components/AppFooter/app-footer.scss';
+
+  @import '../../components/ThemeSwitch/theme-switch.scss';
+  @import '../../components/Branding/branding.scss';
+  @import '../../components/MainNav/main-nav.scss';
+  @import '../../components/Alert/alert.scss';
+  @import '../../components/DataViewer/data-viewer.scss';
+}
+

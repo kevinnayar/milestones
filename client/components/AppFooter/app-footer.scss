@@ -1,0 +1,24 @@
+.app-footer {
+  position: fixed;
+  padding: 0 4%;
+  margin: 0 auto;
+  height: 36px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-subtle-bg;
+  color: $color-text;
+  left: 0;
+  bottom: 0;
+  transition: $transition;
+
+  p {
+    opacity: 0.5;
+
+    span {
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+  }
+}

@@ -1,0 +1,34 @@
+.theme-switch {
+  display: flex;
+  align-items: center;
+
+  &__toggle {
+    height: 18px;
+    border-radius: 18px;
+    position: relative;
+    width: 40px;
+    cursor: pointer;
+    background-color: rgba($color-bg, 0.2);
+  }
+
+  &__notch {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    cursor: pointer;
+    position: absolute;
+    left: 2px;
+    bottom: 2px;
+    right: 2px;
+    top: 2px;
+    transition: $transition;
+    background-color: $color-blue;
+    box-shadow: 0 0 10px $color-blue;
+  }
+
+  &--dark {
+    .theme-switch__notch {
+      transform: translateX(22px);
+    }  
+  }
+}

@@ -1,0 +1,29 @@
+.main-nav {
+  margin-right: 24px;
+  display: flex;
+
+  a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 24px;
+    padding-right: 8px;
+
+    i {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    p {
+      color: $color-bg;
+    }
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+}

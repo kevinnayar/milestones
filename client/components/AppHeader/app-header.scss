@@ -1,0 +1,15 @@
+.app-header {
+  position: fixed;
+  padding: 0 4%;
+  height: 72px;
+  width: 100%;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  margin: 0;
+  background: $color-text;
+  color: $color-bg;
+  left: 0;
+  top: 0;
+  transition: $transition;
+}
