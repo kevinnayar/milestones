@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon';
 import { SimpleDate } from '../types/baseTypes';
-import { TrackTemplate, EntityMilestone, TrackState } from '../types/entityTypes';
+import { isDefinedOrThrow } from './typeUtils';
+import { TrackTemplate, EntityMilestone, TrackAction, StartActionPayload, TrackState } from '../types/entityTypes';
 
 const milestonesChildV1: EntityMilestone[] = [
   {
@@ -220,6 +221,27 @@ const milestonesPetV1: EntityMilestone[] = [
       },
     },
   },
+  {
+    id: 'house-training',
+    name: 'House Training',
+    description:
+      'With consistent house training your pup shouldn’t be having accidents in the house once they’re two to three months old.',
+    status: 'INCOMPLETE',
+    ranges: {
+      relative: {
+        start: {
+          years: 0,
+          months: 1,
+          days: 0,
+        },
+        stop: {
+          years: 0,
+          months: 3,
+          days: 0,
+        },
+      },
+    },
+  },
 ];
 
 type StaticTrackState = {
@@ -229,9 +251,27 @@ type StaticTrackState = {
   };
 };
 
-const MILESTONE_ID_START = 'MILESTONE_ID_START';
+const STATIC_TRACK_STATE: StaticTrackState = {
+  CHILD_MILESTONES: {
+    v1: milestonesChildV1,
+  },
+  PET_MILESTONES: {
+    v1: milestonesPetV1,
+  },
+};
 
-function addStartToTrackStateMilestones(milestones: EntityMilestone[]): EntityMilestone[] {
+export function getMilestonesForTemplate(template: TrackTemplate, version: number): EntityMilestone[] {
+  const byTemplate = STATIC_TRACK_STATE[template];
+  if (!byTemplate) throw new Error(`Unsupported track state for template: '${template}'`);
+
+  const byVersion = byTemplate[`v${version}`];
+  if (!byVersion) throw new Error(`Unsupported track state for template: '${template}' and version: '${version}'`);
+
+  return byVersion;
+}
+
+export function addStartToMilestones(milestones: EntityMilestone[]): EntityMilestone[] {
+  const MILESTONE_ID_START = 'START';
   const start: EntityMilestone = {
     id: MILESTONE_ID_START,
     name: 'Start',
@@ -251,63 +291,146 @@ function addStartToTrackStateMilestones(milestones: EntityMilestone[]): EntityMi
   return [start, ...milestones];
 }
 
-const STATIC_TRACK_STATE: StaticTrackState = {
-  CHILD_MILESTONES: {
-    v1: addStartToTrackStateMilestones(milestonesChildV1),
-  },
-  PET_MILESTONES: {
-    v1: addStartToTrackStateMilestones(milestonesPetV1),
-  },
-};
+export function addAbsoluteDatesToMilestone(startDate: SimpleDate, milestone: EntityMilestone): EntityMilestone {
+  const now = DateTime.local(startDate.years, startDate.months, startDate.days);
+  const start = now.plus(milestone.ranges.relative.start).toMillis();
+  const stop = milestone.ranges.relative.stop !== null
+    ? now.plus(milestone.ranges.relative.stop).toMillis()
+    : null;
 
-function getTemplateTrackState(template: TrackTemplate, version: number): EntityMilestone[] {
-  const byTemplate = STATIC_TRACK_STATE[template];
-  if (!byTemplate) throw new Error(`Unsupported track state for template: '${template}'`);
+  const updated: EntityMilestone = {
+    ...milestone,
+    ranges: {
+      ...milestone.ranges,
+      absolute: {
+        start,
+        stop,
+      },
+    },
+  };
 
-  const byVersion = byTemplate[`v${version}`];
-  if (!byVersion) throw new Error(`Unsupported track state for template: '${template}' and version: '${version}'`);
-
-  return byVersion;
+  return updated;
 }
 
-function addAbsoluteDatesToTrackState(startDate: SimpleDate, milestones: EntityMilestone[]): TrackState {
-  const now = DateTime.local(startDate.years, startDate.months, startDate.days);
-
-  const list: string[] = [];
-  const map: { [k: string]: EntityMilestone } = {};
+export function getTrackStateWithAbsoluteDates(startDate: SimpleDate, milestones: EntityMilestone[]): TrackState {
+  const ids: string[] = [];
+  const idMap: { [k: string]: EntityMilestone } = {};
 
   for (const m of milestones) {
-    const start = now.plus(m.ranges.relative.start).toMillis();
-    const stop = m.ranges.relative.stop !== null
-      ? now.plus(m.ranges.relative.stop).toMillis()
-      : null;
-
-    const updated: EntityMilestone = {
-      ...m,
-      ranges: {
-        ...m.ranges,
-        absolute: {
-          start,
-          stop,
-        },
-      },
-    };
-
-    list.push(m.id);
-    map[m.id] = updated;
+    const milestone: EntityMilestone = addAbsoluteDatesToMilestone(startDate, m);
+    ids.push(m.id);
+    idMap[m.id] = milestone;
   }
 
   return {
-    list,
-    map,
+    startDate,
+    ids,
+    idMap,
   };
 }
 
-export function instantiateTrackState(startDate: SimpleDate, template: TrackTemplate, version: number): TrackState {
-  const milestones = getTemplateTrackState(template, version);
-  const trackState = addAbsoluteDatesToTrackState(startDate, milestones);
+export function instantiateTrackState(startingActionPayload: StartActionPayload): TrackState {
+  const { startDate, template, version } = startingActionPayload;
+  const milestonesBase = getMilestonesForTemplate(template, version);
+  const milestonesWithStart = addStartToMilestones(milestonesBase);
+  const trackState = getTrackStateWithAbsoluteDates(startDate, milestonesWithStart);
   return trackState;
 }
+
+export function trackStateReducer(action: TrackAction, state: void | TrackState): TrackState {
+  const trackState: TrackState = isDefinedOrThrow(
+    action.type === 'START' ? instantiateTrackState(action.payload) : state,
+    'Track State Reducer - track state is not defined',
+  );
+
+  switch (action.type) {
+    case 'START': {
+      return trackState;
+    }
+
+    case 'ADD': {
+      const newState = { ...trackState };
+      newState.ids.push(action.payload.milestone.id);
+      newState.idMap[action.payload.milestone.id] = action.payload.milestone;
+      // reorder
+      return newState;
+    }
+
+    case 'UPDATE': {
+      const found = trackState.idMap[action.payload.milestone.id];
+
+      if (found) {
+        const newState = { ...trackState };
+        newState.ids.push(action.payload.milestone.id);
+        newState.idMap[action.payload.milestone.id] = action.payload.milestone;
+        // reorder
+        return newState;
+      }
+
+      return trackState;
+    }
+
+    case 'DELETE': {
+      const found = trackState.idMap[action.payload.milestoneId];
+
+      if (found) {
+        const newState = { ...trackState };
+        newState.ids = trackState.ids.filter(id => id !== action.payload.milestoneId);
+        delete newState.idMap[action.payload.milestoneId];
+        // reorder
+        return newState;
+      }
+
+      return trackState;
+    }
+
+    case 'INCOMPLETE': {
+      const found = trackState.idMap[action.payload.milestoneId];
+
+      if (found) {
+        const newState: TrackState = {
+          ...trackState,
+          idMap: {
+            ...trackState.idMap,
+            [action.payload.milestoneId]: {
+              ...found,
+              status: 'INCOMPLETE',
+            },
+          },
+        };
+        return newState;
+      }
+
+      return trackState;
+    }
+
+    case 'COMPLETE': {
+      const found = trackState.idMap[action.payload.milestoneId];
+
+      if (found) {
+        const newState: TrackState = {
+          ...trackState,
+          idMap: {
+            ...trackState.idMap,
+            [action.payload.milestoneId]: {
+              ...found,
+              status: 'COMPLETE',
+            },
+          },
+        };
+        return newState;
+      }
+
+      return trackState;
+    }
+
+    default: {
+      throw new Error('Track State Reducer - invalid action type');
+    }
+  }
+}
+
+
 
 
 

@@ -26,7 +26,7 @@ function validateTemplateConfig(config: any): TrackConfigTemplate | TrackConfigC
     }
     case 'TEMPLATE': {
       const allowedTemplates: TrackTemplate[] = ['CHILD_MILESTONES', 'PET_MILESTONES'];
-      const template = inStringUnionOrThrow(config.trackTemplate, allowedTemplates, 'A valid track template is required');
+      const template = inStringUnionOrThrow(config.template, allowedTemplates, 'A valid track template is required');
       const version = isNumberOrThrow(config.version, 'Track version is invalid');
       return {
         type: 'TEMPLATE',

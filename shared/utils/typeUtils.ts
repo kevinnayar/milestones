@@ -53,6 +53,11 @@ export function isNumberInRangeOrThrow(value: any, rangeMin: number, rangeMax: n
   return num;
 }
 
+export function isDefinedOrThrow(value: any, msg: string) {
+  if (value === undefined) throw new Error(msg);
+  return value;
+}
+
 export function isSimpleDateOrThrow(value: any, msg: string): SimpleDate {
   if (value.days === undefined) throw new Error(`${msg} - day not defined`);
   if (value.months === undefined) throw new Error(`${msg} - month not defined`);

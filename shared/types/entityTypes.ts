@@ -94,7 +94,6 @@ export type TrackCreateParams = {
 };
 
 // milestones
-export type MilestoneAction = 'INIT' | 'ADD' | 'EDIT' | 'INCOMPLETE' | 'COMPLETE' | 'DELETE';
 export type MilestoneStatus = 'MARKER' | 'INCOMPLETE' | 'COMPLETE';
 
 export type EntityMilestone = {
@@ -108,9 +107,65 @@ export type EntityMilestone = {
   status: MilestoneStatus;
 };
 
+
+export type StartActionPayload = {
+  startDate: SimpleDate;
+  template: TrackTemplate;
+  version: number;
+};
+
+export type TrackActionStart = {
+  type: 'START',
+  payload: StartActionPayload,
+};
+
+export type TrackActionAdd = {
+  type: 'ADD';
+  payload: {
+    milestone: EntityMilestone,
+  };
+};
+
+export type TrackActionUpdate = {
+  type: 'UPDATE';
+  payload: {
+    milestone: EntityMilestone;
+  };
+};
+
+export type TrackActionDelete = {
+  type: 'DELETE';
+  payload: {
+    milestoneId: string;
+  };
+};
+
+export type TrackActionIncomplete = {
+  type: 'INCOMPLETE';
+  payload: {
+    milestoneId: string;
+  };
+};
+
+export type TrackActionComplete = {
+  type: 'COMPLETE';
+  payload: {
+    milestoneId: string;
+  };
+};
+
+export type TrackAction =
+  | TrackActionStart
+  | TrackActionAdd
+  | TrackActionUpdate
+  | TrackActionDelete
+  | TrackActionIncomplete
+  | TrackActionComplete;
+
 export type TrackState = {
-  list: string[];
-  map: { [k: string]: EntityMilestone };
+  startDate: SimpleDate;
+  ids: string[];
+  idMap: { [k: string]: EntityMilestone };
 };
 
 
