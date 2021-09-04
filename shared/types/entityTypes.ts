@@ -102,11 +102,17 @@ export type EntityMilestone = {
   description: string;
   ranges: {
     relative: RelativeRange;
-    absolute?: AbsoluteRange;
+    absolute: null | AbsoluteRange;
   };
   status: MilestoneStatus;
 };
 
+export type ResolvedMilestone = EntityMilestone & {
+  ranges: {
+    relative: RelativeRange;
+    absolute: AbsoluteRange;
+  }
+};
 
 export type StartActionPayload = {
   startDate: SimpleDate;
@@ -133,8 +139,8 @@ export type TrackActionUpdate = {
   };
 };
 
-export type TrackActionDelete = {
-  type: 'DELETE';
+export type TrackActionRemove = {
+  type: 'REMOVE';
   payload: {
     milestoneId: string;
   };
@@ -158,14 +164,14 @@ export type TrackAction =
   | TrackActionStart
   | TrackActionAdd
   | TrackActionUpdate
-  | TrackActionDelete
+  | TrackActionRemove
   | TrackActionIncomplete
   | TrackActionComplete;
 
 export type TrackState = {
   startDate: SimpleDate;
   ids: string[];
-  idMap: { [k: string]: EntityMilestone };
+  idMap: { [k: string]: ResolvedMilestone };
 };
 
 

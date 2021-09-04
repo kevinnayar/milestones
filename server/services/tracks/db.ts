@@ -1,27 +1,26 @@
-import { isStrictStringOrThrow } from '../../../shared/utils/typeUtils';
-import { EntityTrack, TrackState, MilestoneAction } from '../../../shared/types/entityTypes';
+import { EntityTrack, TrackState, TrackActionStart } from '../../../shared/types/entityTypes';
 import { DBClient } from '../../types';
 
 export async function dbTrackCreate(
   client: DBClient,
   teamId: string,
   track: EntityTrack,
+  trackActionId: string,
+  trackAction: TrackActionStart,
   trackState: TrackState,
 ): Promise<string> {
-  const milestoneId = isStrictStringOrThrow(trackState.list[0], 'Missing starting milestone');
-  const milestoneAction: MilestoneAction = 'INIT';
-  const trackStateQuery = `
-    INSERT INTO track_state (
+  const trackActionQuery = `
+    INSERT INTO track_actions (
+      id,
       track_id,
-      milestone_id,
-      milestone_action,
-      track_state,
+      action,
+      state,
       utc_time_created
     )
     VALUES ($1, $2, $3, $4, $5)
     ;
   `;
-  const trackStateValues = [track.trackId, milestoneId, milestoneAction, trackState, track.utcTimeCreated];
+  const trackActionValues = [trackActionId, track.trackId, trackAction, trackState, track.utcTimeCreated];
 
   const trackTemplate = track.config.type === 'TEMPLATE' ? track.config.template : null;
   const trackVersion = track.config.type === 'TEMPLATE' ? track.config.version : null;
@@ -62,7 +61,7 @@ export async function dbTrackCreate(
 
   await client.tx(async (t) => {
     await t.query(trackQuery, trackValues);
-    await t.query(trackStateQuery, trackStateValues);
+    await t.query(trackActionQuery, trackActionValues);
     await t.query(teamQuery, teamValues);
   });
 

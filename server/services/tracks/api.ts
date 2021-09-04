@@ -4,12 +4,12 @@ import { ServiceHandlerOpts, DBClient } from '../../types';
 import Logger from '../../../shared/helpers/Logger';
 import { handleRequest, forbiddenException, badRequestException } from '../../api/apiUtils';
 import { createGuid } from '../../../shared/utils/baseUtils';
-import { instantiateTrackState } from '../../../shared/utils/trackStateUtils';
+import { trackStateReducer } from '../../../shared/utils/trackStateUtils';
 import { validateTrackCreateParams } from './utils';
 import { dbTrackCreate } from './db';
 import { dbUserInTeam } from '../users/db';
 import { dbUserCan } from '../roles/db';
-import { EntityTrack, TrackState } from '../../../shared/types/entityTypes';
+import { EntityTrack, TrackState, TrackActionStart } from '../../../shared/types/entityTypes';
 
 class TracksHandler {
   client: DBClient;
@@ -47,13 +47,20 @@ class TracksHandler {
       utcTimeUpdated: utcTimestamp,
     };
 
-    const trackState: TrackState = instantiateTrackState(
-      params.startDate,
-      params.config.template,
-      params.config.version,
-    );
+    const trackActionId = createGuid('trackAction');
 
-    await dbTrackCreate(this.client, teamId, track, trackState);
+    const trackAction: TrackActionStart = {
+      type: 'START',
+      payload: {
+        startDate: params.startDate,
+        template: params.config.template,
+        version: params.config.version,
+      },
+    };
+
+    const trackState: TrackState = trackStateReducer(trackAction);
+
+    await dbTrackCreate(this.client, teamId, track, trackActionId, trackAction, trackState);
 
     return res.status(200).json({ track });
   };

@@ -53,16 +53,16 @@ CREATE TABLE IF NOT EXISTS tracks (
   utc_time_updated BIGINT
 );
 
--- track_state
-CREATE TABLE IF NOT EXISTS track_state (
+-- track_actions
+CREATE TABLE IF NOT EXISTS track_actions (
+  id VARCHAR NOT NULL UNIQUE,
   track_id VARCHAR NOT NULL,
-  milestone_id VARCHAR NOT NULL, -- 'START' | 'STOP' | id
-  milestone_action VARCHAR NOT NULL, -- ADD | EDIT | INCOMPLETE | COMPLETE | DELETE
-  track_state JSONB NOT NULL,
+  action JSONB NOT NULL,
+  state JSONB NOT NULL,
   utc_time_created BIGINT NOT NULL
 );
 
-CREATE INDEX ON track_state ("track_id");
-CREATE INDEX ON track_state ("track_id", "utc_time_created");
+CREATE INDEX ON track_actions ("track_id");
+CREATE INDEX ON track_actions ("track_id", "utc_time_created");
 
 
