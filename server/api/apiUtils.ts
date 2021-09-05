@@ -1,4 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
+import * as jwt from 'express-jwt';
+import * as jwks from 'jwks-rsa';
+import config from '../../shared/config/serverConfig';
 import { formatError } from '../../shared/utils/baseUtils';
 
 type StatusMap = {
@@ -36,6 +39,7 @@ const STATUSES: StatusMap = {
 };
 
 function baseException(statusCode: number, res: Response, error: string): Response {
+  console.log('-- here --');
   return res.status(statusCode).json({ error });
 }
 
@@ -75,14 +79,38 @@ export function internalServerErrorException(res: Response, errorMaybe?: string)
   return baseException(code, res, error);
 }
 
+const { audience, issuer } = config.auth;
+
+const jwtCheck = jwt({
+  secret: jwks.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: `${issuer}.well-known/jwks.json`,
+  }),
+  audience,
+  issuer,
+  algorithms: ['RS256'],
+});
+
+const publicRoutes: { [k: string]: true } = {
+  '/api/v1/users/create': true,
+};
+
 type ExpressRouteFn = (_req: Request, _res: Response, _next: NextFunction) => any;
 
 export function handleRequest(route: ExpressRouteFn): ExpressRouteFn {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const isPublic = Boolean(publicRoutes[req.route.path]);
+      if (!isPublic) jwtCheck(req, res, next);
       await route(req, res, next);
     } catch (e) {
-      return badRequestException(res, formatError(e));
+      if (res.headersSent) {
+        e.statusCode = 500;
+        return next(e);
+      }
+      return badRequestException(res, e);
     }
   };
 }

@@ -19,6 +19,11 @@ class UsersHandler {
     this.logger = logger;
   }
 
+  getSelf = async (req: Request, res: Response) => {
+    this.logger.logRequest(req);
+    return res.status(200).json({ user: 'hello' });
+  };
+
   createUser = async (req: Request, res: Response) => {
     this.logger.logRequest(req);
 
@@ -42,7 +47,10 @@ class UsersHandler {
 
       const teamExists = await dbTeamExists(this.client, params.teamId);
       if (!teamExists) {
-        return badRequestException(res, `Cannot created user as viewer/editor because team: '${params.teamId}' doesn't exist`);
+        return badRequestException(
+          res,
+          `Cannot created user as viewer/editor because team: '${params.teamId}' doesn't exist`,
+        );
       }
     }
 
@@ -65,5 +73,6 @@ export function handler(opts: ServiceHandlerOpts) {
   const { app } = opts;
   const users = new UsersHandler(opts);
 
+  app.get('/api/v1/users/me', handleRequest(users.getSelf));
   app.post('/api/v1/users/create', handleRequest(users.createUser));
 }

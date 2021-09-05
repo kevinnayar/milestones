@@ -6,7 +6,12 @@ import config from '../shared/config/clientConfig';
 import './assets/styles/main.scss';
 
 ReactDOM.render(
-  <Auth0Provider domain={config.auth.domain} clientId={config.auth.clientId} redirectUri={window.location.origin}>
+  <Auth0Provider
+    domain={config.auth.domain}
+    clientId={config.auth.clientId}
+    redirectUri={window.location.origin}
+    audience={config.auth.audience}
+  >
     <App />
   </Auth0Provider>,
   document.getElementById('root'),
