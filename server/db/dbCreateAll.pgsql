@@ -29,6 +29,16 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE INDEX ON users ("email");
 
+CREATE TABLE IF NOT EXISTS user_credentials (
+  user_id VARCHAR NOT NULL UNIQUE,
+  email VARCHAR NOT NULL,
+  hashed_password VARCHAR NOT NULL,
+  utc_time_created BIGINT NOT NULL,
+  utc_time_updated BIGINT
+);
+
+CREATE INDEX ON user_credentials ("email");
+
 -- teams
 CREATE TABLE IF NOT EXISTS teams (
   id VARCHAR NOT NULL UNIQUE,

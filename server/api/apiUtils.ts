@@ -1,100 +1,91 @@
+import * as jwt from 'jsonwebtoken';
+import { DateTime } from 'luxon';
 import { Request, Response, NextFunction } from 'express';
-import * as jwt from 'express-jwt';
-import * as jwks from 'jwks-rsa';
-import config from '../../shared/config/serverConfig';
 import { formatError } from '../../shared/utils/baseUtils';
+import { badRequestException, unauthorizedException } from './apiExceptions';
+import { isStrictStringOrThrow } from '../../shared/utils/typeUtils';
+import config from '../../shared/config/serverConfig';
 
-type StatusMap = {
-  [k: string]: {
-    code: number;
-    name: string;
+export function createUserSession(req: Request, userId: string) {
+  // @ts-ignore
+  req.session.userId = userId;
+}
+
+export function destroyUserSession(req: Request) {
+  // @ts-ignore
+  req.session.destroy();
+}
+
+type JwtPayload = {
+  sub: string;
+  iss: string;
+  aud: string;
+  iat: number;
+  exp?: number;
+};
+
+export function createUserToken(userId: string, utcTimestamp: number) {
+  const oneDay = 1000 * 60 * 60 * 24;
+  const expiresIn = oneDay * 5;
+
+  const { jwtSecret, issuer, audience } = config.auth;
+
+  const payload: JwtPayload = {
+    sub: userId,
+    iss: issuer,
+    aud: audience,
+    iat: utcTimestamp,
   };
-};
 
-const STATUSES: StatusMap = {
-  badRequestException: {
-    code: 400,
-    name: 'Bad Request',
-  },
-  unauthorizedException: {
-    code: 401,
-    name: 'Uauthorized',
-  },
-  forbiddenException: {
-    code: 403,
-    name: 'Forbidden',
-  },
-  notFoundException: {
-    code: 404,
-    name: 'Not Found',
-  },
-  conflictException: {
-    code: 409,
-    name: 'Conflict',
-  },
-  internalServerErrorException: {
-    code: 500,
-    name: 'Internal Server Error',
-  },
-};
-
-function baseException(statusCode: number, res: Response, error: string): Response {
-  console.log('-- here --');
-  return res.status(statusCode).json({ error });
+  const token = jwt.sign(payload, jwtSecret, {
+    expiresIn,
+  });
+  return token;
 }
 
-export function badRequestException(res: Response, errorMaybe?: string) {
-  const { code, name } = STATUSES.badRequestException;
-  const error = errorMaybe || name;
-  return baseException(code, res, error);
+export function getUserToken(req: Request): null | string {
+  if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+    const tokenMaybe = req.headers.authorization.split(' ')[1];
+    return tokenMaybe || null;
+  }
+  return null;
 }
 
-export function unauthorizedException(res: Response, errorMaybe?: string) {
-  const { code, name } = STATUSES.unauthorizedException;
-  const error = errorMaybe || name;
-  return baseException(code, res, error);
+function verifyUserTokenAndSession(req: Request, res: Response) {
+  const token = getUserToken(req);
+  if (!token) return unauthorizedException(res, 'No token');
+
+  const session = req.session;
+  if (!session) return unauthorizedException(res, 'No session');
+
+  // @ts-ignore
+  const userId = isStrictStringOrThrow(session.userId, 'No user session');
+
+  try {
+    const { jwtSecret, issuer, audience } = config.auth;
+    const verified: JwtPayload = jwt.verify(token, jwtSecret) as any;
+
+    if (verified.sub !== userId || verified.iss !== issuer || verified.aud !== audience) {
+      return unauthorizedException(res, 'Token verification failed');
+    }
+
+    if (!verified.exp || DateTime.now().toMillis() > verified.exp) {
+      destroyUserSession(req);
+      return unauthorizedException(res, 'Token expired');
+    }
+  } catch (e) {
+    destroyUserSession(req);
+    return unauthorizedException(res, 'Invalid token');
+  }
+
+  // @ts-ignore
+  req.userId = userId;
 }
-
-export function forbiddenException(res: Response, errorMaybe?: string) {
-  const { code, name } = STATUSES.forbiddenException;
-  const error = errorMaybe || name;
-  return baseException(code, res, error);
-}
-
-export function notFoundException(res: Response, errorMaybe?: string) {
-  const { code, name } = STATUSES.notFoundException;
-  const error = errorMaybe || name;
-  return baseException(code, res, error);
-}
-
-export function conflictException(res: Response, errorMaybe?: string) {
-  const { code, name } = STATUSES.conflictException;
-  const error = errorMaybe || name;
-  return baseException(code, res, error);
-}
-
-export function internalServerErrorException(res: Response, errorMaybe?: string) {
-  const { code, name } = STATUSES.internalServerErrorException;
-  const error = errorMaybe || name;
-  return baseException(code, res, error);
-}
-
-const { audience, issuer } = config.auth;
-
-const jwtCheck = jwt({
-  secret: jwks.expressJwtSecret({
-    cache: true,
-    rateLimit: true,
-    jwksRequestsPerMinute: 5,
-    jwksUri: `${issuer}.well-known/jwks.json`,
-  }),
-  audience,
-  issuer,
-  algorithms: ['RS256'],
-});
 
 const publicRoutes: { [k: string]: true } = {
-  '/api/v1/users/create': true,
+  '/api/v1/users/register': true,
+  '/api/v1/users/login': true,
+  '/api/v1/users/logout': true,
 };
 
 type ExpressRouteFn = (_req: Request, _res: Response, _next: NextFunction) => any;
@@ -102,26 +93,20 @@ type ExpressRouteFn = (_req: Request, _res: Response, _next: NextFunction) => an
 export function handleRequest(route: ExpressRouteFn): ExpressRouteFn {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const isPublic = Boolean(publicRoutes[req.route.path]);
-      if (!isPublic) jwtCheck(req, res, next);
+      const isPrivateRoute = Boolean(!publicRoutes[req.route.path]);
+      if (isPrivateRoute) verifyUserTokenAndSession(req, res);
       await route(req, res, next);
     } catch (e) {
-      if (res.headersSent) {
-        e.statusCode = 500;
-        return next(e);
-      }
-      return badRequestException(res, e);
+      if (res.headersSent) return next(e);
+      return badRequestException(res, formatError(e));
     }
   };
 }
 
-
-
-
-
-
-
-
-
-
-
+// export function setUserTokenAsCookie(res: Response, token: string) {
+//   res.cookie('usertoken', token, {
+//     expires: new Date(Date.now() + auth.expiresIn),
+//     httpOnly: true,
+//     // sameSite: true,
+//   });
+// }

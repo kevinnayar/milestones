@@ -6,7 +6,7 @@ dotenv.config();
 // Config should not be imported directly -> use `clientConfig` instead
 // Config should not be imported directly -> use `serverConfig` instead
 
-const msg = (id: string) => `No ${id} defined`;
+const msg = (key: string) => `No "${key}" defined`;
 
 export default {
   app: {
@@ -22,17 +22,19 @@ export default {
     baseUrl: `${process.env.API_PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,
   },
   db: {
-    database: isStringOrThrow(process.env.PGDATABASE,  msg('db.database')),
-    host: isStringOrThrow(process.env.PGHOST,  msg('db.host')),
+    database: isStringOrThrow(process.env.PGDATABASE, msg('db.database')),
+    host: isStringOrThrow(process.env.PGHOST, msg('db.host')),
     port: isNumberOrThrow(parseInt(process.env.PGPORT || '5432', 10), msg('db.port')),
-    user: isStringOrThrow(process.env.PGUSER,  msg('db.user')),
-    baseUrl: `${process.env.PGHOST}://${process.env.PGDATABASE}:${process.env.PGPORT}`,
+    user: isStringOrThrow(process.env.PGUSER, msg('db.user')),
+  },
+  redis: {
+    host: isStringOrThrow(process.env.REDIS_HOST, msg('redis.host')),
+    port: isNumberOrThrow(parseInt(process.env.REDIS_PORT || '6379', 10), msg('redis.port')),
   },
   auth: {
-    domain: isStringOrThrow(process.env.AUTH0_DOMAIN, msg('auth.domain')),
-    clientId: isStringOrThrow(process.env.AUTH0_CLIENT_ID, msg('auth.clientId')),
-    audience: isStringOrThrow(process.env.AUTH0_AUDIENCE, msg('auth.audience')),
-    issuer: isStringOrThrow(process.env.AUTH0_ISSUER, msg('auth.issuer')),
+    jwtSecret: isStringOrThrow(process.env.AUTH_JWT_SECRET, msg('auth.jwtSecret')),
+    issuer: isStringOrThrow(process.env.AUTH_ISSUER, msg('auth.issuer')),
+    audience: isStringOrThrow(process.env.AUTH_AUDIENCE, msg('auth.audience')),
   },
 };
 

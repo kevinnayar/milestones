@@ -2,13 +2,14 @@ import { Request, Response } from 'express';
 import { DateTime } from 'luxon';
 import { ServiceHandlerOpts, DBClient } from '../../types';
 import Logger from '../../../shared/helpers/Logger';
-import { handleRequest, forbiddenException, badRequestException } from '../../api/apiUtils';
+import { handleRequest } from '../../api/apiUtils';
+import { forbiddenException, badRequestException } from '../../api/apiExceptions';
 import { createGuid } from '../../../shared/utils/baseUtils';
 import { trackStateReducer } from '../../../shared/utils/trackStateUtils';
 import { validateTrackCreateParams } from './utils';
 import { dbTrackCreate } from './db';
 import { dbUserInTeam } from '../users/db';
-import { dbUserCan } from '../roles/db';
+import { dbRolesUserCan } from '../roles/db';
 import { EntityTrack, TrackState, TrackActionStart } from '../../../shared/types/entityTypes';
 
 class TracksHandler {
@@ -25,7 +26,7 @@ class TracksHandler {
     this.logger.logRequest(req);
 
     const userId = req.params.userId;
-    const canCreate = await dbUserCan(this.client, 'create', userId);
+    const canCreate = await dbRolesUserCan(this.client, 'right_create', userId);
     if (!canCreate) return forbiddenException(res, `User: ${userId} does not have permissions to create a team`);
 
     const teamId = req.params.teamId;

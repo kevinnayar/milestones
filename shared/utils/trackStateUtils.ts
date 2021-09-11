@@ -296,7 +296,7 @@ export function addStartToMilestones(milestones: EntityMilestone[]): EntityMiles
     id: MILESTONE_ID_START,
     name: 'Start',
     description: 'Start',
-    status: 'MARKER',
+    status: 'NON-COMPLETABLE',
     ranges: {
       absolute: null,
       relative: {

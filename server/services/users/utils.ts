@@ -1,4 +1,3 @@
-import { getValidRoles } from '../roles/utils';
 import {
   isStrictStringOrThrow,
   isStrictStringNullVoidOrThrow,
@@ -6,9 +5,18 @@ import {
   isValidEmailOrThrow,
 } from '../../../shared/utils/typeUtils';
 import { Maybe } from '../../../shared/types/baseTypes';
-import { UserCreateParams, RoleType, EntityUser, UserNoPII } from '../../../shared/types/entityTypes';
+import { getValidRoles } from '../../../shared/utils/roleUtils';
+import {
+  UserCreateParams,
+  RoleType,
+  EntityUser,
+  UserNoPII,
+} from '../../../shared/types/entityTypes';
 
 export function validUserCreateParams(params: any): UserCreateParams {
+  const email = isValidEmailOrThrow(params.email, 'A valid email is required');
+  const password = isStrictStringOrThrow(params.password, 'Password is required');
+
   const roleId: RoleType = inStringUnionOrThrow(params.roleId, getValidRoles(), 'A valid role is required');
   const teamId: Maybe<string> = isStrictStringNullVoidOrThrow(
     params.teamId,
@@ -21,7 +29,6 @@ export function validUserCreateParams(params: any): UserCreateParams {
   const displayName = isStrictStringOrThrow(params.displayName, 'Display name is required');
   const firstName = isStrictStringOrThrow(params.firstName, 'First name is required');
   const lastName = isStrictStringOrThrow(params.lastName, 'Last name is required');
-  const email = isValidEmailOrThrow(params.email, 'A valid email is required');
 
   const validParams: UserCreateParams = {
     roleId,
@@ -31,6 +38,7 @@ export function validUserCreateParams(params: any): UserCreateParams {
     firstName,
     lastName,
     email,
+    password,
   };
 
   return validParams;

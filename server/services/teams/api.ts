@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
 import { DateTime } from 'luxon';
 import Logger from '../../../shared/helpers/Logger';
-import { handleRequest, forbiddenException } from '../../api/apiUtils';
+import { handleRequest } from '../../api/apiUtils';
+import { forbiddenException } from '../../api/apiExceptions';
 import { validTeamCreateParams } from './utils';
 import { createGuid } from '../../../shared/utils/baseUtils';
 import { dbTeamCreate } from './db';
-import { dbUserCan } from '../roles/db';
+import { dbRolesUserCan } from '../roles/db';
 import { ServiceHandlerOpts, DBClient } from '../../types';
 import { EntityTeam } from '../../../shared/types/entityTypes';
 
@@ -23,7 +24,7 @@ class TeamsHandler {
     this.logger.logRequest(req);
 
     const userId = req.params.userId;
-    const canCreate = await dbUserCan(this.client, 'create', userId);
+    const canCreate = await dbRolesUserCan(this.client, 'right_create', userId);
     if (!canCreate) {
       return forbiddenException(res, `User: ${userId} does not have permissions to create a team`);
     }

@@ -1,7 +1,7 @@
 import { Maybe, SimpleDate, RelativeRange, AbsoluteRange } from './baseTypes';
 
-// roles
-export type RightType = 'create' | 'read' | 'update' | 'delete';
+// ROLES
+export type RightType = 'right_create' | 'right_read' | 'right_update' | 'right_delete';
 export type RoleType = 'role_owner' | 'role_editor' | 'role_viewer';
 
 export type EntityRole = {
@@ -10,7 +10,8 @@ export type EntityRole = {
   rightIds: string[];
 };
 
-// users
+
+// USERS
 export type EntityUser = {
   userId: string;
   roleId: string;
@@ -32,6 +33,7 @@ export type UserCreateParams = {
   firstName: string;
   lastName: string;
   email: string;
+  password: string;
 };
 
 export type UserNoPII = {
@@ -43,7 +45,24 @@ export type UserNoPII = {
   utcTimeUpdated?: Maybe<number>;
 };
 
-// teams
+type UserAuthResponseTrue = {
+  isAuthenticated: true;
+  userId: string;
+  token: string;
+  rightIds: string[];
+};
+
+type UserAuthResponseFalse = {
+  isAuthenticated: false;
+  userId: null;
+  token: null;
+  rightIds: null;
+};
+
+export type UserAuthResponse = UserAuthResponseTrue | UserAuthResponseFalse;
+
+
+// TEAMS
 export type EntityTeam = {
   teamId: string;
   trackIds: string[];
@@ -60,9 +79,9 @@ export type TeamCreateParams = {
   imgUrl?: Maybe<string>;
 };
 
-// tracks
-export type TrackType = 'TEMPLATE' | 'CUSTOM';
 
+// TRACKS
+export type TrackType = 'TEMPLATE' | 'CUSTOM';
 export type TrackTemplate = 'CHILD_MILESTONES' | 'PET_MILESTONES';
 
 export type TrackConfigTemplate = {
@@ -93,8 +112,9 @@ export type TrackCreateParams = {
   startDate: SimpleDate;
 };
 
-// milestones
-export type MilestoneStatus = 'MARKER' | 'INCOMPLETE' | 'COMPLETE';
+
+// MILESTONES
+export type MilestoneStatus = 'NON-COMPLETABLE' | 'INCOMPLETE' | 'COMPLETE';
 
 export type EntityMilestone = {
   id: string;
@@ -111,7 +131,7 @@ export type ResolvedMilestone = EntityMilestone & {
   ranges: {
     relative: RelativeRange;
     absolute: AbsoluteRange;
-  }
+  };
 };
 
 export type StartActionPayload = {
@@ -121,14 +141,14 @@ export type StartActionPayload = {
 };
 
 export type TrackActionStart = {
-  type: 'START',
-  payload: StartActionPayload,
+  type: 'START';
+  payload: StartActionPayload;
 };
 
 export type TrackActionAdd = {
   type: 'ADD';
   payload: {
-    milestone: EntityMilestone,
+    milestone: EntityMilestone;
   };
 };
 
@@ -173,7 +193,4 @@ export type TrackState = {
   ids: string[];
   idMap: { [k: string]: ResolvedMilestone };
 };
-
-
-
 
