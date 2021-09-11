@@ -27,7 +27,7 @@ import { createGuid } from '../../../shared/utils/baseUtils';
 import { isStrictStringOrThrow } from '../../../shared/utils/typeUtils';
 import { validUserCreateParams, userRemovePII } from './utils';
 
-import { ServiceHandlerOpts, DBClient } from '../../types';
+import { ServiceHandlerOpts, DBClient } from '../../serverTypes';
 import { EntityUser, UserAuthResponse } from '../../../shared/types/entityTypes';
 
 class UsersHandler {
@@ -173,56 +173,7 @@ export function handler(opts: ServiceHandlerOpts) {
 
   app.post('/api/v1/users/register', handleRequest(users.register));
   app.post('/api/v1/users/login', handleRequest(users.login));
-  app.post('/api/v1/users/logout', handleRequest(users.logout));
+  app.get('/api/v1/users/logout', handleRequest(users.logout));
   app.post('/api/v1/users/self', handleRequest(users.getSelf));
 }
-
-
-
-// createUser = async (req: Request, res: Response) => {
-//   this.logger.logRequest(req);
-
-//   const userId = createGuid('user');
-//   const params = validUserCreateParams(req.body);
-//   const utcTimestamp = DateTime.now().toMillis();
-
-//   const emailExists = await dbUserEmailExists(this.client, params.email);
-//   if (emailExists) {
-//     return badRequestException(res, `A user with email '${params.email}' already exists`);
-//   }
-
-//   if (params.roleId === 'role_owner' && params.teamId) {
-//     return badRequestException(res, 'Cannot create user as owner of an existing team');
-//   }
-
-//   if (params.roleId === 'role_viewer' || params.roleId === 'role_editor') {
-//     if (!params.teamId) {
-//       return badRequestException(res, 'Cannot create user as viewer/editor without an existing team');
-//     }
-
-//     const teamExists = await dbTeamExists(this.client, params.teamId);
-//     if (!teamExists) {
-//       return badRequestException(
-//         res,
-//         `Cannot created user as viewer/editor because team: '${params.teamId}' doesn't exist`,
-//       );
-//     }
-//   }
-
-//   const user: EntityUser = {
-//     ...params,
-//     userId,
-//     utcTimeCreated: utcTimestamp,
-//     utcTimeUpdated: utcTimestamp,
-//   };
-
-//   await dbUserCreate(this.client, user);
-
-//   const userNoPII = userRemovePII(user);
-
-//   return res.status(200).json({ user: userNoPII });
-// };
-
-
-
 

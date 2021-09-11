@@ -1,10 +1,7 @@
 import * as dotenv from 'dotenv';
-import { isStringOrThrow, isNumberOrThrow } from '../utils/typeUtils';
+import { isStringOrThrow, isNumberOrThrow } from '../shared/utils/typeUtils';
 
 dotenv.config();
-
-// Config should not be imported directly -> use `clientConfig` instead
-// Config should not be imported directly -> use `serverConfig` instead
 
 const msg = (key: string) => `No "${key}" defined`;
 
@@ -24,19 +21,17 @@ export default {
   db: {
     database: isStringOrThrow(process.env.PGDATABASE, msg('db.database')),
     host: isStringOrThrow(process.env.PGHOST, msg('db.host')),
-    port: isNumberOrThrow(parseInt(process.env.PGPORT || '5432', 10), msg('db.port')),
+    port: isNumberOrThrow(parseInt(process.env.PGPORT, 10), msg('db.port')),
     user: isStringOrThrow(process.env.PGUSER, msg('db.user')),
   },
   redis: {
     host: isStringOrThrow(process.env.REDIS_HOST, msg('redis.host')),
-    port: isNumberOrThrow(parseInt(process.env.REDIS_PORT || '6379', 10), msg('redis.port')),
+    port: isNumberOrThrow(parseInt(process.env.REDIS_PORT, 10), msg('redis.port')),
   },
   auth: {
     jwtSecret: isStringOrThrow(process.env.AUTH_JWT_SECRET, msg('auth.jwtSecret')),
     issuer: isStringOrThrow(process.env.AUTH_ISSUER, msg('auth.issuer')),
     audience: isStringOrThrow(process.env.AUTH_AUDIENCE, msg('auth.audience')),
+    sessionSecret: isStringOrThrow(process.env.AUTH_SESSION_SECRET, msg('auth.sessionSecret')),
   },
 };
-
-
-

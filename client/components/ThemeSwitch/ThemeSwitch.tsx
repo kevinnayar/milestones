@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
-import ThemeHelper from '../../../shared/helpers/themeHelper';
+import ThemeHelper from '../../../shared/helpers/ThemeHelper';
 
 export const ThemeSwitch = React.memo((props: { themeHelper: ThemeHelper}) => {
   const [theme, setTheme] = useState<'light' | 'dark'>(props.themeHelper.getLocalTheme());
@@ -10,7 +10,7 @@ export const ThemeSwitch = React.memo((props: { themeHelper: ThemeHelper}) => {
     document.body.classList.replace(theme, newTheme);
     setTheme(newTheme);
     props.themeHelper.setLocalTheme(newTheme);
-  }
+  };
 
   return (
     <div className={`theme-switch theme-switch--${theme}`}>

@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from 'express';
 import { formatError } from '../../shared/utils/baseUtils';
 import { badRequestException, unauthorizedException } from './apiExceptions';
 import { isStrictStringOrThrow } from '../../shared/utils/typeUtils';
-import config from '../../shared/config/serverConfig';
+import config from '../serverConfig';
 
 export function createUserSession(req: Request, userId: string) {
   // @ts-ignore

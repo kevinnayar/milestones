@@ -1,4 +1,4 @@
-import { DBClient } from '../../types';
+import { DBClient } from '../../serverTypes';
 import { EntityUser } from '../../../shared/types/entityTypes';
 
 export async function dbUserCreate(

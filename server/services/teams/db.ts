@@ -1,5 +1,5 @@
 import { EntityTeam } from 'shared/types/entityTypes';
-import { DBClient } from '../../types';
+import { DBClient } from '../../serverTypes';
 
 export async function dbTeamExists(client: DBClient, teamId: string): Promise<boolean> {
   const query = 'SELECT EXISTS (SELECT TRUE FROM teams WHERE id = $1)';

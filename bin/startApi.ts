@@ -1,10 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import config from '../shared/config/serverConfig';
+import config from '../server/serverConfig';
 import Logger from '../shared/helpers/Logger';
 import app from '../server/api/api';
 import client from '../server/db/db';
-import { ServiceHandlerOpts } from '../server/types';
+import { ServiceHandlerOpts } from '../server/serverTypes';
 
 type ServiceDefinition = {
   name: string;

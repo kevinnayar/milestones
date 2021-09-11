@@ -7,33 +7,33 @@ export type UseFetchResult<T> = {
   refetch: (_url: string) => Promise<void>;
 };
 
-export function useFetch<T>(url: string): UseFetchResult<T> {
+export function useFetch<T>(url: string, opts?: RequestInit): UseFetchResult<T> {
   const [state, setState] = useState({
     isLoading: false,
     data: null,
     error: null,
   });
 
-  async function fetchData(urlIn: string) {
+  async function fetchData() {
     setState({
       ...state,
       isLoading: true,
     });
 
     try {
-      const res = await fetch(urlIn);
+      const res = await fetch(url, opts);
       const data = await res.json();
 
       if (!res.ok) {
-        const message = data && data.message ? data.message : 'Wasn\'t able to load data.';
+        const message = data && data.message ? data.message : "Wasn't able to load data.";
         throw new Error(message);
-      } else {
-        setState({
-          data,
-          isLoading: false,
-          error: null,
-        });
       }
+
+      setState({
+        data,
+        isLoading: false,
+        error: null,
+      });
     } catch (error) {
       setState({
         isLoading: false,
@@ -44,8 +44,8 @@ export function useFetch<T>(url: string): UseFetchResult<T> {
   }
 
   useEffect(() => {
-    fetchData(url);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const result: UseFetchResult<T> = {

@@ -7,7 +7,7 @@ import { validTeamCreateParams } from './utils';
 import { createGuid } from '../../../shared/utils/baseUtils';
 import { dbTeamCreate } from './db';
 import { dbRolesUserCan } from '../roles/db';
-import { ServiceHandlerOpts, DBClient } from '../../types';
+import { ServiceHandlerOpts, DBClient } from '../../serverTypes';
 import { EntityTeam } from '../../../shared/types/entityTypes';
 
 class TeamsHandler {

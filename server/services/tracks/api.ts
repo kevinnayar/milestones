@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { DateTime } from 'luxon';
-import { ServiceHandlerOpts, DBClient } from '../../types';
+import { ServiceHandlerOpts, DBClient } from '../../serverTypes';
 import Logger from '../../../shared/helpers/Logger';
 import { handleRequest } from '../../api/apiUtils';
 import { forbiddenException, badRequestException } from '../../api/apiExceptions';

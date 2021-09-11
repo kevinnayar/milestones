@@ -36,13 +36,51 @@ export function isValidEmail(value: string, msg: string): string {
   return lowered;
 }
 
+type PasswordValidation = {
+  [k: string]: [string, boolean];
+};
+
+export function getValidPassword(password: string): PasswordValidation {
+  const errors: PasswordValidation = {
+    minMaxLength: ['must be between 8 and 32 characters', false],
+    lowerCase: ['Must have at least one Lowercase letter', false],
+    upperCase: ['Must have at least one uppercase letter', false],
+    hasNumber: ['Must have at least one number', false],
+    hasSpecial: ['Must have at least one special character', false],
+  };
+
+  if (password.length < 8 || password.length > 32) {
+    errors.minMaxLength = [errors.minMaxLength[0], true];
+  }
+
+  if (password.toUpperCase() === password) {
+    errors.lowerCase = [errors.lowerCase[0], true];
+  }
+
+  if (password.toLowerCase() === password) {
+    errors.upperCase = [errors.upperCase[0], true];
+  }
+
+  if (!/\d/.test(password)) {
+    errors.hasNumber = [errors.hasNumber[0], true];
+  }
+
+  //   if (/[!#$%^&*+=-;,.{}]/.test(password)) {
+  //     errors.hasSpecial = [errors.hasSpecial[0], true];
+  //   }
+
+  return errors;
+}
+
 export function isValidEmailOrThrow(value: string, msg: string): string {
   const str = isStrictStringOrThrow(value, msg);
   return isValidEmail(str, msg);
 }
 
 export function isNumberOrThrow(value: any, message: string): number {
-  if (typeof value === 'number' && !Number.isNaN(value) && value <= Number.MAX_SAFE_INTEGER) return value;
+  if (typeof value === 'number' && !Number.isNaN(value) && value <= Number.MAX_SAFE_INTEGER) {
+    return value;
+  }
   throw new Error(message);
 }
 

@@ -1,12 +1,13 @@
 import * as express from 'express';
 import * as session from 'express-session';
 import * as cors from 'cors';
+import config from '../serverConfig';
 
 process.on('unhandledRejection', (e) => {
   // @ts-ignore
-  const message = 'message;' in e ? e.message : null;
+  const message = 'message' in e ? e.message : null;
   // @ts-ignore
-  const stack = 'stack;' in e ? e.stack : null;
+  const stack = 'stack' in e ? e.stack : null;
   console.error(message, stack);
 });
 
@@ -28,7 +29,7 @@ app.use(
 
 app.use(
   session({
-    secret: 'wannabeaballashotcalla',
+    secret: config.auth.sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -39,11 +40,6 @@ app.use(
 
 export default app;
 
-
-// REDIS_HOST=localhost
-// REDIS_PORT=6379
-
-// ----
 
 // import redis from 'redis';
 // import serverConfig from '../serverConfig';
