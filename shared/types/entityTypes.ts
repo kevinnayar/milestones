@@ -43,6 +43,7 @@ export type UserNoPII = {
   imgUrl?: Maybe<string>;
   utcTimeCreated: number;
   utcTimeUpdated?: Maybe<number>;
+  rightIds?: RightType[];
 };
 
 type UserAuthResponseTrue = {

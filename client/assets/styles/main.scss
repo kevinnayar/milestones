@@ -113,11 +113,10 @@ button {
 body.light {
   $color-bg: $gray-100;
   $color-subtle-bg: $gray-200;
-
   $color-text: $gray-800;
   $color-subtle-text: $gray-600;
-
   $color-border: $gray-900;
+  $color-shadow: rgba(0, 0, 0, 0.1);
 
   background: $color-bg;
   color: $color-text;
@@ -131,17 +130,16 @@ body.light {
   @import '../../components/Branding/branding.scss';
   @import '../../components/MainNav/main-nav.scss';
   @import '../../components/Alert/alert.scss';
-  @import '../../components/DataViewer/data-viewer.scss';
+  @import '../../components/AuthForm/auth-form.scss';
 }
 
 body.dark {
   $color-bg: $gray-800;
   $color-subtle-bg: $gray-700;
-
   $color-text: $gray-300;
   $color-subtle-text: $gray-500;
-  
   $color-border: $gray-400;
+  $color-shadow: rgba(255, 255, 255, 0.1);
 
   background: $color-bg;
   color: $color-text;
@@ -155,6 +153,6 @@ body.dark {
   @import '../../components/Branding/branding.scss';
   @import '../../components/MainNav/main-nav.scss';
   @import '../../components/Alert/alert.scss';
-  @import '../../components/DataViewer/data-viewer.scss';
+  @import '../../components/AuthForm/auth-form.scss';
 }
 

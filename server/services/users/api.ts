@@ -10,6 +10,7 @@ import {
   dbUserGet,
 } from './db';
 import { dbTeamExists } from '../teams/db';
+import { dbRolesGetRightsByUser } from '../roles/db';
 import Logger from '../../../shared/helpers/Logger';
 import {
   handleRequest,
@@ -26,7 +27,7 @@ import { isStrictStringOrThrow } from '../../../shared/utils/typeUtils';
 import { validUserCreateParams, userRemovePII } from './utils';
 
 import { ServiceHandlerOpts, DBClient } from '../../serverTypes';
-import { EntityUser, UserAuthResponse } from '../../../shared/types/entityTypes';
+import { EntityUser, UserAuthResponse, UserNoPII } from '../../../shared/types/entityTypes';
 
 class UsersHandler {
   client: DBClient;
@@ -161,9 +162,10 @@ class UsersHandler {
     const user = await dbUserGet(this.client, userId);
     if (!user) return unauthorizedException(res, 'Could not find user');
 
-    // const rightIds = await dbRolesGetRightsByRole(this.client, params.roleId);
+    const rightIds = await dbRolesGetRightsByUser(this.client, userId);
+    const userNoPII: UserNoPII = userRemovePII(user, rightIds);
 
-    return res.status(200).json({ user: userRemovePII(user) });
+    return res.status(200).json({ user: userNoPII });
   };
 
   keepAlive = async  (req: Request, res: Response) => {
@@ -201,6 +203,6 @@ export function handler(opts: ServiceHandlerOpts) {
   app.post('/api/v1/users/login', handleRequest(users.login));
   app.get('/api/v1/users/logout', handleRequest(users.logout));
   app.post('/api/v1/users/self', handleRequest(users.getSelf));
-  app.post('/api/v1/users/keepAlive', handleRequest(users.keepAlive));
+  app.post('/api/v1/users/keep-alive', handleRequest(users.keepAlive));
 }
 

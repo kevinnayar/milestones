@@ -1,11 +1,15 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
+import { userLogout } from '../../store/reducers/user';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { RootState } from '../../store/store';
 
-export const MainNav = React.memo(() => {
-  const { loginWithRedirect, logout, isAuthenticated } = useAuth0();
+export const MainNav = () => {
+  const { auth } = useAppSelector((state: RootState) => state.user);
+  const dispatch = useAppDispatch();
 
-  const links = isAuthenticated ? (
+  const links = auth.isAuthenticated ? (
     <>
       <Link to="/dashboard">
         <i className="material-icons">dashboard</i>
@@ -19,14 +23,14 @@ export const MainNav = React.memo(() => {
         <i className="material-icons">person</i>
         <p>Account</p>
       </Link>
-      <Link onClick={() => logout()} to="">
+      <Link onClick={() => dispatch(userLogout())} to="/login">
         <i className="material-icons">lock</i>
         <p>Logout</p>
       </Link>
     </>
   ) : (
     <>
-      <Link onClick={loginWithRedirect} to="">
+      <Link to="/login">
         <i className="material-icons">lock</i>
         <p>Login</p>
       </Link>
@@ -34,5 +38,8 @@ export const MainNav = React.memo(() => {
   );
 
   return <nav className="main-nav">{links}</nav>;
-});
+};
+
+
+
 

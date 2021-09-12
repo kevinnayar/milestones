@@ -100,7 +100,7 @@ const publicRoutes: { [k: string]: true } = {
   '/api/v1/users/register': true,
   '/api/v1/users/login': true,
   '/api/v1/users/logout': true,
-  '/api/v1/users/keepAlive': true,
+  '/api/v1/users/keep-alive': true,
 };
 
 type ExpressRouteFn = (_req: Request, _res: Response, _next: NextFunction) => any;

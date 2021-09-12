@@ -7,7 +7,7 @@ type ComponentProps = {
   dismissable?: boolean;
 };
 
-export const Alert = React.memo((props: ComponentProps) => {
+export const Alert = (props: ComponentProps) => {
   const [dismissed, setDismissed] = useState(false);
   const severity = props.severity === 'success'
     ? 'check_circle'
@@ -26,5 +26,8 @@ export const Alert = React.memo((props: ComponentProps) => {
       )}
     </div>
   );
-});
+};
+
+
+
 

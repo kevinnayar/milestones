@@ -1,120 +1,50 @@
 import * as React from 'react';
-import { CSSProperties } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Switch, Route} from 'react-router-dom';
+import { createBrowserHistory, History } from 'history';
 
-import type { RootState } from './store/store';
-import { userLogin, userLogout, userGetSelf } from './store/reducers/user';
 import { useAppSelector } from './hooks/useAppSelector';
-import { useAppDispatch } from './hooks/useAppDispatch';
-import { callApi } from '../shared/utils/asyncUtils';
+import { useTheme } from './hooks/useTheme';
 
 import { AppHeader } from './components/AppHeader/AppHeader';
 import { AppContent } from './components/AppContent/AppContent';
 import { AppFooter } from './components/AppFooter/AppFooter';
 
+import { Logo } from './components/Logo/Logo';
 import { Branding } from './components/Branding/Branding';
 import { MainNav } from './components/MainNav/MainNav';
 import { ThemeSwitch } from './components/ThemeSwitch/ThemeSwitch';
-import ThemeHelper from '../shared/helpers/ThemeHelper';
 
-const btnStyles: CSSProperties = {
-  height: 48,
-  background: '#1a53ff',
-  padding: '0 24px',
-  border: 'none',
-  outline: 'none',
-  color: 'white',
-  fontWeight: 'bold',
-  margin: '12px',
-  cursor: 'pointer',
-};
+import { AuthForm } from './components/AuthForm/AuthForm';
+import { RootState } from './store/store';
 
-const divStyles: CSSProperties = {
-  marginTop: 40,
-  minWidth: 300,
-  border: '1px solid #ddd',
-  margin: '12px',
-  padding: 24,
-};
-
-async function keepAlive(userId: string) {
-  const opts = {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId }),
-  };
-  await callApi('http://localhost:3000/api/v1/users/keepAlive', opts);
-}
+const history: History<any> = createBrowserHistory();
 
 export default function App() {
   const brand = 'milestones';
-  const themeHelper = new ThemeHelper(window.localStorage);
-  document.body.classList.add(themeHelper.getLocalTheme());
+  const { theme, toggleTheme } = useTheme();
+  const { auth } = useAppSelector((state: RootState) => state.user);
+  const isLoggedIn = () => auth.isAuthenticated;
 
-  const email = 'kevin.nayar+3@gmail.com';
-  const password = 'Password1!';
+  console.log({ isLoggedIn: isLoggedIn() });
 
-  const { auth, authXfer, self, selfXfer } = useAppSelector((state: RootState) => state.user);
-  const dispatch = useAppDispatch();
+  console.log({history});
 
   return (
     <BrowserRouter>
       <div className="app">
         <AppHeader>
+          <Logo theme={theme} />
           <Branding brand={brand} />
           <MainNav />
-          <ThemeSwitch themeHelper={themeHelper} />
+          <ThemeSwitch theme={theme} toggleTheme={toggleTheme} />
         </AppHeader>
 
         <AppContent>
-          <div style={{ padding: 40 }}>
-            <div>
-              <div style={{ display: 'flex', margin: '40px 0' }}>
-                <button
-                  style={btnStyles}
-                  type="button"
-                  onClick={() => dispatch(userLogin(email, password))}
-                >
-                  Login
-                </button>
-                <button style={btnStyles} type="button" onClick={() => dispatch(userLogout())}>
-                  Logout
-                </button>
-                <button
-                  style={btnStyles}
-                  type="button"
-                  onClick={() => dispatch(userGetSelf(auth.userId))}
-                >
-                  Get Self
-                </button>
-                <button
-                  style={btnStyles}
-                  type="button"
-                  onClick={() => keepAlive(auth.userId)}
-                >
-                  Keep Alive
-                </button>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
-              <div style={divStyles}>
-                <h3>Auth</h3>
-                <pre style={{ fontSize: 14 }}>{JSON.stringify(auth, null, 2)}</pre>
-              </div>
-              <div style={divStyles}>
-                <h3>Auth Xfer</h3>
-                <pre style={{ fontSize: 14 }}>{JSON.stringify(authXfer, null, 2)}</pre>
-              </div>
-              <div style={divStyles}>
-                <h3>Self</h3>
-                <pre style={{ fontSize: 14 }}>{JSON.stringify(self, null, 2)}</pre>
-              </div>
-              <div style={divStyles}>
-                <h3>Self Xfer</h3>
-                <pre style={{ fontSize: 14 }}>{JSON.stringify(selfXfer, null, 2)}</pre>
-              </div>
-            </div>
-          </div>
+          <Switch>
+            <Route path="/login" component={() => <AuthForm view="LOGIN" />} />
+            <Route path="/register" component={() => <AuthForm view="REGISTER" />} />
+            <Route path="/forgot-password" component={() => <AuthForm view="FORGOT_PASSWORD" />} />
+          </Switch>
         </AppContent>
 
         <AppFooter>
@@ -126,3 +56,58 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
+
+// <AppContent>
+//   <div style={{ padding: 40 }}>
+//     <div>
+//       <div style={{ display: 'flex', margin: '40px 0' }}>
+//         <button
+//           style={btnStyles}
+//           type="button"
+//           onClick={() => dispatch(userLogin(email, password))}
+//         >
+//           Login
+//         </button>
+//         <button style={btnStyles} type="button" onClick={() => dispatch(userLogout())}>
+//           Logout
+//         </button>
+//         <button
+//           style={btnStyles}
+//           type="button"
+//           onClick={() => dispatch(userGetSelf(auth.userId))}
+//         >
+//           Get Self
+//         </button>
+//         <button
+//           style={btnStyles}
+//           type="button"
+//           onClick={() => dispatch(userKeepAlive(auth.userId))}
+//         >
+//           Keep Alive
+//         </button>
+//       </div>
+//     </div>
+//     <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+//       <div style={divStyles}>
+//         <h3>Auth</h3>
+//         <pre style={{ fontSize: 14 }}>{JSON.stringify(auth, null, 2)}</pre>
+//       </div>
+//       <div style={divStyles}>
+//         <h3>Auth Xfer</h3>
+//         <pre style={{ fontSize: 14 }}>{JSON.stringify(authXfer, null, 2)}</pre>
+//       </div>
+//       <div style={divStyles}>
+//         <h3>Self</h3>
+//         <pre style={{ fontSize: 14 }}>{JSON.stringify(self, null, 2)}</pre>
+//       </div>
+//       <div style={divStyles}>
+//         <h3>Self Xfer</h3>
+//         <pre style={{ fontSize: 14 }}>{JSON.stringify(selfXfer, null, 2)}</pre>
+//       </div>
+//     </div>
+//   </div>
+// </AppContent>
+
+
+

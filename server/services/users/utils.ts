@@ -11,6 +11,7 @@ import {
   RoleType,
   EntityUser,
   UserNoPII,
+  RightType,
 } from '../../../shared/types/entityTypes';
 
 export function validUserCreateParams(params: any): UserCreateParams {
@@ -44,8 +45,12 @@ export function validUserCreateParams(params: any): UserCreateParams {
   return validParams;
 }
 
-export function userRemovePII(user: EntityUser): UserNoPII {
+export function userRemovePII(user: EntityUser, rightIds?: RightType[]): UserNoPII {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
   const { roleId: _r, firstName: _f, lastName: _l, email: _e, ...userNoPII } = user;
-  return userNoPII;
+  const userWithRights: UserNoPII = {
+    ...userRemovePII(user),
+    rightIds,
+  };
+  return userWithRights;
 }

@@ -5,8 +5,8 @@ import type { AppDispatch } from '../store';
 import config from '../../clientConfig';
 import { xferInit, xferRequest, xferSuccess, xferFailure, callApi } from '../../../shared/utils/asyncUtils';
 import { formatError } from '../../../shared/utils/baseUtils';
-import type { RootState } from '../store';
-import { UserAuthResponse, UserNoPII } from '../../../shared/types/entityTypes';
+import { RootState } from '../store';
+import { UserAuthResponse, UserCreateParams, UserNoPII } from '../../../shared/types/entityTypes';
 import { ApiTransferStatus } from '../../../shared/types/baseTypes';
 
 export type UserReducer = {
@@ -98,14 +98,14 @@ export const userGetSelf = (userId: null | string) => async (dispatch: AppDispat
   try {
     if (!userId) throw new Error('No user ID provided');
 
-    const requested = xferRequest();
-    dispatch(setUserSelfXfer(requested));
-
     const state = getState();
     if (state.user.auth.userId !== userId) throw new Error('Incorrect user ID');
 
     const token = state.user.auth.token;
     if (!token) throw new Error('No token found');
+
+    const requested = xferRequest();
+    dispatch(setUserSelfXfer(requested));
 
     const opts = {
       method: 'POST',
@@ -124,5 +124,51 @@ export const userGetSelf = (userId: null | string) => async (dispatch: AppDispat
   }
 };
 
+export const userKeepAlive = (userId: null | string) => async (dispatch: AppDispatch, getState: () => RootState) => {
+  try {
+    if (!userId) throw new Error('No user ID provided');
+
+    const state = getState();
+    if (state.user.auth.userId !== userId) throw new Error('Incorrect user ID');
+
+    const requested = xferRequest();
+    dispatch(setUserAuthXfer(requested));
+
+    const opts = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    };
+    await callApi(`${config.api.baseUrl}/api/v1/users/keep-alive`, opts);
+
+    const succeeded = xferSuccess();
+    dispatch(setUserAuthXfer(succeeded));
+  } catch (e) {
+    const error = formatError(e);
+    const failed = xferFailure(error);
+    dispatch(setUserAuthXfer(failed));
+  }
+};
+
+export const userRegister = (params: UserCreateParams) => async (dispatch: AppDispatch) => {
+  try {
+    const requested = xferRequest();
+    dispatch(setUserAuthXfer(requested));
+
+    const opts = {
+      method: 'POST',
+      body: JSON.stringify(params),
+    };
+    const user: UserAuthResponse = await callApi(`${config.api.baseUrl}/api/v1/users/register`, opts);
+    dispatch(setUserAuth(user));
+
+    const succeeded = xferSuccess();
+    dispatch(setUserAuthXfer(succeeded));
+  } catch (e) {
+    const error = formatError(e);
+    const failed = xferFailure(error);
+    dispatch(setUserAuthXfer(failed));
+  }
+};
 
 export default userSlice.reducer;

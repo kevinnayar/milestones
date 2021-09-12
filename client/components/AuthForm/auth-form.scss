@@ -1,0 +1,127 @@
+.auth-form {
+  background: $color-bg;
+  box-shadow: 0 0 15px $color-shadow;
+  width: 400px;
+  margin: 100px auto;
+  padding: 1.5% 2.5%;
+  border-radius: 4px;
+  align-self: center;
+  font-size: 1.4em;
+
+  &__nav-links {
+    display: flex;
+    margin: 0 auto 36px;
+    align-items: center;
+    justify-content: center;
+    font-family: $font-montserrat;
+    font-weight: 700;
+    border-bottom: 1px solid $color-subtle-bg;
+
+    a {
+      align-items: center;
+      display: flex;
+      margin: 0 0.67em 1.33em;
+      padding: 12px 22px;
+      color: $color-text;
+      cursor: pointer;
+      border-radius: 30px;
+      transition: $transition;
+
+      &:hover {
+        color: $color-white;
+        background: lighten($color-blue, 10%);
+      }
+
+      &.active {
+        color: $color-blue;
+
+        &:hover {
+          color: $color-white;
+          background: lighten($color-blue, 10%);
+        }
+      }
+    }
+  }
+
+  &__error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    font-size: 80%;
+    color: red;
+  }
+
+  form {
+    div {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 0.83em;
+      margin-bottom: 0.25em;
+    }
+
+    input {
+      width: 100%;
+      height: 40px;
+      margin-bottom: 0.83em;
+      padding: 4px 8px;
+      border: none;
+      outline: none;
+      font-size: 1em;
+      background: transparent;
+      color: $color-text;
+      transition: $transition;
+      background: $color-border;
+
+      &:focus {
+        background: lighten($color-border, 5%);
+      }
+    }
+
+    .btn {
+      margin-top: 1.66em;
+      height: 50px;
+      border: none;
+      outline: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background: $color-blue;
+      color: $color-white;
+      font-family: $font-montserrat;
+      font-weight: 700;
+      transition: $transition;
+
+      &:hover {
+        background: lighten($color-blue, 10%);
+      }
+
+      &--disabled {
+        color: lighten($color-blue, 30%);
+        background: lighten($color-blue, 20%);
+        cursor: not-allowed;
+
+        &:hover {
+          color: lighten($color-blue, 30%);
+          background: lighten($color-blue, 20%);
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+
+  &__switch-link {
+    display: flex;
+    color: $color-blue;
+    margin-top: 20px;
+    justify-content: center;
+    font-size: 0.83em;
+  }
+
+  p {
+    font-size: 0.83em;
+    text-align: center;
+  }
+}
