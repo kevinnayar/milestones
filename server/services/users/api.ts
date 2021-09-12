@@ -10,11 +10,11 @@ import {
   dbUserGet,
 } from './db';
 import { dbTeamExists } from '../teams/db';
-import { dbRolesGetRightsByRole, dbRolesGetRightsByUser } from '../roles/db';
 import Logger from '../../../shared/helpers/Logger';
 import {
   handleRequest,
   createUserToken,
+  verifyUserTokenAndSession,
 } from '../../api/apiUtils';
 import {
   badRequestException,
@@ -89,14 +89,12 @@ class UsersHandler {
       userId,
       utcTimestamp,
     );
-    const rightIds = await dbRolesGetRightsByRole(this.client, params.roleId);
 
     const authResponse: UserAuthResponse = {
       isAuthenticated: true,
       userId,
       token,
       tokenExpiration,
-      rightIds,
     };
 
     res.cookie('refresh_token', refreshToken, { maxAge: refreshTokenExpiration, httpOnly: true });
@@ -126,14 +124,12 @@ class UsersHandler {
         userId,
         utcTimestamp,
       );
-      const rightIds = await dbRolesGetRightsByUser(this.client, userId);
 
       const authResponse: UserAuthResponse = {
         isAuthenticated: true,
         userId,
         token,
         tokenExpiration,
-        rightIds,
       };
 
       res.cookie('refresh_token', refreshToken, { maxAge: refreshTokenExpiration, httpOnly: true });
@@ -152,7 +148,6 @@ class UsersHandler {
       userId: null,
       token: null,
       tokenExpiration: null,
-      rightIds: null,
     };
 
     return res.status(200).json(authResponse);
@@ -166,6 +161,8 @@ class UsersHandler {
     const user = await dbUserGet(this.client, userId);
     if (!user) return unauthorizedException(res, 'Could not find user');
 
+    // const rightIds = await dbRolesGetRightsByRole(this.client, params.roleId);
+
     return res.status(200).json({ user: userRemovePII(user) });
   };
 
@@ -173,13 +170,26 @@ class UsersHandler {
     this.logger.logRequest(req);
 
     const userId = isStrictStringOrThrow(req.body.userId, 'Could not get user ID');
-    console.log({ cookies: req.cookies.refresh_token });
-    console.log({ userId });
+    const currentRefreshToken = isStrictStringOrThrow(req.cookies.refresh_token, 'No refresh token');
 
-    // const user = await dbUserGet(this.client, userId);
-    // if (!user) return unauthorizedException(res, 'Could not find user');
+    verifyUserTokenAndSession(res, currentRefreshToken);
 
-    return res.status(200).json({ user: undefined });
+    const utcTimestamp = DateTime.now().toMillis();
+    const { token, tokenExpiration, refreshToken, refreshTokenExpiration } = createUserToken(
+      userId,
+      utcTimestamp,
+    );
+
+    const authResponse: UserAuthResponse = {
+      isAuthenticated: true,
+      userId,
+      token,
+      tokenExpiration,
+    };
+
+    res.cookie('refresh_token', refreshToken, { maxAge: refreshTokenExpiration, httpOnly: true });
+
+    return res.status(200).json(authResponse);
   };
 }
 

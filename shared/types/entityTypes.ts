@@ -50,7 +50,6 @@ type UserAuthResponseTrue = {
   userId: string;
   token: string;
   tokenExpiration: number;
-  rightIds: string[];
 };
 
 type UserAuthResponseFalse = {
@@ -58,7 +57,6 @@ type UserAuthResponseFalse = {
   userId: null;
   token: null;
   tokenExpiration: null;
-  rightIds: null;
 };
 
 export type UserAuthResponse = UserAuthResponseTrue | UserAuthResponseFalse;

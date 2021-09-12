@@ -1,10 +1,11 @@
 import * as jwt from 'jsonwebtoken';
 import { DateTime } from 'luxon';
 import { Request, Response, NextFunction } from 'express';
+
+import config from '../serverConfig';
 import { formatError } from '../../shared/utils/baseUtils';
 import { badRequestException, unauthorizedException } from './apiExceptions';
-import { isStrictStringOrThrow } from '../../shared/utils/typeUtils';
-import config from '../serverConfig';
+// import { isStrictStringOrThrow } from '../../shared/utils/typeUtils';
 
 // export function createUserSession(req: Request, userId: string) {
 //   // @ts-ignore
@@ -70,10 +71,7 @@ export function getUserToken(req: Request): null | string {
   return null;
 }
 
-function verifyUserTokenAndSession(req: Request, res: Response) {
-  const token = getUserToken(req);
-  if (!token) return unauthorizedException(res, 'No token');
-
+export function verifyUserTokenAndSession(res: Response, token: string) {
   // const session = req.session;
   // if (!session) return unauthorizedException(res, 'No session');
 
@@ -111,7 +109,12 @@ export function handleRequest(route: ExpressRouteFn): ExpressRouteFn {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const isPrivateRoute = Boolean(!publicRoutes[req.route.path]);
-      if (isPrivateRoute) verifyUserTokenAndSession(req, res);
+
+      if (isPrivateRoute) {
+        const token = getUserToken(req);
+        if (!token) return unauthorizedException(res, 'No token');
+        verifyUserTokenAndSession(res, token);
+      }
 
       await route(req, res, next);
     } catch (e) {

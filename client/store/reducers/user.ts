@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { AppDispatch } from '../store';
+
 import config from '../../clientConfig';
 import { xferInit, xferRequest, xferSuccess, xferFailure, callApi } from '../../../shared/utils/asyncUtils';
 import { formatError } from '../../../shared/utils/baseUtils';
@@ -20,7 +21,6 @@ const unauthed: UserAuthResponse = {
   userId: null,
   token: null,
   tokenExpiration: null,
-  rightIds: null,
 };
 
 const initialState: UserReducer = {
