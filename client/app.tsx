@@ -1,7 +1,11 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { CSSProperties } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import config from './clientConfig';
+
+import type { RootState } from './store/store';
+import { userLogin, userLogout, userGetSelf } from './store/reducers/user';
+import { useAppSelector } from './hooks/useAppSelector';
+import { useAppDispatch } from './hooks/useAppDispatch';
 import { callApi } from '../shared/utils/asyncUtils';
 
 import { AppHeader } from './components/AppHeader/AppHeader';
@@ -12,43 +16,34 @@ import { Branding } from './components/Branding/Branding';
 import { MainNav } from './components/MainNav/MainNav';
 import { ThemeSwitch } from './components/ThemeSwitch/ThemeSwitch';
 import ThemeHelper from '../shared/helpers/ThemeHelper';
-import { UserAuthResponse } from '../shared/types/entityTypes';
-import { formatError } from '../shared/utils/baseUtils';
 
-async function login(
-  email: string,
-  password: string,
-  setUser: (_u: UserAuthResponse) => void,
-  setError: (_e: null | string) => void,
-) {
-  try {
-    setError(null);
-    const body = { email, password };
-    const opts = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    };
-    const user: UserAuthResponse = await callApi(`${config.api.baseUrl}/api/v1/users/login`, opts);
-    setUser(user);
-  } catch (e) {
-    console.log(e);
-    setError(formatError(e));
-  }
-}
+const btnStyles: CSSProperties = {
+  height: 48,
+  background: '#1a53ff',
+  padding: '0 24px',
+  border: 'none',
+  outline: 'none',
+  color: 'white',
+  fontWeight: 'bold',
+  margin: '12px',
+  cursor: 'pointer',
+};
 
-async function logout(
-  setUser: (_u: UserAuthResponse) => void,
-  setError: (_e: null | string) => void,
-) {
-  try {
-    setError(null);
-    const user: UserAuthResponse = await callApi(`${config.api.baseUrl}/api/v1/users/logout`);
-    setUser(user);
-  } catch (e) {
-    console.log(e);
-    setError(formatError(e));
-  }
+const divStyles: CSSProperties = {
+  marginTop: 40,
+  minWidth: 300,
+  border: '1px solid #ddd',
+  margin: '12px',
+  padding: 24,
+};
+
+async function keepAlive(userId: string) {
+  const opts = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId }),
+  };
+  await callApi('http://localhost:3000/api/v1/users/keepAlive', opts);
 }
 
 export default function App() {
@@ -56,16 +51,11 @@ export default function App() {
   const themeHelper = new ThemeHelper(window.localStorage);
   document.body.classList.add(themeHelper.getLocalTheme());
 
-  const [email, setEmail] = useState('kevin.nayar+3@gmail.com');
-  const [password, setPassword] = useState('Password1!');
+  const email = 'kevin.nayar+3@gmail.com';
+  const password = 'Password1!';
 
-  const [user, setUser] = useState<UserAuthResponse>({
-    isAuthenticated: false,
-    userId: null,
-    token: null,
-    rightIds: null,
-  });
-  const [error, setError] = useState<null | string>(null);
+  const { auth, authXfer, self, selfXfer } = useAppSelector((state: RootState) => state.user);
+  const dispatch = useAppDispatch();
 
   return (
     <BrowserRouter>
@@ -78,40 +68,51 @@ export default function App() {
 
         <AppContent>
           <div style={{ padding: 40 }}>
-            <h1>Account</h1>
             <div>
-              <div>
-                <label htmlFor="login-email">email</label>
-                <input
-                  type="text"
-                  name="login-email"
-                  id="login-email"
-                  onChange={(e) => setEmail(e.currentTarget.value)}
-                />
+              <div style={{ display: 'flex', margin: '40px 0' }}>
+                <button
+                  style={btnStyles}
+                  type="button"
+                  onClick={() => dispatch(userLogin(email, password))}
+                >
+                  Login
+                </button>
+                <button style={btnStyles} type="button" onClick={() => dispatch(userLogout())}>
+                  Logout
+                </button>
+                <button
+                  style={btnStyles}
+                  type="button"
+                  onClick={() => dispatch(userGetSelf(auth.userId))}
+                >
+                  Get Self
+                </button>
+                <button
+                  style={btnStyles}
+                  type="button"
+                  onClick={() => keepAlive(auth.userId)}
+                >
+                  Keep Alive
+                </button>
               </div>
-              <div>
-                <label htmlFor="login-password">password</label>
-                <input
-                  type="password"
-                  name="login-password"
-                  id="login-password"
-                  onChange={(e) => setPassword(e.currentTarget.value)}
-                />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+              <div style={divStyles}>
+                <h3>Auth</h3>
+                <pre style={{ fontSize: 14 }}>{JSON.stringify(auth, null, 2)}</pre>
               </div>
-              <button type="button" onClick={() => login(email, password, setUser, setError)}>
-                Login
-              </button>
-              <button type="button" onClick={() => logout(setUser, setError)}>
-                Logout
-              </button>
-            </div>
-            <div style={{ marginTop: 40 }}>
-              <h2>User</h2>
-              <pre style={{ fontSize: 14 }}>{JSON.stringify(user, null, 2)}</pre>
-            </div>
-            <div style={{ marginTop: 40 }}>
-              <h2>Error</h2>
-              <pre style={{ fontSize: 14 }}>{error || 'null'}</pre>
+              <div style={divStyles}>
+                <h3>Auth Xfer</h3>
+                <pre style={{ fontSize: 14 }}>{JSON.stringify(authXfer, null, 2)}</pre>
+              </div>
+              <div style={divStyles}>
+                <h3>Self</h3>
+                <pre style={{ fontSize: 14 }}>{JSON.stringify(self, null, 2)}</pre>
+              </div>
+              <div style={divStyles}>
+                <h3>Self Xfer</h3>
+                <pre style={{ fontSize: 14 }}>{JSON.stringify(selfXfer, null, 2)}</pre>
+              </div>
             </div>
           </div>
         </AppContent>

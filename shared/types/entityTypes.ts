@@ -49,6 +49,7 @@ type UserAuthResponseTrue = {
   isAuthenticated: true;
   userId: string;
   token: string;
+  tokenExpiration: number;
   rightIds: string[];
 };
 
@@ -56,6 +57,7 @@ type UserAuthResponseFalse = {
   isAuthenticated: false;
   userId: null;
   token: null;
+  tokenExpiration: null;
   rightIds: null;
 };
 

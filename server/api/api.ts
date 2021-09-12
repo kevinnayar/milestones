@@ -1,5 +1,6 @@
 import * as express from 'express';
 import * as session from 'express-session';
+import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
 import config from '../serverConfig';
 
@@ -15,8 +16,11 @@ const app = express();
 
 app.use(express.json());
 
+app.use(cookieParser());
+
 app.use(
   cors({
+    origin: [config.app.baseUrl],
     credentials: true,
   }),
 );

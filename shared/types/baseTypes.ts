@@ -16,4 +16,10 @@ export type AbsoluteRange = {
   stop: null | number;
 };
 
+export type ApiTransferStatus = {
+  requested: boolean,
+  succeeded: boolean,
+  failed: boolean,
+  error?: undefined | string,
+};
 

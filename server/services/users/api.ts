@@ -15,8 +15,6 @@ import Logger from '../../../shared/helpers/Logger';
 import {
   handleRequest,
   createUserToken,
-  createUserSession,
-  destroyUserSession,
 } from '../../api/apiUtils';
 import {
   badRequestException,
@@ -87,17 +85,21 @@ class UsersHandler {
 
     await dbUserCreate(this.client, user, hashedPassword);
 
-    const token = createUserToken(userId, utcTimestamp);
+    const { token, tokenExpiration, refreshToken, refreshTokenExpiration } = createUserToken(
+      userId,
+      utcTimestamp,
+    );
     const rightIds = await dbRolesGetRightsByRole(this.client, params.roleId);
-
-    createUserSession(req, userId);
 
     const authResponse: UserAuthResponse = {
       isAuthenticated: true,
       userId,
       token,
+      tokenExpiration,
       rightIds,
     };
+
+    res.cookie('refresh_token', refreshToken, { maxAge: refreshTokenExpiration, httpOnly: true });
 
     return res.status(200).json(authResponse);
   };
@@ -120,17 +122,21 @@ class UsersHandler {
 
     if (user) {
       const utcTimestamp = DateTime.now().toMillis();
-      const token = createUserToken(user.userId, utcTimestamp);
+      const { token, tokenExpiration, refreshToken, refreshTokenExpiration } = createUserToken(
+        userId,
+        utcTimestamp,
+      );
       const rightIds = await dbRolesGetRightsByUser(this.client, userId);
-
-      createUserSession(req, user.userId);
 
       const authResponse: UserAuthResponse = {
         isAuthenticated: true,
         userId,
         token,
+        tokenExpiration,
         rightIds,
       };
+
+      res.cookie('refresh_token', refreshToken, { maxAge: refreshTokenExpiration, httpOnly: true });
 
       return res.status(200).json(authResponse);
     }
@@ -141,12 +147,11 @@ class UsersHandler {
   logout = async (req: Request, res: Response) => {
     this.logger.logRequest(req);
 
-    destroyUserSession(req);
-
     const authResponse: UserAuthResponse = {
       isAuthenticated: false,
       userId: null,
       token: null,
+      tokenExpiration: null,
       rightIds: null,
     };
 
@@ -156,14 +161,25 @@ class UsersHandler {
   getSelf = async (req: Request, res: Response) => {
     this.logger.logRequest(req);
 
-    // @ts-ignore
-    const userId = req.userId;
-    if (!userId) return unauthorizedException(res, 'Could not get user ID');
+    const userId = isStrictStringOrThrow(req.body.userId, 'Could not get user ID');
 
     const user = await dbUserGet(this.client, userId);
     if (!user) return unauthorizedException(res, 'Could not find user');
 
     return res.status(200).json({ user: userRemovePII(user) });
+  };
+
+  keepAlive = async  (req: Request, res: Response) => {
+    this.logger.logRequest(req);
+
+    const userId = isStrictStringOrThrow(req.body.userId, 'Could not get user ID');
+    console.log({ cookies: req.cookies.refresh_token });
+    console.log({ userId });
+
+    // const user = await dbUserGet(this.client, userId);
+    // if (!user) return unauthorizedException(res, 'Could not find user');
+
+    return res.status(200).json({ user: undefined });
   };
 }
 
@@ -175,5 +191,6 @@ export function handler(opts: ServiceHandlerOpts) {
   app.post('/api/v1/users/login', handleRequest(users.login));
   app.get('/api/v1/users/logout', handleRequest(users.logout));
   app.post('/api/v1/users/self', handleRequest(users.getSelf));
+  app.post('/api/v1/users/keepAlive', handleRequest(users.keepAlive));
 }
 

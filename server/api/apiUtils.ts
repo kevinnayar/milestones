@@ -6,15 +6,16 @@ import { badRequestException, unauthorizedException } from './apiExceptions';
 import { isStrictStringOrThrow } from '../../shared/utils/typeUtils';
 import config from '../serverConfig';
 
-export function createUserSession(req: Request, userId: string) {
-  // @ts-ignore
-  req.session.userId = userId;
-}
+// export function createUserSession(req: Request, userId: string) {
+//   // @ts-ignore
+//   req.session.userId = userId;
+//   console.log({ sessionOut: req.session });
+// }
 
-export function destroyUserSession(req: Request) {
-  // @ts-ignore
-  req.session.destroy();
-}
+// export function destroyUserSession(req: Request) {
+//   // @ts-ignore
+//   req.session.destroy();
+// }
 
 type JwtPayload = {
   sub: string;
@@ -24,10 +25,14 @@ type JwtPayload = {
   exp?: number;
 };
 
-export function createUserToken(userId: string, utcTimestamp: number) {
-  const oneDay = 1000 * 60 * 60 * 24;
-  const expiresIn = oneDay * 5;
+type TokenResponse = {
+  token: string;
+  tokenExpiration: number;
+  refreshToken: string;
+  refreshTokenExpiration: number;
+};
 
+export function createUserToken(userId: string, utcTimestamp: number): TokenResponse {
   const { jwtSecret, issuer, audience } = config.auth;
 
   const payload: JwtPayload = {
@@ -37,10 +42,24 @@ export function createUserToken(userId: string, utcTimestamp: number) {
     iat: utcTimestamp,
   };
 
+  const minute = 1000 * 60;
+  const expiresIn = minute * 5;
+  const refreshExpiresIn = minute * 10;
+
   const token = jwt.sign(payload, jwtSecret, {
     expiresIn,
   });
-  return token;
+
+  const refreshToken = jwt.sign(payload, jwtSecret, {
+    expiresIn: refreshExpiresIn,
+  });
+
+  return {
+    token,
+    tokenExpiration: expiresIn,
+    refreshToken,
+    refreshTokenExpiration: refreshExpiresIn,
+  };
 }
 
 export function getUserToken(req: Request): null | string {
@@ -55,37 +74,35 @@ function verifyUserTokenAndSession(req: Request, res: Response) {
   const token = getUserToken(req);
   if (!token) return unauthorizedException(res, 'No token');
 
-  const session = req.session;
-  if (!session) return unauthorizedException(res, 'No session');
+  // const session = req.session;
+  // if (!session) return unauthorizedException(res, 'No session');
 
-  // @ts-ignore
-  const userId = isStrictStringOrThrow(session.userId, 'No user session');
+  // console.log({ sessionIn: session });
+
+  // // @ts-ignore
+  // const userId = isStrictStringOrThrow(session.userId, 'No user session');
 
   try {
     const { jwtSecret, issuer, audience } = config.auth;
     const verified: JwtPayload = jwt.verify(token, jwtSecret) as any;
 
-    if (verified.sub !== userId || verified.iss !== issuer || verified.aud !== audience) {
+    if (/* verified.sub !== userId || */verified.iss !== issuer || verified.aud !== audience) {
       return unauthorizedException(res, 'Token verification failed');
     }
 
     if (!verified.exp || DateTime.now().toMillis() > verified.exp) {
-      destroyUserSession(req);
       return unauthorizedException(res, 'Token expired');
     }
   } catch (e) {
-    destroyUserSession(req);
     return unauthorizedException(res, 'Invalid token');
   }
-
-  // @ts-ignore
-  req.userId = userId;
 }
 
 const publicRoutes: { [k: string]: true } = {
   '/api/v1/users/register': true,
   '/api/v1/users/login': true,
   '/api/v1/users/logout': true,
+  '/api/v1/users/keepAlive': true,
 };
 
 type ExpressRouteFn = (_req: Request, _res: Response, _next: NextFunction) => any;
@@ -95,6 +112,7 @@ export function handleRequest(route: ExpressRouteFn): ExpressRouteFn {
     try {
       const isPrivateRoute = Boolean(!publicRoutes[req.route.path]);
       if (isPrivateRoute) verifyUserTokenAndSession(req, res);
+
       await route(req, res, next);
     } catch (e) {
       if (res.headersSent) return next(e);
@@ -103,10 +121,5 @@ export function handleRequest(route: ExpressRouteFn): ExpressRouteFn {
   };
 }
 
-// export function setUserTokenAsCookie(res: Response, token: string) {
-//   res.cookie('usertoken', token, {
-//     expires: new Date(Date.now() + auth.expiresIn),
-//     httpOnly: true,
-//     // sameSite: true,
-//   });
-// }
+
+
