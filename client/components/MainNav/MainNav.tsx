@@ -34,6 +34,10 @@ export const MainNav = () => {
         <i className="material-icons">lock</i>
         <p>Login</p>
       </Link>
+      <Link to="/register">
+        <i className="material-icons">person_add</i>
+        <p>Signup</p>
+      </Link>
     </>
   );
 

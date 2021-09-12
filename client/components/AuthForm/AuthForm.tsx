@@ -324,7 +324,7 @@ export const AuthForm = (props: { view: ViewState }) => {
     <div className="auth-form">
       <div className="auth-form__nav-links">
         <NavLink to="/login">Login</NavLink>
-        <NavLink to="/register">Register</NavLink>
+        <NavLink to="/register">Signup</NavLink>
       </div>
       {view === 'LOGIN' && <Login {...nestedProps} />}
       {view === 'FORGOT_PASSWORD' && <ForgotPassword {...nestedProps} />}
