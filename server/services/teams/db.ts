@@ -1,4 +1,5 @@
-import { EntityTeam } from 'shared/types/entityTypes';
+import { convertRowToTeam } from './utils';
+import { EntityTeam } from '../../../shared/types/entityTypes';
 import { DBClient } from '../../serverTypes';
 
 export async function dbTeamExists(client: DBClient, teamId: string): Promise<boolean> {
@@ -47,5 +48,20 @@ export async function dbTeamCreate(client: DBClient, userId: string, team: Entit
   });
 
   return team.teamId;
+}
+
+
+export async function dbTeamGetByUser(client: DBClient, userId: string): Promise<void | EntityTeam> {
+  const query = `
+    SELECT teams.* FROM teams
+      JOIN users ON users.team_id = teams.id
+      AND users.id = $1
+    ;
+  `;
+  const values = [userId];
+
+  const rows = await client.query(query, values);
+  const teamMaybe = rows && rows.length ? convertRowToTeam(rows[0]) : undefined;
+  return teamMaybe;
 }
 

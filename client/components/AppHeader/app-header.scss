@@ -7,9 +7,10 @@
   flex-shrink: 0;
   align-items: center;
   margin: 0;
-  background: $color-text;
+  background: $color-bg;
   color: $color-bg;
   left: 0;
   top: 0;
   transition: $transition;
+  box-shadow: 0 0 15px $color-shadow;
 }

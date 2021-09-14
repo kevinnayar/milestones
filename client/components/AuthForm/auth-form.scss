@@ -1,7 +1,6 @@
 .auth-form {
   background: $color-bg;
   box-shadow: 0 0 15px $color-shadow;
-  border: 1px solid $color-subtle-bg;
   width: 400px;
   margin: 100px auto;
   padding: 1.5% 2.5%;
@@ -25,7 +24,7 @@
       padding: 12px 22px;
       color: $color-text;
       cursor: pointer;
-      border-radius: 30px;
+      border-radius: 4px;
       transition: $transition;
 
       &:hover {
@@ -34,7 +33,8 @@
       }
 
       &.active {
-        color: $color-blue;
+        color: $color-white;
+        background: $color-blue;
 
         &:hover {
           color: $color-white;
@@ -60,25 +60,25 @@
     }
 
     label {
-      font-size: 0.83em;
-      margin-bottom: 0.25em;
+      font-size: 0.9;
+      margin-bottom: 0.9em;
     }
 
     input {
       width: 100%;
       height: 40px;
-      margin-bottom: 0.83em;
+      margin-bottom: 1.8em;
       padding: 4px 8px;
       border: none;
       outline: none;
       font-size: 1em;
       background: transparent;
       color: $color-text;
-      transition: $transition;
-      background: $color-border;
+      
+      border: 1px solid $color-shadow;
 
       &:focus {
-        background: lighten($color-border, 5%);
+        border: 2px solid $color-text;
       }
     }
 

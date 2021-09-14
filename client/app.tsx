@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { BrowserRouter, Switch, Route} from 'react-router-dom';
+import { BrowserRouter, Switch, Route, Redirect, Link } from 'react-router-dom';
+import { DateTime } from 'luxon';
 import { createBrowserHistory, History } from 'history';
 
 import { useAppSelector } from './hooks/useAppSelector';
@@ -15,19 +16,21 @@ import { MainNav } from './components/MainNav/MainNav';
 import { ThemeSwitch } from './components/ThemeSwitch/ThemeSwitch';
 
 import { AuthForm } from './components/AuthForm/AuthForm';
+import { BasePage } from './pages/BasePage';
 import { RootState } from './store/store';
 
 const history: History<any> = createBrowserHistory();
 
+function PrivateRoutes(props: any) {
+  const { auth: { isAuthenticated, tokenExpiration } } = useAppSelector((state: RootState) => state.user);
+  const now = DateTime.now();
+  console.log({ route: 'protected', isAuthenticated, now: now.toUTC(), tokenExpiration });
+  return isAuthenticated ? props.children : <Redirect to="/login" />;
+}
+
 export default function App() {
   const brand = 'milestones';
   const { theme, toggleTheme } = useTheme();
-  const { auth } = useAppSelector((state: RootState) => state.user);
-  const isLoggedIn = () => auth.isAuthenticated;
-
-  console.log({ isLoggedIn: isLoggedIn() });
-
-  console.log({history});
 
   return (
     <BrowserRouter>
@@ -37,13 +40,26 @@ export default function App() {
           <Branding brand={brand} />
           <MainNav />
           <ThemeSwitch theme={theme} toggleTheme={toggleTheme} />
+          <Link to="/login">
+            <i className="material-icons">lock</i>
+            <p>Login</p>
+          </Link>
+          <Link to="/dashboard">
+            <i className="material-icons">dashboard</i>
+            <p>Dashboard</p>
+          </Link>
         </AppHeader>
 
         <AppContent>
           <Switch>
-            <Route path="/login" component={() => <AuthForm view="LOGIN" />} />
-            <Route path="/register" component={() => <AuthForm view="REGISTER" />} />
-            <Route path="/forgot-password" component={() => <AuthForm view="FORGOT_PASSWORD" />} />
+            {/* <Redirect from="/" to="/login" /> */}
+            <Route path="/login" component={AuthForm} />
+            <PrivateRoutes>
+              <Route path="/dashboard" component={BasePage} />
+            </PrivateRoutes>
+            {/* <Route path="/register" component={() => <AuthForm view="REGISTER" />} />
+            {/* <Route path="/register" component={() => <AuthForm view="REGISTER" />} />
+            <Route path="/forgot-password" component={() => <AuthForm view="FORGOT_PASSWORD" />} /> */}
           </Switch>
         </AppContent>
 

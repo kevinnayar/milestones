@@ -13,8 +13,9 @@ type ViewState = 'LOGIN' | 'FORGOT_PASSWORD' | 'REGISTER';
 
 type ViewProps = {
   email: string;
-  onChangeEmail: (_email: string) => void;
-  onChangeView: (_view: ViewState) => void;
+  setEmail: (_email: string) => void;
+  view: ViewState,
+  setView: (_view: ViewState) => void;
 };
 
 // function ForgotPassword(props: ViewProps) {
@@ -72,7 +73,7 @@ type ViewProps = {
 //             name="email"
 //             onChange={(evt: React.ChangeEvent<HTMLInputElement>) => {
 //               evt.preventDefault();
-//               props.onChangeEmail(evt.currentTarget.value);
+//               props.setEmail(evt.currentTarget.value);
 //             }}
 //           />
 //         </div>
@@ -84,7 +85,7 @@ type ViewProps = {
 //           to=""
 //           onClick={(evt: any) => {
 //             evt.preventDefault();
-//             props.onChangeView('LOGIN');
+//             props.setView('LOGIN');
 //           }}
 //         >
 //           Back to Login
@@ -101,19 +102,37 @@ function Login(props: ViewProps) {
   const dispatch = useAppDispatch();
 
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<null | string>(null);
+  const [apiError, setApiError] = useState<null | string>(null);
+  const [emailError, setEmailError] = useState<null | string>(null);
+  const [passwordError, setPasswordError] = useState<null | string>(null);
   const [canSubmit, setCanSubmit] = useState(false);
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     evt.preventDefault();
 
     switch (evt.currentTarget.name) {
+      case 'email': {
+        props.setEmail(evt.currentTarget.value);
+        try {
+          isValidEmailOrThrow(evt.currentTarget.value, 'Email is invalid');
+          setPasswordError(null);
+        } catch (e) {
+          setPasswordError(formatError(e));
+        }
+        break;
+      }
       case 'password': {
         setPassword(evt.currentTarget.value);
+        try {
+          isValidEmailOrThrow(evt.currentTarget.value, 'Email is invalid');
+          setPasswordError(null);
+        } catch (e) {
+          setPasswordError(formatError(e));
+        }
         break;
       }
       default: {
-        setError(`Invalid field: ${evt.currentTarget.name || 'null'}`);
+        setApiError(`Invalid field: ${evt.currentTarget.name || 'null'}`);
       }
     }
   };
@@ -123,40 +142,39 @@ function Login(props: ViewProps) {
 
     try {
       if (props.email && password) {
-        setError(null);
         dispatch(userLogin(props.email, password));
       }
     } catch (e) {
-      setError(formatError(e));
+      setApiError(formatError(e));
     }
   };
 
-  useEffect(() => {
-    if (authXfer.failed) {
-      setError(formatError(authXfer.error));
-    }
-  }, [authXfer]);
+  // useEffect(() => {
+  //   if (authXfer.failed) {
+  //     setError(formatError(authXfer.error));
+  //   }
+  // }, [authXfer]);
 
-  useEffect(() => {
-    try {
-      if (!props.email) {
-        throw new Error('Email is required');
-      }
-      if (props.email) {
-        isValidEmailOrThrow(props.email, 'Email is in an invalid format');
-      }
-      if (!password.length) {
-        throw new Error('Password is required');
-      }
-      setCanSubmit(true);
-    } catch (e) {
-      setError(formatError(e));
-    }
-  }, [props.email, password]);
+  // useEffect(() => {
+  //   try {
+  //     if (!props.email) {
+  //       throw new Error('Email is required');
+  //     }
+  //     if (props.email) {
+  //       isValidEmailOrThrow(props.email, 'Email is in an invalid format');
+  //     }
+  //     if (!password.length) {
+  //       throw new Error('Password is required');
+  //     }
+  //     setCanSubmit(true);
+  //   } catch (e) {
+  //     setError(formatError(e));
+  //   }
+  // }, [props.email, password]);
 
   return (
     <div className="form--login">
-      {error && <p className="auth-form__error">{error}</p>}
+      {/* {error && <p className="auth-form__error">{error}</p>} */}
 
       <form onSubmit={handleLogin}>
         <div>
@@ -166,9 +184,10 @@ function Login(props: ViewProps) {
             name="email"
             onChange={(evt: any) => {
               evt.preventDefault();
-              props.onChangeEmail(evt.currentTarget.value);
+              props.setEmail(evt.currentTarget.value);
             }}
           />
+          {emailError && <p className="auth-form__error">{emailError}</p>}
         </div>
         <div>
           <label htmlFor="password">Password</label>
@@ -184,7 +203,7 @@ function Login(props: ViewProps) {
           to=""
           onClick={(evt: any) => {
             evt.preventDefault();
-            props.onChangeView('FORGOT_PASSWORD');
+            props.setView('FORGOT_PASSWORD');
           }}
         >
           Forgot Password?
@@ -223,7 +242,7 @@ function Register(props: ViewProps) {
         break;
       }
       case 'email': {
-        props.onChangeEmail(evt.currentTarget.value);
+        props.setEmail(evt.currentTarget.value);
         break;
       }
       case 'password': {
@@ -308,16 +327,16 @@ function Register(props: ViewProps) {
     </div>
   );
 }
-
-export const AuthForm = (props: { view: ViewState }) => {
+// props: { view: ViewState }
+export const AuthForm = () => {
   const [email, setEmail] = useState('');
-  const [view, setView] = useState<ViewState>(props.view);
-  console.log({view});
+  const [view, setView] = useState<ViewState>('LOGIN');
 
-  const nestedProps = {
+  const nestedProps: ViewProps = {
     email,
-    onChangeEmail: setEmail,
-    onChangeView: setView,
+    setEmail,
+    view,
+    setView,
   };
 
   return (

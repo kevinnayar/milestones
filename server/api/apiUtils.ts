@@ -43,9 +43,12 @@ export function createUserToken(userId: string, utcTimestamp: number): TokenResp
     iat: utcTimestamp,
   };
 
-  const minute = 1000 * 60;
-  const expiresIn = minute * 5;
-  const refreshExpiresIn = minute * 10;
+  // const minute = 1000 * 60;
+  // const expiresIn = minute * 5;
+  // const refreshExpiresIn = minute * 10;
+  const second = 1000;
+  const expiresIn = second * 20;
+  const refreshExpiresIn = second * 120;
 
   const token = jwt.sign(payload, jwtSecret, {
     expiresIn,
