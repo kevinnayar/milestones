@@ -1,9 +1,16 @@
 import * as React from 'react';
 
-export const AppFooter = (props: { children: any }) => {
-  return <footer className="app-footer">{props.children}</footer>;
-};
+type FooterProps = { brand: string };
 
+export const AppFooter = ({ brand }: FooterProps) => {
+  return (
+    <footer className="app-footer">
+      <p>
+        &copy; <span>{brand}</span> {new Date().getFullYear()}, All Rights Reserved.
+      </p>
+    </footer>
+  );
+};
 
 
 

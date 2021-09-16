@@ -1,7 +1,25 @@
 import * as React from 'react';
+import { MainNav } from '../MainNav/MainNav';
+import { Branding } from '../Branding/Branding';
+import { Logo } from '../Logo/Logo';
+import { ThemeSwitch } from '../ThemeSwitch/ThemeSwitch';
+import { ThemeType } from '../../../shared/helpers/ThemeHelper';
 
-export const AppHeader = (props: { children: any }) => {
-  return <header className="app-header">{props.children}</header>;
+type HeaderProps = {
+  brand: string,
+  theme: ThemeType,
+  toggleTheme: () => void,
+};
+
+export const AppHeader = ({ brand, theme, toggleTheme }: HeaderProps) => {
+  return (
+    <header className="app-header">
+      <Logo theme={theme} />
+      <Branding brand={brand} />
+      <MainNav />
+      <ThemeSwitch theme={theme} toggleTheme={toggleTheme} />
+    </header>
+  );
 };
 
 

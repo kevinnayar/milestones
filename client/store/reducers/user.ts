@@ -14,6 +14,7 @@ export type UserReducer = {
   auth: UserAuthResponse;
   selfXfer: ApiTransferStatus;
   self: null | UserNoPII;
+  loginRedirectPath: string;
 };
 
 const unauthed: UserAuthResponse = {
@@ -28,6 +29,7 @@ const initialState: UserReducer = {
   auth: unauthed,
   selfXfer: xferInit(),
   self: null,
+  loginRedirectPath: '/dashboard',
 };
 
 export const userSlice = createSlice({
@@ -46,10 +48,19 @@ export const userSlice = createSlice({
     setUserSelf: (state, action: PayloadAction<null | UserNoPII>) => {
       state.self = action.payload;
     },
+    setLoginRedirectPath: (state, action: PayloadAction<string>) => {
+      state.loginRedirectPath = action.payload;
+    },
   },
 });
 
-const { setUserAuthXfer, setUserAuth, setUserSelfXfer, setUserSelf } = userSlice.actions;
+export const {
+  setUserAuthXfer,
+  setUserAuth,
+  setLoginRedirectPath,
+  setUserSelfXfer,
+  setUserSelf,
+} = userSlice.actions;
 
 export const userLogin = (email: string, password: string) => async (dispatch: AppDispatch) => {
   try {
@@ -96,6 +107,7 @@ export const userLogout = () => async (dispatch: AppDispatch) => {
 
 export const userGetSelf = (userId: null | string) => async (dispatch: AppDispatch, getState: () => RootState) => {
   try {
+    console.log('get self init');
     if (!userId) throw new Error('No user ID provided');
 
     const state = getState();
