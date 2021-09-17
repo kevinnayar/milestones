@@ -23,3 +23,9 @@ export type ApiTransferStatus = {
   error?: undefined | string,
 };
 
+export type FetchState<T> = {
+  loading: boolean;
+  data: null | T;
+  error: null | string;
+};
+

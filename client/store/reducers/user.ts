@@ -1,186 +1,168 @@
 /* eslint-disable no-param-reassign */
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { AppDispatch } from '../store';
-
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import config from '../../clientConfig';
-import { xferInit, xferRequest, xferSuccess, xferFailure, callApi } from '../../../shared/utils/asyncUtils';
-import { formatError } from '../../../shared/utils/baseUtils';
-import { RootState } from '../store';
-import { UserAuthResponse, UserCreateParams, UserNoPII } from '../../../shared/types/entityTypes';
-import { ApiTransferStatus } from '../../../shared/types/baseTypes';
+import {
+  fetchInit,
+  fetchRequest,
+  fetchSuccess,
+  fetchFailure,
+  callApi,
+} from '../../../shared/utils/asyncUtils';
+import { UserAuthResponse, UserNoPII } from '../../../shared/types/entityTypes';
+import { FetchState } from '../../../shared/types/baseTypes';
 
 export type UserReducer = {
-  authXfer: ApiTransferStatus;
-  auth: UserAuthResponse;
-  selfXfer: ApiTransferStatus;
-  self: null | UserNoPII;
+  auth: FetchState<null | UserAuthResponse>;
+  self: FetchState<null | UserNoPII>;
   loginRedirectPath: string;
 };
 
-const unauthed: UserAuthResponse = {
-  isAuthenticated: false,
-  userId: null,
-  token: null,
-  tokenExpiration: null,
-};
-
 const initialState: UserReducer = {
-  authXfer: xferInit(),
-  auth: unauthed,
-  selfXfer: xferInit(),
-  self: null,
+  auth: fetchInit(),
+  self: fetchInit(),
   loginRedirectPath: '/dashboard',
 };
 
-export const userSlice = createSlice({
-  name: 'user',
-  initialState,
-  reducers: {
-    setUserAuthXfer: (state, action: PayloadAction<ApiTransferStatus>) => {
-      state.authXfer = action.payload;
-    },
-    setUserAuth: (state, action: PayloadAction<UserAuthResponse>) => {
-      state.auth = action.payload;
-    },
-    setUserSelfXfer: (state, action: PayloadAction<ApiTransferStatus>) => {
-      state.selfXfer = action.payload;
-    },
-    setUserSelf: (state, action: PayloadAction<null | UserNoPII>) => {
-      state.self = action.payload;
-    },
-    setLoginRedirectPath: (state, action: PayloadAction<string>) => {
-      state.loginRedirectPath = action.payload;
-    },
-  },
-});
+type LoginCredentials = {
+  email: string;
+  password: string;
+};
 
-export const {
-  setUserAuthXfer,
-  setUserAuth,
-  setLoginRedirectPath,
-  setUserSelfXfer,
-  setUserSelf,
-} = userSlice.actions;
-
-export const userLogin = (email: string, password: string) => async (dispatch: AppDispatch) => {
-  try {
-    const requested = xferRequest();
-    dispatch(setUserAuthXfer(requested));
-
-    const body = { email, password };
+export const userLogin = createAsyncThunk<UserAuthResponse, LoginCredentials>(
+  'user/login',
+  async (body: LoginCredentials) => {
     const opts = {
       method: 'POST',
       body: JSON.stringify(body),
     };
     const user: UserAuthResponse = await callApi(`${config.api.baseUrl}/api/v1/users/login`, opts);
-    dispatch(setUserAuth(user));
+    return user;
+  },
+);
 
-    const succeeded = xferSuccess();
-    dispatch(setUserAuthXfer(succeeded));
-  } catch (e) {
-    const error = formatError(e);
-    const failed = xferFailure(error);
-    dispatch(setUserAuthXfer(failed));
-  }
+type AuthCredentials = {
+  userId: string;
+  token: string;
 };
 
-export const userLogout = () => async (dispatch: AppDispatch) => {
-  try {
-    const requested = xferRequest();
-    dispatch(setUserAuthXfer(requested));
-    dispatch(setUserSelfXfer(requested));
-
-    const user: UserAuthResponse = await callApi(`${config.api.baseUrl}/api/v1/users/logout`);
-    dispatch(setUserAuth(user));
-    dispatch(setUserSelf(null));
-
-    const succeeded = xferSuccess();
-    dispatch(setUserAuthXfer(succeeded));
-    dispatch(setUserSelfXfer(succeeded));
-  } catch (e) {
-    const error = formatError(e);
-    const failed = xferFailure(error);
-    dispatch(setUserAuthXfer(failed));
-    dispatch(setUserSelfXfer(failed));
-  }
-};
-
-export const userGetSelf = (userId: null | string) => async (dispatch: AppDispatch, getState: () => RootState) => {
-  try {
-    console.log('get self init');
-    if (!userId) throw new Error('No user ID provided');
-
-    const state = getState();
-    if (state.user.auth.userId !== userId) throw new Error('Incorrect user ID');
-
-    const token = state.user.auth.token;
-    if (!token) throw new Error('No token found');
-
-    const requested = xferRequest();
-    dispatch(setUserSelfXfer(requested));
-
+export const userGetSelf = createAsyncThunk<UserNoPII, AuthCredentials>(
+  'user/getSelf',
+  async ({ userId, token }) => {
+    console.log({ userId, token });
     const opts = {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: JSON.stringify({ userId }),
     };
     const self: UserNoPII = await callApi(`${config.api.baseUrl}/api/v1/users/self`, opts);
-    dispatch(setUserSelf(self));
+    return self;
+  },
+);
 
-    const succeeded = xferSuccess();
-    dispatch(setUserSelfXfer(succeeded));
-  } catch (e) {
-    const error = formatError(e);
-    const failed = xferFailure(error);
-    dispatch(setUserSelfXfer(failed));
-  }
-};
+export const userLogout = createAsyncThunk(
+  'user/logout',
+  async () => {
+    await callApi(`${config.api.baseUrl}/api/v1/users/logout`);
+  },
+);
 
-export const userKeepAlive = (userId: null | string) => async (dispatch: AppDispatch, getState: () => RootState) => {
-  try {
-    if (!userId) throw new Error('No user ID provided');
+export const userSlice = createSlice({
+  name: 'user',
+  initialState,
+  reducers: {
+    setLoginRedirectPath: (state, action: PayloadAction<string>) => {
+      state.loginRedirectPath = action.payload;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // login
+      .addCase(userLogin.pending, (state) => {
+        state.auth = fetchRequest();
+      })
+      .addCase(userLogin.fulfilled, (state, action) => {
+        state.auth = fetchSuccess(action.payload);
+      })
+      .addCase(userLogin.rejected, (state, action) => {
+        state.auth = fetchFailure(action.error.message);
+      })
+      // getSelf
+      .addCase(userGetSelf.pending, (state) => {
+        state.self = fetchRequest();
+      })
+      .addCase(userGetSelf.fulfilled, (state, action) => {
+        state.self = fetchSuccess(action.payload);
+      })
+      .addCase(userGetSelf.rejected, (state, action) => {
+        state.self = fetchFailure(action.error.message);
+      })
+      // logout
+      .addCase(userLogout.pending, (state) => {
+        state.auth = fetchRequest();
+        state.self = fetchRequest();
+      })
+      .addCase(userLogout.fulfilled, (state) => {
+        state.auth = fetchSuccess(null);
+        state.self = fetchSuccess(null);
+      })
+      .addCase(userLogout.rejected, (state, action) => {
+        state.auth = fetchFailure(action.error.message);
+        state.self = fetchFailure(action.error.message);
+      });
+  },
+});
 
-    const state = getState();
-    if (state.user.auth.userId !== userId) throw new Error('Incorrect user ID');
-
-    const requested = xferRequest();
-    dispatch(setUserAuthXfer(requested));
-
-    const opts = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId }),
-    };
-    await callApi(`${config.api.baseUrl}/api/v1/users/keep-alive`, opts);
-
-    const succeeded = xferSuccess();
-    dispatch(setUserAuthXfer(succeeded));
-  } catch (e) {
-    const error = formatError(e);
-    const failed = xferFailure(error);
-    dispatch(setUserAuthXfer(failed));
-  }
-};
-
-export const userRegister = (params: UserCreateParams) => async (dispatch: AppDispatch) => {
-  try {
-    const requested = xferRequest();
-    dispatch(setUserAuthXfer(requested));
-
-    const opts = {
-      method: 'POST',
-      body: JSON.stringify(params),
-    };
-    const user: UserAuthResponse = await callApi(`${config.api.baseUrl}/api/v1/users/register`, opts);
-    dispatch(setUserAuth(user));
-
-    const succeeded = xferSuccess();
-    dispatch(setUserAuthXfer(succeeded));
-  } catch (e) {
-    const error = formatError(e);
-    const failed = xferFailure(error);
-    dispatch(setUserAuthXfer(failed));
-  }
-};
+export const { setLoginRedirectPath } = userSlice.actions;
 
 export default userSlice.reducer;
+
+
+
+// export const userKeepAlive = (userId: null | string) => async (dispatch: AppDispatch, getState: () => RootState) => {
+//   try {
+//     if (!userId) throw new Error('No user ID provided');
+
+//     const state = getState();
+//     if (state.user.auth.userId !== userId) throw new Error('Incorrect user ID');
+
+//     const requested = xferRequest();
+//     dispatch(setUserAuthXfer(requested));
+
+//     const opts = {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({ userId }),
+//     };
+//     await callApi(`${config.api.baseUrl}/api/v1/users/keep-alive`, opts);
+
+//     const succeeded = xferSuccess();
+//     dispatch(setUserAuthXfer(succeeded));
+//   } catch (e) {
+//     const error = formatError(e);
+//     const failed = xferFailure(error);
+//     dispatch(setUserAuthXfer(failed));
+//   }
+// };
+
+// export const userRegister = (params: UserCreateParams) => async (dispatch: AppDispatch) => {
+//   try {
+//     const requested = xferRequest();
+//     dispatch(setUserAuthXfer(requested));
+
+//     const opts = {
+//       method: 'POST',
+//       body: JSON.stringify(params),
+//     };
+//     const user: UserAuthResponse = await callApi(`${config.api.baseUrl}/api/v1/users/register`, opts);
+//     dispatch(setUserAuth(user));
+
+//     const succeeded = xferSuccess();
+//     dispatch(setUserAuthXfer(succeeded));
+//   } catch (e) {
+//     const error = formatError(e);
+//     const failed = xferFailure(error);
+//     dispatch(setUserAuthXfer(failed));
+//   }
+// };
+
+

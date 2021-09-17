@@ -6,10 +6,11 @@ import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { userLogin, userGetSelf } from '../../store/reducers/user';
 import { isValidEmailOrThrow } from '../../../shared/utils/typeUtils';
 import { formatError } from '../../../shared/utils/baseUtils';
+import { hasFetchNotStarted, hasFetchSucceeded } from '../../../shared/utils/asyncUtils';
 import { RootState } from '../../store/store';
 
 export const AuthLogin = (props: RouteComponentProps) => {
-  const { auth, authXfer, self, selfXfer, loginRedirectPath } = useAppSelector((state: RootState) => state.user);
+  const { auth, self, loginRedirectPath } = useAppSelector((state: RootState) => state.user);
   const dispatch = useAppDispatch();
 
   const [apiError, setApiError] = useState<null | string>(null);
@@ -51,36 +52,30 @@ export const AuthLogin = (props: RouteComponentProps) => {
 
   const handleLogin = async (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
-
-    try {
-      if (email && password) {
-        dispatch(userLogin(email, password));
-      }
-    } catch (e) {
-      setApiError(formatError(e));
+    if (email && password) {
+      dispatch(userLogin({ email, password }));
     }
   };
 
+  useEffect(() => { if (auth.error) setApiError(auth.error); }, [auth.error]);
+
+  useEffect(() => { if (self.error) setApiError(self.error); }, [self.error]);
 
   useEffect(() => {
-    if (authXfer.failed) setApiError(formatError(authXfer.error));
-    if (selfXfer.failed) setApiError(formatError(selfXfer.error));
-  }, [authXfer, selfXfer]);
-
-  useEffect(() => {
-    if (authXfer.succeeded && auth.userId) {
-      userGetSelf(auth.userId);
+    if (
+      hasFetchSucceeded(auth) && hasFetchNotStarted(self) &&
+      auth.data && auth.data.userId && auth.data.token
+    ) {
+      const { userId, token } = auth.data;
+      dispatch(userGetSelf({ userId, token }));
     }
-  }, [authXfer, auth]);
+  }, [dispatch, auth, self]);
 
   useEffect(() => {
-    if (self && self.userId) {
-      const path = loginRedirectPath;
-      props.history.push(path);
-    }
+    if (hasFetchSucceeded(self)) props.history.push(loginRedirectPath);
   }, [props.history, self, loginRedirectPath]);
 
-  const canSubmit = Boolean(!apiError && !emailError && !passwordError && email && password);
+  const canSubmit = Boolean(!emailError && !passwordError && email && password);
 
   return (
     <div className="form--login">
@@ -102,11 +97,7 @@ export const AuthLogin = (props: RouteComponentProps) => {
             Login
           </button>
         </div>
-        <Link
-          className="auth-page__switch-link"
-          to=""
-          onClick={(evt: any) => evt.preventDefault()}
-        >
+        <Link className="auth-page__switch-link" to="" onClick={(evt: any) => evt.preventDefault()}>
           Forgot Password?
         </Link>
       </form>

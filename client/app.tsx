@@ -20,7 +20,7 @@ type PrivateRouteProps = RouteProps & { component: any };
 
 export const PrivateRoute = ({ component: Component, ...rest }: PrivateRouteProps) => {
   const { auth } = useAppSelector((state: RootState) => state.user);
-  const { isAuthenticated } = auth;
+  const isAuthenticated = auth.data ? auth.data.isAuthenticated : false;
   const dispatch = useAppDispatch();
 
   if (!isAuthenticated) {

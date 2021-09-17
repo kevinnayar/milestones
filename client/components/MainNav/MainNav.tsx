@@ -7,9 +7,10 @@ import { RootState } from '../../store/store';
 
 export const MainNav = () => {
   const { auth } = useAppSelector((state: RootState) => state.user);
+  const isAuthenticated = auth.data ? auth.data.isAuthenticated : false;
   const dispatch = useAppDispatch();
 
-  const links = auth.isAuthenticated ? (
+  const links = isAuthenticated ? (
     <>
       <Link to="/dashboard">
         <i className="material-icons">dashboard</i>

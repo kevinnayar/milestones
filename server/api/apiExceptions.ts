@@ -1,77 +1,75 @@
 import { Response } from 'express';
 
-type StatusMap = {
-  [k: string]: {
-    code: number;
-    name: string;
-  };
+type Exception = {
+  status: number;
+  name: string;
+  message?: string;
 };
 
-const STATUSES: StatusMap = {
+type ExceptionMap = {
+  [k: string]: Exception,
+};
+
+const EXCEPTIONS: ExceptionMap = {
   badRequestException: {
-    code: 400,
+    status: 400,
     name: 'Bad Request',
   },
   unauthorizedException: {
-    code: 401,
+    status: 401,
     name: 'Uauthorized',
   },
   forbiddenException: {
-    code: 403,
+    status: 403,
     name: 'Forbidden',
   },
   notFoundException: {
-    code: 404,
+    status: 404,
     name: 'Not Found',
   },
   conflictException: {
-    code: 409,
+    status: 409,
     name: 'Conflict',
   },
   internalServerErrorException: {
-    code: 500,
+    status: 500,
     name: 'Internal Server Error',
   },
 };
 
-function baseException(statusCode: number, res: Response, error: string): Response {
-  return res.status(statusCode).json({ error });
+function baseException(res: Response, exception: Exception, messageMaybe: string): Response {
+  const { status, name } = exception;
+  const message = messageMaybe || exception.name;
+  const error: Exception = {
+    status,
+    name,
+    message,
+  };
+  return res.status(error.status).send(error);
 }
 
-export function badRequestException(res: Response, errorMaybe?: string) {
-  const { code, name } = STATUSES.badRequestException;
-  const error = errorMaybe || name;
-  return baseException(code, res, error);
+export function badRequestException(res: Response, messageMaybe?: string) {
+  return baseException(res, EXCEPTIONS.badRequestException, messageMaybe);
 }
 
-export function unauthorizedException(res: Response, errorMaybe?: string) {
-  const { code, name } = STATUSES.unauthorizedException;
-  const error = errorMaybe || name;
-  return baseException(code, res, error);
+export function unauthorizedException(res: Response, messageMaybe?: string) {
+  return baseException(res, EXCEPTIONS.unauthorizedException, messageMaybe);
 }
 
-export function forbiddenException(res: Response, errorMaybe?: string) {
-  const { code, name } = STATUSES.forbiddenException;
-  const error = errorMaybe || name;
-  return baseException(code, res, error);
+export function forbiddenException(res: Response, messageMaybe?: string) {
+  return baseException(res, EXCEPTIONS.forbiddenException, messageMaybe);
 }
 
-export function notFoundException(res: Response, errorMaybe?: string) {
-  const { code, name } = STATUSES.notFoundException;
-  const error = errorMaybe || name;
-  return baseException(code, res, error);
+export function notFoundException(res: Response, messageMaybe?: string) {
+  return baseException(res, EXCEPTIONS.notFoundException, messageMaybe);
 }
 
-export function conflictException(res: Response, errorMaybe?: string) {
-  const { code, name } = STATUSES.conflictException;
-  const error = errorMaybe || name;
-  return baseException(code, res, error);
+export function conflictException(res: Response, messageMaybe?: string) {
+  return baseException(res, EXCEPTIONS.conflictException, messageMaybe);
 }
 
-export function internalServerErrorException(res: Response, errorMaybe?: string) {
-  const { code, name } = STATUSES.internalServerErrorException;
-  const error = errorMaybe || name;
-  return baseException(code, res, error);
+export function internalServerErrorException(res: Response, messageMaybe?: string) {
+  return baseException(res, EXCEPTIONS.internalServerErrorException, messageMaybe);
 }
 
 

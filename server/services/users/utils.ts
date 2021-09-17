@@ -49,7 +49,7 @@ export function userRemovePII(user: EntityUser, rightIds?: RightType[]): UserNoP
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
   const { roleId: _r, firstName: _f, lastName: _l, email: _e, ...userNoPII } = user;
   const userWithRights: UserNoPII = {
-    ...userRemovePII(user),
+    ...userNoPII,
     rightIds,
   };
   return userWithRights;
