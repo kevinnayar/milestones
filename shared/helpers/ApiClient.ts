@@ -52,7 +52,7 @@ class ApiClient {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       credentials: 'include',
-      body : JSON.stringify(body || {}),
+      ...(body ? { body: JSON.stringify(body) } : {}),
     };
 
     const res = await fetch(url, init);
