@@ -1,69 +1,55 @@
 /* eslint-disable no-param-reassign */
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { AppDispatch } from '../store';
-
-import config from '../../clientConfig';
-import { xferInit, xferRequest, xferSuccess, xferFailure, callApi } from '../../../shared/utils/asyncUtils';
-import { formatError } from '../../../shared/utils/baseUtils';
-import { RootState } from '../store';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { apiClient } from '../../../shared/helpers/ApiClient';
+import {
+  fetchInit,
+  fetchRequest,
+  fetchSuccess,
+  fetchFailure,
+} from '../../../shared/utils/asyncUtils';
 import { EntityTeam } from '../../../shared/types/entityTypes';
-import { ApiTransferStatus } from '../../../shared/types/baseTypes';
+import { FetchState } from '../../../shared/types/baseTypes';
 
 export type TeamReducer = {
-  teamXfer: ApiTransferStatus;
-  team: null | EntityTeam;
+  current: FetchState<null | EntityTeam>;
 };
 
 const initialState: TeamReducer = {
-  teamXfer: xferInit(),
-  team: null,
+  current: fetchInit(),
 };
+
+type AuthCredentials = {
+  userId: string;
+  token: string;
+};
+
+export const teamGetTeam = createAsyncThunk<null | EntityTeam, AuthCredentials>(
+  'team/getTeam',
+  async ({ userId, token }) => {
+    const teams: null | EntityTeam = await apiClient.post(`/users/${userId}/teams`, { token });
+    return teams;
+  },
+);
 
 export const teamSlice = createSlice({
   name: 'team',
   initialState,
   reducers: {
-    setTeamXfer: (state, action: PayloadAction<ApiTransferStatus>) => {
-      state.teamXfer = action.payload;
-    },
-    setTeam: (state, action: PayloadAction<null | EntityTeam>) => {
-      state.team = action.payload;
-    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(teamGetTeam.pending, (state) => {
+        state.current = fetchRequest();
+      })
+      .addCase(teamGetTeam.fulfilled, (state, action: PayloadAction<null | EntityTeam>) => {
+        state.current = fetchSuccess(action.payload);
+      })
+      .addCase(teamGetTeam.rejected, (state, action) => {
+        state.current = fetchFailure(action.error.message);
+      });
   },
 });
 
-const { setTeamXfer, setTeam } = teamSlice.actions;
-
-export const getTeam = () => async (dispatch: AppDispatch, getState: () => RootState) => {
-  try {
-    const state = getState();
-    const { isAuthenticated, userId, token, tokenExpiration } = state.user.auth;
-    if (!isAuthenticated || !userId || !token || !tokenExpiration) {
-      console.log('not authed!');
-      return;
-    }
-
-    const requested = xferRequest();
-    dispatch(setTeamXfer(requested));
-
-    const opts = {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ userId }),
-    };
-    const team: null | EntityTeam = await callApi(
-      `${config.api.baseUrl}/api/v1/users/${userId}/teams`,
-      opts,
-    ) || null;
-    dispatch(setTeam(team));
-
-    const succeeded = xferSuccess();
-    dispatch(setTeamXfer(succeeded));
-  } catch (e) {
-    const error = formatError(e);
-    const failed = xferFailure(error);
-    dispatch(setTeamXfer(failed));
-  }
-};
-
 export default teamSlice.reducer;
+
+

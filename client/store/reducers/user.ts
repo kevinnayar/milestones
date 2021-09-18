@@ -1,14 +1,13 @@
 /* eslint-disable no-param-reassign */
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import config from '../../clientConfig';
+import { apiClient } from '../../../shared/helpers/ApiClient';
 import {
   fetchInit,
   fetchRequest,
   fetchSuccess,
   fetchFailure,
-  callApi,
 } from '../../../shared/utils/asyncUtils';
-import { UserAuthResponse, UserNoPII } from '../../../shared/types/entityTypes';
+import { UserAuthResponse, UserNoPII, UserCreateParams } from '../../../shared/types/entityTypes';
 import { FetchState } from '../../../shared/types/baseTypes';
 
 export type UserReducer = {
@@ -20,7 +19,7 @@ export type UserReducer = {
 const initialState: UserReducer = {
   auth: fetchInit(),
   self: fetchInit(),
-  loginRedirectPath: '/dashboard',
+  loginRedirectPath: '/tracks',
 };
 
 type LoginCredentials = {
@@ -31,30 +30,23 @@ type LoginCredentials = {
 export const userLogin = createAsyncThunk<UserAuthResponse, LoginCredentials>(
   'user/login',
   async (body: LoginCredentials) => {
-    const opts = {
-      method: 'POST',
-      body: JSON.stringify(body),
-    };
-    const user: UserAuthResponse = await callApi(`${config.api.baseUrl}/api/v1/users/login`, opts);
+    const user: UserAuthResponse = await apiClient.post('/users/login', { body });
     return user;
   },
 );
 
-type AuthCredentials = {
-  userId: string;
-  token: string;
-};
+export const userRegister = createAsyncThunk<UserAuthResponse, LoginCredentials>(
+  'user/register',
+  async (body: UserCreateParams) => {
+    const user: UserAuthResponse = await apiClient.post('/users/register', { body });
+    return user;
+  },
+);
 
-export const userGetSelf = createAsyncThunk<UserNoPII, AuthCredentials>(
+export const userGetSelf = createAsyncThunk<UserNoPII, string>(
   'user/getSelf',
-  async ({ userId, token }) => {
-    console.log({ userId, token });
-    const opts = {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ userId }),
-    };
-    const self: UserNoPII = await callApi(`${config.api.baseUrl}/api/v1/users/self`, opts);
+  async (token: string) => {
+    const self: UserNoPII = await apiClient.post('/users/self', { token });
     return self;
   },
 );
@@ -62,7 +54,15 @@ export const userGetSelf = createAsyncThunk<UserNoPII, AuthCredentials>(
 export const userLogout = createAsyncThunk(
   'user/logout',
   async () => {
-    await callApi(`${config.api.baseUrl}/api/v1/users/logout`);
+    await apiClient.get('/users/logout');
+  },
+);
+
+export const userRefreshToken = createAsyncThunk<UserAuthResponse>(
+  'user/refreshToken',
+  async () => {
+    const user: UserAuthResponse = await apiClient.post('/users/refresh-token', {});
+    return user;
   },
 );
 
@@ -80,22 +80,35 @@ export const userSlice = createSlice({
       .addCase(userLogin.pending, (state) => {
         state.auth = fetchRequest();
       })
-      .addCase(userLogin.fulfilled, (state, action) => {
+      .addCase(userLogin.fulfilled, (state, action: PayloadAction<UserAuthResponse>) => {
         state.auth = fetchSuccess(action.payload);
       })
       .addCase(userLogin.rejected, (state, action) => {
         state.auth = fetchFailure(action.error.message);
       })
+
+      // register
+      .addCase(userRegister.pending, (state) => {
+        state.auth = fetchRequest();
+      })
+      .addCase(userRegister.fulfilled, (state, action: PayloadAction<UserAuthResponse>) => {
+        state.auth = fetchSuccess(action.payload);
+      })
+      .addCase(userRegister.rejected, (state, action) => {
+        state.auth = fetchFailure(action.error.message);
+      })
+
       // getSelf
       .addCase(userGetSelf.pending, (state) => {
         state.self = fetchRequest();
       })
-      .addCase(userGetSelf.fulfilled, (state, action) => {
+      .addCase(userGetSelf.fulfilled, (state, action: PayloadAction<UserNoPII>) => {
         state.self = fetchSuccess(action.payload);
       })
       .addCase(userGetSelf.rejected, (state, action) => {
         state.self = fetchFailure(action.error.message);
       })
+
       // logout
       .addCase(userLogout.pending, (state) => {
         state.auth = fetchRequest();
@@ -108,6 +121,17 @@ export const userSlice = createSlice({
       .addCase(userLogout.rejected, (state, action) => {
         state.auth = fetchFailure(action.error.message);
         state.self = fetchFailure(action.error.message);
+      })
+
+      // refreshToken
+      .addCase(userRefreshToken.pending, (state) => {
+        state.auth = fetchRequest();
+      })
+      .addCase(userRefreshToken.fulfilled, (state, action: PayloadAction<UserAuthResponse>) => {
+        state.auth = fetchSuccess(action.payload);
+      })
+      .addCase(userRefreshToken.rejected, (state, action) => {
+        state.auth = fetchFailure(action.error.message);
       });
   },
 });
@@ -115,54 +139,4 @@ export const userSlice = createSlice({
 export const { setLoginRedirectPath } = userSlice.actions;
 
 export default userSlice.reducer;
-
-
-
-// export const userKeepAlive = (userId: null | string) => async (dispatch: AppDispatch, getState: () => RootState) => {
-//   try {
-//     if (!userId) throw new Error('No user ID provided');
-
-//     const state = getState();
-//     if (state.user.auth.userId !== userId) throw new Error('Incorrect user ID');
-
-//     const requested = xferRequest();
-//     dispatch(setUserAuthXfer(requested));
-
-//     const opts = {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ userId }),
-//     };
-//     await callApi(`${config.api.baseUrl}/api/v1/users/keep-alive`, opts);
-
-//     const succeeded = xferSuccess();
-//     dispatch(setUserAuthXfer(succeeded));
-//   } catch (e) {
-//     const error = formatError(e);
-//     const failed = xferFailure(error);
-//     dispatch(setUserAuthXfer(failed));
-//   }
-// };
-
-// export const userRegister = (params: UserCreateParams) => async (dispatch: AppDispatch) => {
-//   try {
-//     const requested = xferRequest();
-//     dispatch(setUserAuthXfer(requested));
-
-//     const opts = {
-//       method: 'POST',
-//       body: JSON.stringify(params),
-//     };
-//     const user: UserAuthResponse = await callApi(`${config.api.baseUrl}/api/v1/users/register`, opts);
-//     dispatch(setUserAuth(user));
-
-//     const succeeded = xferSuccess();
-//     dispatch(setUserAuthXfer(succeeded));
-//   } catch (e) {
-//     const error = formatError(e);
-//     const failed = xferFailure(error);
-//     dispatch(setUserAuthXfer(failed));
-//   }
-// };
-
 

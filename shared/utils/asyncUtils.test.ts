@@ -1,82 +1,79 @@
 import {
-  xferInit,
-  xferRequest,
-  xferSuccess,
-  xferFailure,
-  hasXferInited,
-  hasXferRequested,
-  hasXferSucceeded,
-  hasXferFailed,
+  fetchInit,
+  fetchRequest,
+  fetchSuccess,
+  fetchFailure,
+  hasFetchNotStarted,
+  hasFetchRequested,
+  hasFetchSucceeded,
+  hasFetchFailed,
 } from './asyncUtils';
 
 const resInit = {
-  requested: false,
-  succeeded: false,
-  failed: false,
-  error: undefined,
+  loading: false,
+  data: null,
+  error: null,
 };
 
 const resRequest = {
-  requested: true,
-  succeeded: false,
-  failed: false,
-  error: undefined,
+  loading: true,
+  data: null,
+  error: null,
 };
 
 const resSuccess = {
-  requested: false,
-  succeeded: true,
-  failed: false,
-  error: undefined,
+  loading: false,
+  data: { foo: 'bar' },
+  error: null,
 };
 
 const resFailure = {
-  requested: false,
-  succeeded: false,
-  failed: true,
+  loading: false,
+  data: null,
+  error: 'Could not fetch data',
 };
 
 describe('asyncUtils', () => {
-  test('xfers', () => {
-    expect(xferInit()).toEqual(resInit);
-    expect(xferRequest()).toEqual(resRequest);
-    expect(xferSuccess()).toEqual(resSuccess);
-    expect(xferFailure()).toEqual(resFailure);
+  test('fetches', () => {
+    expect(fetchInit()).toEqual(resInit);
+    expect(fetchRequest()).toEqual(resRequest);
+    expect(fetchSuccess({ foo: 'bar' })).toEqual(resSuccess);
+    expect(fetchFailure()).toEqual(resFailure);
 
-    const errorMsg = 'some error message';
-    const errorObj = new Error(errorMsg);
+    const error = 'some error message';
+    const errorObj = new Error(error);
 
-    expect(xferFailure(errorMsg)).toEqual({
+    expect(fetchFailure(error)).toEqual({
       ...resFailure,
-      error: errorMsg,
+      error,
     });
 
-    expect(xferFailure(errorObj)).toEqual({
+    expect(fetchFailure(errorObj)).toEqual({
       ...resFailure,
-      error: 'some error message',
+      error,
     });
   });
 
-  test('hasXfers', () => {
-    expect(hasXferInited(resInit)).toEqual(true); // <-- TRUE
-    expect(hasXferInited(resRequest)).toEqual(false);
-    expect(hasXferInited(resSuccess)).toEqual(false);
-    expect(hasXferInited(resFailure)).toEqual(false);
+  test('fetch validators', () => {
+    expect(hasFetchNotStarted(resInit)).toEqual(true); // <-- TRUE
+    expect(hasFetchNotStarted(resRequest)).toEqual(false);
+    expect(hasFetchNotStarted(resSuccess)).toEqual(false);
+    expect(hasFetchNotStarted(resFailure)).toEqual(false);
 
-    expect(hasXferRequested(resInit)).toEqual(false);
-    expect(hasXferRequested(resRequest)).toEqual(true); // <-- TRUE
-    expect(hasXferRequested(resSuccess)).toEqual(false);
-    expect(hasXferRequested(resFailure)).toEqual(false);
+    expect(hasFetchRequested(resInit)).toEqual(false);
+    expect(hasFetchRequested(resRequest)).toEqual(true); // <-- TRUE
+    expect(hasFetchRequested(resSuccess)).toEqual(false);
+    expect(hasFetchRequested(resFailure)).toEqual(false);
 
-    expect(hasXferSucceeded(resInit)).toEqual(false);
-    expect(hasXferSucceeded(resRequest)).toEqual(false);
-    expect(hasXferSucceeded(resSuccess)).toEqual(true); // <-- TRUE
-    expect(hasXferSucceeded(resFailure)).toEqual(false);
+    expect(hasFetchSucceeded(resInit)).toEqual(false);
+    expect(hasFetchSucceeded(resRequest)).toEqual(false);
+    expect(hasFetchSucceeded(resSuccess)).toEqual(true); // <-- TRUE
+    expect(hasFetchSucceeded(resFailure)).toEqual(false);
 
-    expect(hasXferFailed(resInit)).toEqual(false);
-    expect(hasXferFailed(resRequest)).toEqual(false);
-    expect(hasXferFailed(resSuccess)).toEqual(false);
-    expect(hasXferFailed(resFailure)).toEqual(true); // <-- TRUE
+    expect(hasFetchFailed(resInit)).toEqual(false);
+    expect(hasFetchFailed(resRequest)).toEqual(false);
+    expect(hasFetchFailed(resSuccess)).toEqual(false);
+    expect(hasFetchFailed(resFailure)).toEqual(true); // <-- TRUE
   });
 });
 

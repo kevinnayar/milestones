@@ -46,7 +46,7 @@ class TeamsHandler {
     return res.status(200).json({ team });
   };
 
-  getTeamByUser = async (req: Request, res: Response) => {
+  getUserTeam = async (req: Request, res: Response) => {
     this.logger.logRequest(req);
 
     const userId = req.params.userId;
@@ -55,9 +55,9 @@ class TeamsHandler {
       return forbiddenException(res, `User: ${userId} does not have permissions to see a team`);
     }
 
-    const teamMaybe = await dbTeamGetByUser(this.client, userId);
+    const team = await dbTeamGetByUser(this.client, userId);
 
-    return res.status(200).json({ team: teamMaybe });
+    return res.status(200).json(team);
   };
 }
 
@@ -65,6 +65,6 @@ export function handler(opts: ServiceHandlerOpts) {
   const { app } = opts;
   const team = new TeamsHandler(opts);
 
-  app.post('/api/v1/users/:userId/teams', handleRequest(team.getTeamByUser));
+  app.post('/api/v1/users/:userId/teams', handleRequest(team.getUserTeam));
   app.post('/api/v1/users/:userId/teams/create', handleRequest(team.createTeam));
 }

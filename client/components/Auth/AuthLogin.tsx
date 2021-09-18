@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
+import { DateTime } from 'luxon';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { useAppSelector } from '../../hooks/useAppSelector';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
@@ -57,6 +58,17 @@ export const AuthLogin = (props: RouteComponentProps) => {
     }
   };
 
+  useEffect(() => {
+    if (
+      auth &&
+      auth.data &&
+      auth.data.isAuthenticated &&
+      auth.data.tokenExpiration < DateTime.now().toMillis()
+    ) {
+      props.history.push(loginRedirectPath);
+    }
+  }, [props.history, auth, loginRedirectPath]);
+
   useEffect(() => { if (auth.error) setApiError(auth.error); }, [auth.error]);
 
   useEffect(() => { if (self.error) setApiError(self.error); }, [self.error]);
@@ -64,10 +76,9 @@ export const AuthLogin = (props: RouteComponentProps) => {
   useEffect(() => {
     if (
       hasFetchSucceeded(auth) && hasFetchNotStarted(self) &&
-      auth.data && auth.data.userId && auth.data.token
+      auth.data && auth.data.token
     ) {
-      const { userId, token } = auth.data;
-      dispatch(userGetSelf({ userId, token }));
+      dispatch(userGetSelf(auth.data.token));
     }
   }, [dispatch, auth, self]);
 

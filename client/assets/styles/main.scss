@@ -45,12 +45,12 @@ a {
 
 h1 {
   font-size: 3.2em;
-  margin-bottom: 0.6em;
+  margin-bottom: 1em;
 }
 
 h2 {
   font-size: 2.4em;
-  margin-bottom: 0.45em;
+  margin-bottom: 0.67em;
 }
 
 h3 {
@@ -124,15 +124,17 @@ body.light {
   @import '../../components/AppFooter/app-footer.scss';
 
   @import '../../components/ThemeSwitch/theme-switch.scss';
+  @import '../../components/Loader/loader.scss';
   @import '../../components/Branding/branding.scss';
   @import '../../components/MainNav/main-nav.scss';
   @import '../../components/Alert/alert.scss';
   @import '../../components/Auth/auth.scss';
+  @import '../../components/ContentArea/content-area.scss';
 }
 
 body.dark {
   $color-bg: $gray-800;
-  $color-subtle-bg: $gray-600;
+  $color-subtle-bg: $gray-700;
   $color-text: $gray-300;
   $color-subtle-text: $gray-500;
   $color-border: $gray-400;
@@ -147,9 +149,11 @@ body.dark {
   @import '../../components/AppFooter/app-footer.scss';
 
   @import '../../components/ThemeSwitch/theme-switch.scss';
+  @import '../../components/Loader/loader.scss';
   @import '../../components/Branding/branding.scss';
   @import '../../components/MainNav/main-nav.scss';
   @import '../../components/Alert/alert.scss';
   @import '../../components/Auth/auth.scss';
+  @import '../../components/ContentArea/content-area.scss';
 }
 

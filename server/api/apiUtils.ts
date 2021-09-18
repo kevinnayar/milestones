@@ -5,7 +5,6 @@ import { Request, Response, NextFunction } from 'express';
 import config from '../serverConfig';
 import { formatError } from '../../shared/utils/baseUtils';
 import { badRequestException, unauthorizedException } from './apiExceptions';
-// import { isStrictStringOrThrow } from '../../shared/utils/typeUtils';
 
 // export function createUserSession(req: Request, userId: string) {
 //   // @ts-ignore
@@ -43,12 +42,9 @@ export function createUserToken(userId: string, utcTimestamp: number): TokenResp
     iat: utcTimestamp,
   };
 
-  // const minute = 1000 * 60;
-  // const expiresIn = minute * 5;
-  // const refreshExpiresIn = minute * 10;
-  const second = 1000;
-  const expiresIn = second * 20;
-  const refreshExpiresIn = second * 120;
+  const minute = 1000 * 60;
+  const expiresIn = minute * 10; // 10 minutes
+  const refreshExpiresIn = minute * 60 * 24 * 7; // 7 days
 
   const token = jwt.sign(payload, jwtSecret, {
     expiresIn,
@@ -74,49 +70,47 @@ export function getUserToken(req: Request): null | string {
   return null;
 }
 
-export function verifyUserTokenAndSession(res: Response, token: string) {
-  // const session = req.session;
-  // if (!session) return unauthorizedException(res, 'No session');
-
-  // console.log({ sessionIn: session });
-
-  // // @ts-ignore
-  // const userId = isStrictStringOrThrow(session.userId, 'No user session');
-
+export function verifyUserTokenAndSession(res: Response, token: string): string {
   try {
     const { jwtSecret, issuer, audience } = config.auth;
     const verified: JwtPayload = jwt.verify(token, jwtSecret) as any;
 
-    if (/* verified.sub !== userId || */verified.iss !== issuer || verified.aud !== audience) {
-      return unauthorizedException(res, 'Token verification failed');
+    if (verified.iss !== issuer || verified.aud !== audience) {
+      unauthorizedException(res, 'Token verification failed');
     }
 
     if (!verified.exp || DateTime.now().toMillis() > verified.exp) {
-      return unauthorizedException(res, 'Token expired');
+      unauthorizedException(res, 'Token expired');
     }
+
+    return verified.sub;
   } catch (e) {
-    return unauthorizedException(res, 'Invalid token');
+    unauthorizedException(res, 'Invalid token');
   }
 }
-
-const publicRoutes: { [k: string]: true } = {
-  '/api/v1/users/register': true,
-  '/api/v1/users/login': true,
-  '/api/v1/users/logout': true,
-  '/api/v1/users/keep-alive': true,
-};
 
 type ExpressRouteFn = (_req: Request, _res: Response, _next: NextFunction) => any;
 
 export function handleRequest(route: ExpressRouteFn): ExpressRouteFn {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const publicRoutes: { [k: string]: true } = {
+        '/api/v1/users/register': true,
+        '/api/v1/users/login': true,
+        '/api/v1/users/logout': true,
+        '/api/v1/users/refresh-token': true,
+      };
       const isPrivateRoute = Boolean(!publicRoutes[req.route.path]);
 
       if (isPrivateRoute) {
         const token = getUserToken(req);
         if (!token) return unauthorizedException(res, 'No token');
-        verifyUserTokenAndSession(res, token);
+
+        const userId = verifyUserTokenAndSession(res, token);
+        req.body = {
+          ...req.body,
+          userId,
+        };
       }
 
       await route(req, res, next);

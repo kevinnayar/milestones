@@ -50,8 +50,7 @@ export async function dbTeamCreate(client: DBClient, userId: string, team: Entit
   return team.teamId;
 }
 
-
-export async function dbTeamGetByUser(client: DBClient, userId: string): Promise<void | EntityTeam> {
+export async function dbTeamGetByUser(client: DBClient, userId: string): Promise<null | EntityTeam> {
   const query = `
     SELECT teams.* FROM teams
       JOIN users ON users.team_id = teams.id
@@ -61,7 +60,7 @@ export async function dbTeamGetByUser(client: DBClient, userId: string): Promise
   const values = [userId];
 
   const rows = await client.query(query, values);
-  const teamMaybe = rows && rows.length ? convertRowToTeam(rows[0]) : undefined;
-  return teamMaybe;
+  const teams = rows && rows.length ? convertRowToTeam(rows[0]) : null;
+  return teams;
 }
 

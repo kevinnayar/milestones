@@ -2,7 +2,15 @@ import * as chalk from 'chalk';
 import { Request } from 'express';
 
 function redactPII<T>(inputData: T): T {
-  const redactedKeys = ['roleId', 'role_id', 'password', 'firstName', 'first_name', 'lastName', 'last_name'];
+  const redactedKeys = [
+    'roleId',
+    'role_id',
+    'password',
+    'firstName',
+    'first_name',
+    'lastName',
+    'last_name',
+  ];
   const redactedData = {};
 
   for (const key of redactedKeys) {

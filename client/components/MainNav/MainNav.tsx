@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { userLogout } from '../../store/reducers/user';
 import { useAppSelector } from '../../hooks/useAppSelector';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
@@ -12,18 +12,14 @@ export const MainNav = () => {
 
   const links = isAuthenticated ? (
     <>
-      <Link to="/dashboard">
-        <i className="material-icons">dashboard</i>
-        <p>Dashboard</p>
-      </Link>
-      <Link to="/configure">
+      <NavLink to="/tracks">
+        <i className="material-icons">insights</i>
+        <p>Tracks</p>
+      </NavLink>
+      <NavLink to="/configure">
         <i className="material-icons">tune</i>
         <p>Configure</p>
-      </Link>
-      <Link to="/account">
-        <i className="material-icons">person</i>
-        <p>Account</p>
-      </Link>
+      </NavLink>
       <Link onClick={() => dispatch(userLogout())} to="/login">
         <i className="material-icons">lock</i>
         <p>Logout</p>
@@ -31,14 +27,14 @@ export const MainNav = () => {
     </>
   ) : (
     <>
-      <Link to="/login">
+      <NavLink to="/login">
         <i className="material-icons">lock</i>
         <p>Login</p>
-      </Link>
-      <Link to="/register">
+      </NavLink>
+      <NavLink to="/register">
         <i className="material-icons">person_add</i>
         <p>Signup</p>
-      </Link>
+      </NavLink>
     </>
   );
 

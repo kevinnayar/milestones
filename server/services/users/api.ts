@@ -19,6 +19,7 @@ import {
 } from '../../api/apiUtils';
 import {
   badRequestException,
+  forbiddenException,
   notFoundException,
   unauthorizedException,
 } from '../../api/apiExceptions';
@@ -95,7 +96,7 @@ class UsersHandler {
       isAuthenticated: true,
       userId,
       token,
-      tokenExpiration,
+      tokenExpiration: utcTimestamp + tokenExpiration,
     };
 
     res.cookie('refresh_token', refreshToken, { maxAge: refreshTokenExpiration, httpOnly: true });
@@ -130,7 +131,7 @@ class UsersHandler {
         isAuthenticated: true,
         userId,
         token,
-        tokenExpiration,
+        tokenExpiration: utcTimestamp + tokenExpiration,
       };
 
       res.cookie('refresh_token', refreshToken, { maxAge: refreshTokenExpiration, httpOnly: true });
@@ -143,6 +144,8 @@ class UsersHandler {
 
   logout = async (req: Request, res: Response) => {
     this.logger.logRequest(req);
+
+    res.clearCookie('refresh_token');
 
     const authResponse: UserAuthResponse = {
       isAuthenticated: false,
@@ -165,33 +168,39 @@ class UsersHandler {
     const rightIds = await dbRolesGetRightsByUser(this.client, userId);
     const userNoPII: UserNoPII = userRemovePII(user, rightIds);
 
-    return res.status(200).json({ user: userNoPII });
+    return res.status(200).json({ ...userNoPII });
   };
 
-  keepAlive = async  (req: Request, res: Response) => {
+  refreshToken = async  (req: Request, res: Response) => {
     this.logger.logRequest(req);
 
-    const userId = isStrictStringOrThrow(req.body.userId, 'Could not get user ID');
-    const currentRefreshToken = isStrictStringOrThrow(req.cookies.refresh_token, 'No refresh token');
+    try {
+      const currentRefreshToken = isStrictStringOrThrow(
+        req.cookies.refresh_token,
+        'No refresh token',
+      );
 
-    verifyUserTokenAndSession(res, currentRefreshToken);
+      const userId = verifyUserTokenAndSession(res, currentRefreshToken);
 
-    const utcTimestamp = DateTime.now().toMillis();
-    const { token, tokenExpiration, refreshToken, refreshTokenExpiration } = createUserToken(
-      userId,
-      utcTimestamp,
-    );
+      const utcTimestamp = DateTime.now().toMillis();
+      const { token, tokenExpiration, refreshToken, refreshTokenExpiration } = createUserToken(
+        userId,
+        utcTimestamp,
+      );
 
-    const authResponse: UserAuthResponse = {
-      isAuthenticated: true,
-      userId,
-      token,
-      tokenExpiration,
-    };
+      const authResponse: UserAuthResponse = {
+        isAuthenticated: true,
+        userId,
+        token,
+        tokenExpiration: utcTimestamp + tokenExpiration,
+      };
 
-    res.cookie('refresh_token', refreshToken, { maxAge: refreshTokenExpiration, httpOnly: true });
+      res.cookie('refresh_token', refreshToken, { maxAge: refreshTokenExpiration, httpOnly: true });
 
-    return res.status(200).json(authResponse);
+      return res.status(200).json(authResponse);
+    } catch (e) {
+      return forbiddenException(res);
+    }
   };
 }
 
@@ -203,6 +212,6 @@ export function handler(opts: ServiceHandlerOpts) {
   app.post('/api/v1/users/login', handleRequest(users.login));
   app.get('/api/v1/users/logout', handleRequest(users.logout));
   app.post('/api/v1/users/self', handleRequest(users.getSelf));
-  app.post('/api/v1/users/keep-alive', handleRequest(users.keepAlive));
+  app.post('/api/v1/users/refresh-token', handleRequest(users.refreshToken));
 }
 
