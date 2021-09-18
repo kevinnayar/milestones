@@ -14,6 +14,17 @@ type Method =
   | 'delete'
 ;
 
+function getMethod(key: Method): string {
+  const methods = {
+    get: 'GET',
+    post: 'POST',
+    put: 'PUT',
+    patch: 'PATCH',
+    delete: 'DELETE',
+  };
+  return methods[key];
+}
+
 function getUrlSearchParams(query?: { [k: string]: string }): string {
   if (!query) return '';
   const queryParams = [];
@@ -25,15 +36,22 @@ function getUrlSearchParams(query?: { [k: string]: string }): string {
   return queryParams.length ? `?${queryParams.join('&')}` : '';
 }
 
-function getMethod(key: Method): string {
-  const methods = {
-    get: 'GET',
-    post: 'POST',
-    put: 'PUT',
-    patch: 'PATCH',
-    delete: 'DELETE',
+function getRequestCredentials(route: string): { credentials?: RequestCredentials } {
+  const routes = ['login', 'register', 'refresh-token'];
+  const match = routes.find((r) => route.match(r));
+  return match ? { credentials: 'include' } : {};
+}
+
+function getStringifiedBody(body?: { [k: string]: any }): {body?: string } {
+  return body ? { body: JSON.stringify(body) } : {};
+}
+
+function getHeaders(token?: string): HeadersInit {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
-  return methods[key];
+  return headers;
 }
 
 class ApiClient {
@@ -47,13 +65,12 @@ class ApiClient {
 
     const init: RequestInit = {
       method: getMethod(method),
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      credentials: 'include',
-      ...(body ? { body: JSON.stringify(body) } : {}),
+      headers: getHeaders(token),
+      ...getRequestCredentials(route),
+      ...getStringifiedBody(body),
     };
+
+    console.log({ init });
 
     const res = await fetch(url, init);
     const data: T = await res.json();

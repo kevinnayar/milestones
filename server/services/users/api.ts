@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import * as bcrypt from 'bcrypt';
 import { DateTime } from 'luxon';
 import { promisify } from 'util';
-
 import {
   dbUserCreate,
   dbUserEmailExists,
@@ -23,7 +22,7 @@ import {
   notFoundException,
   unauthorizedException,
 } from '../../api/apiExceptions';
-import { createGuid } from '../../../shared/utils/baseUtils';
+import { createGuid, formatError } from '../../../shared/utils/baseUtils';
 import { isStrictStringOrThrow } from '../../../shared/utils/typeUtils';
 import { validUserCreateParams, userRemovePII } from './utils';
 
@@ -199,7 +198,7 @@ class UsersHandler {
 
       return res.status(200).json(authResponse);
     } catch (e) {
-      return forbiddenException(res);
+      return forbiddenException(res, formatError(e));
     }
   };
 }
