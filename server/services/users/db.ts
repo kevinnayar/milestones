@@ -5,6 +5,7 @@ export async function dbUserCreate(
   client: DBClient,
   user: EntityUser,
   hashedPassword: string,
+  teamName: string,
 ): Promise<string> {
   const userQuery = `
     INSERT INTO users (
@@ -24,7 +25,7 @@ export async function dbUserCreate(
   const userValues = [
     user.userId,
     user.roleId,
-    user.teamId || null,
+    user.teamId,
     user.displayName,
     user.firstName,
     user.lastName,
@@ -52,9 +53,27 @@ export async function dbUserCreate(
     user.utcTimeUpdated,
   ];
 
+  const teamQuery = `
+    INSERT INTO teams (
+      id,
+      name,
+      utc_time_created,
+      utc_time_updated
+    )
+    VALUES ($1, $2, $3, $4)
+    ;
+  `;
+  const teamValues = [
+    user.teamId,
+    teamName,
+    user.utcTimeCreated,
+    user.utcTimeUpdated,
+  ];
+
   await client.tx(async (t) => {
     await t.query(userQuery, userValues);
     await t.query(credsQuery, credsValues);
+    await t.query(teamQuery, teamValues);
   });
 
   return user.userId;

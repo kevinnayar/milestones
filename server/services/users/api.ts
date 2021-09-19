@@ -43,6 +43,7 @@ class UsersHandler {
     this.logger.logRequest(req);
 
     const userId = createGuid('user');
+    const teamId = createGuid('team');
     const params = validUserCreateParams(req.body);
     const utcTimestamp = DateTime.now().toMillis();
 
@@ -51,22 +52,8 @@ class UsersHandler {
       return badRequestException(res, `A user with email '${params.email}' already exists`);
     }
 
-    if (params.roleId === 'role_owner' && params.teamId) {
-      return badRequestException(res, 'Cannot create user as owner of an existing team');
-    }
-
-    if (params.roleId === 'role_viewer' || params.roleId === 'role_editor') {
-      if (!params.teamId) {
-        return badRequestException(res, 'Cannot create user as viewer/editor without an existing team');
-      }
-
-      const teamExists = await dbTeamExists(this.client, params.teamId);
-      if (!teamExists) {
-        return badRequestException(
-          res,
-          `Cannot created user as viewer/editor because team: '${params.teamId}' doesn't exist`,
-        );
-      }
+    if (params.roleId !== 'role_owner') {
+      return forbiddenException(res, 'You don\'t have permisions to create a user');
     }
 
     const hashedPassword = await promisify(bcrypt.hash)(params.password, 10);
@@ -74,7 +61,7 @@ class UsersHandler {
     const user: EntityUser = {
       userId,
       roleId: params.roleId,
-      teamId: params.teamId,
+      teamId,
       displayName: params.displayName,
       imgUrl: params.imgUrl,
       firstName: params.firstName,
@@ -84,7 +71,7 @@ class UsersHandler {
       utcTimeUpdated: utcTimestamp,
     };
 
-    await dbUserCreate(this.client, user, hashedPassword);
+    await dbUserCreate(this.client, user, hashedPassword, params.teamName);
 
     const { token, tokenExpiration, refreshToken, refreshTokenExpiration } = createUserToken(
       userId,

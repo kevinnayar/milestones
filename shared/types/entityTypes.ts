@@ -27,7 +27,7 @@ export type EntityUser = {
 
 export type UserCreateParams = {
   roleId: string;
-  teamId?: Maybe<string>;
+  teamName: string;
   displayName: string;
   imgUrl?: Maybe<string>;
   firstName: string;

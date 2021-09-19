@@ -19,10 +19,6 @@ export function validUserCreateParams(params: any): UserCreateParams {
   const password = isStrictStringOrThrow(params.password, 'Password is required');
 
   const roleId: RoleType = inStringUnionOrThrow(params.roleId, getValidRoles(), 'A valid role is required');
-  const teamId: Maybe<string> = isStrictStringNullVoidOrThrow(
-    params.teamId,
-    'Optional value team ID is in an invalid format',
-  );
   const imgUrl: Maybe<string> = isStrictStringNullVoidOrThrow(
     params.imgUrl,
     'Optional value image URL is in an invalid format',
@@ -30,10 +26,11 @@ export function validUserCreateParams(params: any): UserCreateParams {
   const displayName = isStrictStringOrThrow(params.displayName, 'Display name is required');
   const firstName = isStrictStringOrThrow(params.firstName, 'First name is required');
   const lastName = isStrictStringOrThrow(params.lastName, 'Last name is required');
+  const teamName = isStrictStringOrThrow(params.displayName, 'Team name is required');
 
   const validParams: UserCreateParams = {
     roleId,
-    teamId,
+    teamName,
     displayName,
     imgUrl,
     firstName,

@@ -16,4 +16,3 @@ export type RootState = {
 
 export type AppDispatch = typeof store.dispatch;
 
-

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { BrowserRouter as Router, Switch, Redirect, Route, RouteProps } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
+import { useUserData } from './hooks/useUserData';
 import { useTheme } from './hooks/useTheme';
 
 import { AppHeader } from './components/AppHeader/AppHeader';
@@ -16,7 +17,10 @@ import { Loader } from './components/Loader/Loader';
 type CustomRoute = RouteProps & { component: any };
 
 export const PrivateRoute = ({ component: Component, ...rest }: CustomRoute) => {
-  const { isLoading, isAuthenticated } = useAuth(rest.path as string);
+  const { isLoading: isAuthLoading, isAuthenticated } = useAuth(rest.path as string);
+  const { isLoading: isUserLoading } = useUserData();
+
+  const isLoading = isAuthLoading && isUserLoading;
 
   if (isLoading) return <Loader />;
 

@@ -28,11 +28,9 @@ export const MainNav = () => {
   ) : (
     <>
       <NavLink to="/login">
-        <i className="material-icons">lock</i>
         <p>Login</p>
       </NavLink>
       <NavLink to="/register">
-        <i className="material-icons">person_add</i>
         <p>Signup</p>
       </NavLink>
     </>

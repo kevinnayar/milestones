@@ -14,36 +14,6 @@
     align-items: center;
     justify-content: center;
     border-bottom: 1px solid $color-subtle-bg;
-
-    a {
-      display: flex;
-      align-items: center;
-      padding: 0 22px;
-      margin: 0 0.5em 1em;
-      height: 48px;
-      background: $color-subtle-bg;
-      color: $color-subtle-text;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: $transition;
-      outline: none;
-      border: none;
-
-      &:hover {
-        opacity: 0.8;
-        box-shadow: 0 0 5px $color-shadow;
-      }
-
-      &.active {
-        color: $color-white;
-        background: $color-blue;
-
-        &:hover {
-          color: $color-white;
-          background: lighten($color-blue, 10%);
-        }
-      }
-    }
   }
 
   &__switch-link {
