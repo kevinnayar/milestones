@@ -12,6 +12,7 @@ import { dbUserInTeam } from '../users/db';
 import { dbRolesUserCan } from '../roles/db';
 import { EntityTrack, TrackState, TrackActionStart } from '../../../shared/types/entityTypes';
 
+
 class TracksHandler {
   client: DBClient;
   logger: Logger;

@@ -22,7 +22,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "jest"
+      "pre-commit": "bash ./precommit.sh"
     }
   },
   "dependencies": {

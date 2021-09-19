@@ -23,9 +23,12 @@ try {
   fs.readdir(path.join(__dirname, '../server/services'), (err, services) => {
     if (err) throw new Error('problem running api');
 
+    // [NOTES:services] each service with an api file is started
     for (const name of services) {
       const file = `../server/services/${name}/api.ts`;
-      const validFile = fs.existsSync(path.join(__dirname, file)) ? path.join(__dirname, file) : null;
+      const validFile = fs.existsSync(path.join(__dirname, file))
+        ? path.join(__dirname, file)
+        : null;
 
       if (validFile) {
         /* eslint-disable @typescript-eslint/no-var-requires, import/no-dynamic-require */
