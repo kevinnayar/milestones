@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { DateTime } from 'luxon';
-import { Link, RouteComponentProps } from 'react-router-dom';
+import { RouteComponentProps } from 'react-router-dom';
 import { useAppSelector } from '../../hooks/useAppSelector';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { Input } from '../Input/Input';
+import { Button } from '../Button/Button';
 import { userLogin, userGetSelf } from '../../store/reducers/user';
-import { isValidEmailOrThrow } from '../../../shared/utils/typeUtils';
-import { formatError } from '../../../shared/utils/baseUtils';
+import { isValidEmailOrThrow, isValidPasswordOrThrow } from '../../../shared/utils/typeUtils';
 import { hasFetchNotStarted, hasFetchSucceeded } from '../../../shared/utils/asyncUtils';
 import { RootState } from '../../store/store';
 
@@ -14,48 +15,42 @@ export const AuthLogin = (props: RouteComponentProps) => {
   const { auth, self, loginRedirectPath } = useAppSelector((state: RootState) => state.user);
   const dispatch = useAppDispatch();
 
-  const [apiError, setApiError] = useState<null | string>(null);
-
+  const [error, setError] = useState<null | string>(null);
   const [email, setEmail] = useState('');
-  const [emailError, setEmailError] = useState<null | string>(null);
-
   const [password, setPassword] = useState('');
-  const [passwordError, setPasswordError] = useState<null | string>(null);
 
-  const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+  const [errorTracker, setErrorTracker] = useState({
+    email: false,
+    password: false,
+  });
+
+  const canSubmit = Boolean(
+    email && password && Object.values(errorTracker).every((v) => v === false),
+  );
+
+  const onSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
 
-    switch (evt.currentTarget.name) {
-      case 'email': {
-        setEmail(evt.currentTarget.value);
-        try {
-          isValidEmailOrThrow(evt.currentTarget.value, 'Email is invalid');
-          setEmailError(null);
-        } catch (e) {
-          setEmailError(formatError(e));
-        }
-        break;
-      }
-      case 'password': {
-        setPassword(evt.currentTarget.value);
-        try {
-          setPasswordError(null);
-        } catch (e) {
-          setPasswordError(formatError(e));
-        }
-        break;
-      }
-      default: {
-        setApiError(`Invalid field: ${evt.currentTarget.name || 'null'}`);
-      }
+    if (canSubmit) {
+      dispatch(userLogin({ email, password }));
     }
   };
 
-  const handleLogin = async (evt: React.FormEvent<HTMLFormElement>) => {
-    evt.preventDefault();
-    if (email && password) {
-      dispatch(userLogin({ email, password }));
-    }
+  const validateEmail = (value: string) => {
+    if (!value) throw new Error('Email is required');
+    isValidEmailOrThrow(value, 'Email is in an invalid format');
+  };
+
+  const validatePassword = (value: string) => {
+    if (!value) throw new Error('Password is required');
+    isValidPasswordOrThrow(value);
+  };
+
+  const updateErrorTracker = (input: 'email' | 'password', hasError: boolean) => {
+    setErrorTracker({
+      ...errorTracker,
+      [input]: hasError,
+    });
   };
 
   useEffect(() => {
@@ -69,9 +64,9 @@ export const AuthLogin = (props: RouteComponentProps) => {
     }
   }, [props.history, auth, loginRedirectPath]);
 
-  useEffect(() => { if (auth.error) setApiError(auth.error); }, [auth.error]);
+  useEffect(() => { if (auth.error) setError(auth.error); }, [auth.error]);
 
-  useEffect(() => { if (self.error) setApiError(self.error); }, [self.error]);
+  useEffect(() => { if (self.error) setError(self.error); }, [self.error]);
 
   useEffect(() => {
     if (
@@ -86,31 +81,39 @@ export const AuthLogin = (props: RouteComponentProps) => {
     if (hasFetchSucceeded(self)) props.history.push(loginRedirectPath);
   }, [props.history, self, loginRedirectPath]);
 
-  const canSubmit = Boolean(!emailError && !passwordError && email && password);
 
   return (
     <div className="form--login">
-      {apiError && <p className="auth-page__error">{apiError}</p>}
+      {error && <p className="auth-page__error">{error}</p>}
 
-      <form onSubmit={handleLogin}>
+      <form onSubmit={onSubmit}>
+        <Input
+          name="email"
+          label="Email"
+          required
+          value={email}
+          setValue={setEmail}
+          validateOrThrow={validateEmail}
+          setHasError={(hasError: boolean) => updateErrorTracker('email', hasError)}
+        />
+        <Input
+          name="password"
+          label="Password"
+          type="password"
+          required
+          value={password}
+          setValue={setPassword}
+          validateOrThrow={validatePassword}
+          setHasError={(hasError: boolean) => updateErrorTracker('password', hasError)}
+        />
         <div>
-          <label htmlFor="email">Email</label>
-          <input value={email} name="email" onChange={handleChange} />
-          {emailError && <p className="auth-page__error">{emailError}</p>}
+          <Button type="submit" disabled={!canSubmit}>
+            Submit
+          </Button>
         </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input value={password} name="password" type="password" onChange={handleChange} />
-          {passwordError && <p className="auth-page__error">{passwordError}</p>}
-        </div>
-        <div>
-          <button type="submit" className={canSubmit ? 'btn' : 'btn btn--disabled'}>
-            Login
-          </button>
-        </div>
-        <Link className="auth-page__switch-link" to="" onClick={(evt: any) => evt.preventDefault()}>
+        {/* <Link className="auth-page__switch-link" to="" onClick={(evt: any) => evt.preventDefault()}>
           Forgot Password?
-        </Link>
+        </Link> */}
       </form>
     </div>
   );
@@ -123,7 +126,7 @@ export const AuthLogin = (props: RouteComponentProps) => {
 //   const [error, setError] = useState<null | string>(null);
 //   const [canSubmit, setCanSubmit] = useState(false);
 
-//   const handleLogin = async (evt: React.FormEvent<HTMLFormElement>) => {
+//   const onSubmit = async (evt: React.FormEvent<HTMLFormElement>) => {
 //     evt.preventDefault();
 
 //     try {
@@ -163,7 +166,7 @@ export const AuthLogin = (props: RouteComponentProps) => {
 //     <div className="form--login">
 //       {error && <p className="auth-page__error">{error}</p>}
 
-//       <form onSubmit={handleLogin}>
+//       <form onSubmit={onSubmit}>
 //         <div>
 //           <label htmlFor="email">Email</label>
 //           <input

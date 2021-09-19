@@ -70,8 +70,6 @@ class ApiClient {
       ...getStringifiedBody(body),
     };
 
-    console.log({ init });
-
     const res = await fetch(url, init);
     const data: T = await res.json();
 

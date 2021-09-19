@@ -92,6 +92,7 @@ module.exports = {
     'operator-linebreak': 0,
     'prefer-spread': 1,
     'prefer-template': 1,
+    'react/button-has-type': 0,
     'react/destructuring-assignment': 0,
     'react/forbid-prop-types': 1,
     'react/jsx-equals-spacing': 0,

@@ -10,7 +10,7 @@ import { AppFooter } from './components/AppFooter/AppFooter';
 import { AuthLoginPage } from './pages/AuthLoginPage';
 import { AuthRegisterPage } from './pages/AuthRegisterPage';
 import { TracksPage } from './pages/TracksPage';
-import { ConfigurePage } from './pages/ConfigurePage';
+import { TeamPage } from './pages/TeamPage';
 import { Loader } from './components/Loader/Loader';
 
 type CustomRoute = RouteProps & { component: any };
@@ -39,7 +39,7 @@ export default function App() {
             <Route exact path="/login" component={AuthLoginPage} />
             <Route exact path="/register" component={AuthRegisterPage} />
             <PrivateRoute exact path="/tracks" component={TracksPage} />
-            <PrivateRoute exact path="/configure" component={ConfigurePage} />
+            <PrivateRoute exact path="/team" component={TeamPage} />
           </Switch>
         </AppContent>
         <AppFooter brand={brand} />

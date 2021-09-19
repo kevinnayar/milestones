@@ -36,34 +36,26 @@ export function isValidEmail(value: string, msg: string): string {
   return lowered;
 }
 
-type PasswordValidation = {
-  [k: string]: [string, boolean];
-};
+export function isValidEmailOrThrow(value: string, msg: string): string {
+  const str = isStrictStringOrThrow(value, msg);
+  return isValidEmail(str, msg);
+}
 
-export function getValidPassword(password: string): PasswordValidation {
-  const errors: PasswordValidation = {
-    minMaxLength: ['must be between 8 and 32 characters', false],
-    lowerCase: ['Must have at least one Lowercase letter', false],
-    upperCase: ['Must have at least one uppercase letter', false],
-    hasNumber: ['Must have at least one number', false],
-    hasSpecial: ['Must have at least one special character', false],
-  };
+type PasswordValidation = [string, boolean];
 
-  if (password.length < 8 || password.length > 32) {
-    errors.minMaxLength = [errors.minMaxLength[0], true];
-  }
+export function getValidPassword(password: string): PasswordValidation[] {
+  const errors: PasswordValidation[] = [
+    ['between 8 and 32 characters', false],
+    ['have at least one lowercase letter', false],
+    ['have at least one uppercase letter', false],
+    ['have at least one number', false],
+    ['have at least one special character', false],
+  ];
 
-  if (password.toUpperCase() === password) {
-    errors.lowerCase = [errors.lowerCase[0], true];
-  }
-
-  if (password.toLowerCase() === password) {
-    errors.upperCase = [errors.upperCase[0], true];
-  }
-
-  if (!/\d/.test(password)) {
-    errors.hasNumber = [errors.hasNumber[0], true];
-  }
+  if (password.length < 8 || password.length > 32) errors[0][1] = true;
+  if (password.toUpperCase() === password) errors[1][1] = true;
+  if (password.toLowerCase() === password) errors[2][1] = true;
+  if (!/\d/.test(password)) errors[3][1] = true;
 
   //   if (/[!#$%^&*+=-;,.{}]/.test(password)) {
   //     errors.hasSpecial = [errors.hasSpecial[0], true];
@@ -72,9 +64,17 @@ export function getValidPassword(password: string): PasswordValidation {
   return errors;
 }
 
-export function isValidEmailOrThrow(value: string, msg: string): string {
-  const str = isStrictStringOrThrow(value, msg);
-  return isValidEmail(str, msg);
+export function isValidPasswordOrThrow(password: string): string {
+  const errorStates = getValidPassword(password);
+  const errors = [];
+  for (const [err, isErr] of errorStates) {
+    if (isErr) {
+      errors.push(err);
+    }
+  }
+  const error = errors.length ? `Password must ${errors.join('. ')}.` : null;
+  if (error) throw new Error(error);
+  return password;
 }
 
 export function isNumberOrThrow(value: any, message: string): number {

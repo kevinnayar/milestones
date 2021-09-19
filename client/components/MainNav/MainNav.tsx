@@ -16,9 +16,9 @@ export const MainNav = () => {
         <i className="material-icons">insights</i>
         <p>Tracks</p>
       </NavLink>
-      <NavLink to="/configure">
-        <i className="material-icons">tune</i>
-        <p>Configure</p>
+      <NavLink to="/team">
+        <i className="material-icons">groups</i>
+        <p>Team</p>
       </NavLink>
       <Link onClick={() => dispatch(userLogout())} to="/login">
         <i className="material-icons">lock</i>

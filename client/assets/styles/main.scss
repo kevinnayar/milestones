@@ -25,7 +25,12 @@ $font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
             Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 $font-mono: Courier, monospace, monospace;
 
-$transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+$transition: all 0.125s cubic-bezier(0.4, 0.0, 0.2, 1);
+
+html, body, #root, .app {
+  width: 100%;
+  height: 100%;
+}
 
 body {
   font-family: $font-system;
@@ -122,14 +127,18 @@ body.light {
   @import '../../components/AppHeader/app-header.scss';
   @import '../../components/AppContent/app-content.scss';
   @import '../../components/AppFooter/app-footer.scss';
+  @import '../../components/PageHeader/page-header.scss';
+  @import '../../components/PageContent/page-content.scss';
 
-  @import '../../components/ThemeSwitch/theme-switch.scss';
   @import '../../components/Loader/loader.scss';
+  @import '../../components/Button/button.scss';
+  @import '../../components/Input/input.scss';
+  @import '../../components/Alert/alert.scss';
+  
+  @import '../../components/ThemeSwitch/theme-switch.scss';
   @import '../../components/Branding/branding.scss';
   @import '../../components/MainNav/main-nav.scss';
-  @import '../../components/Alert/alert.scss';
   @import '../../components/Auth/auth.scss';
-  @import '../../components/ContentArea/content-area.scss';
 }
 
 body.dark {
@@ -147,13 +156,17 @@ body.dark {
   @import '../../components/AppHeader/app-header.scss';
   @import '../../components/AppContent/app-content.scss';
   @import '../../components/AppFooter/app-footer.scss';
+  @import '../../components/PageHeader/page-header.scss';
+  @import '../../components/PageContent/page-content.scss';
 
-  @import '../../components/ThemeSwitch/theme-switch.scss';
   @import '../../components/Loader/loader.scss';
+  @import '../../components/Button/button.scss';
+  @import '../../components/Input/input.scss';
+  @import '../../components/Alert/alert.scss';
+  
+  @import '../../components/ThemeSwitch/theme-switch.scss';
   @import '../../components/Branding/branding.scss';
   @import '../../components/MainNav/main-nav.scss';
-  @import '../../components/Alert/alert.scss';
   @import '../../components/Auth/auth.scss';
-  @import '../../components/ContentArea/content-area.scss';
 }
 
