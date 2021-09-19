@@ -42,12 +42,12 @@ function createNotes(commentMap: { [k: string]: string[] }): string {
   let notes = '';
 
   for (const [header, values] of Object.entries(commentMap)) {
-    const title = `# ${header[0].toUpperCase()}${header.slice(1).toLowerCase()}\n`;
+    const title = `## ${header[0].toUpperCase()}${header.slice(1).toLowerCase()}\n`;
     const list = `${values.map(v => `- ${v}`).join('\n')}\n\n`;
     notes += `${title}${list}`;
   }
 
-  return notes;
+  return notes ? `# Notes\n${notes}` : '';
 }
 
 async function main() {
