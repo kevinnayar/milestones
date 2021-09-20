@@ -39,8 +39,7 @@ try {
           handler,
         };
 
-        // @notes[services] Services are passed the express app, a db client, and a logging utility
-        // @notes[services] They are passed the Express app, the DB client, and a namespaced logging utility following a dependency injection pattern
+        // @notes[services] They are passed the Express app, the DB client, and a namespaced logging utility
 
         const opts: ServiceHandlerOpts = {
           app,
