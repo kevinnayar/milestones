@@ -60,7 +60,7 @@ async function main() {
     const dirPaths = ['./', '../client', '../server', '../shared'];
 
     // @notes[notes] Notes are generated off of any comment that starts with `@notes[NAMESPACE]`
-    // @notes[notes] Namespaces are there to group related comments under one title
+    // @notes[notes] Namespaces are there to group related comments under one title 
 
     for (const dir of dirPaths) {
       const dirPath = path.join(__dirname, dir);
