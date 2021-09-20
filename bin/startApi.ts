@@ -23,7 +23,7 @@ try {
   fs.readdir(path.join(__dirname, '../server/services'), (err, services) => {
     if (err) throw new Error('problem running api');
 
-    // [NOTES:services] each service with an api file is started
+    // @notes[services] Each service exports a typed (`ServiceDefinition`) service handler from its `api.ts`
     for (const name of services) {
       const file = `../server/services/${name}/api.ts`;
       const validFile = fs.existsSync(path.join(__dirname, file))
@@ -38,6 +38,9 @@ try {
           name: `api:service:${name}`,
           handler,
         };
+
+        // @notes[services] Services are passed the express app, a db client, and a logging utility
+        // @notes[services] They are passed the Express app, a DB client, and a namespaced logging utility following a dependency injection pattern
 
         const opts: ServiceHandlerOpts = {
           app,

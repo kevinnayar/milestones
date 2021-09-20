@@ -2,22 +2,22 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 function getFileComments(text: string, commentMap: { [k: string]: string[] }): string[] {
-  const notePrefix = 'NOTES:';
-  const identifier = `// [${notePrefix}`;
+  const identifier = '// @notes';
   const comments = [];
   const lines: string[] = text.split('\n');
 
-  for (const line of lines) {
+  for (const _line of lines) {
+    const line = _line.trim();
     if (line.trim().startsWith(identifier)) {
       const regex = /\[(.*?)\]/;
-      const key = regex.exec(line)[1].replace(notePrefix, '');
-      const value = line.split('] ')[1];
+      const namespace = regex.exec(line)[1];
+      const comment = line.replace(`${identifier}[${namespace}] `, '');
 
-      if (commentMap[key]) {
-        commentMap[key].push(value);
+      if (commentMap[namespace]) {
+        commentMap[namespace].push(comment);
       } else {
         // eslint-disable-next-line no-param-reassign
-        commentMap[key] = [value];
+        commentMap[namespace] = [comment];
       }
     }
   }
@@ -40,25 +40,27 @@ async function getDirContents(dirPath: string, commentMap: { [k: string]: string
 
 function createNotes(commentMap: { [k: string]: string[] }): string {
   let notes = '';
+  const keys = Object.keys(commentMap).sort();
 
-  for (const [header, values] of Object.entries(commentMap)) {
-    const title = `## ${header[0].toUpperCase()}${header.slice(1).toLowerCase()}\n`;
+  for (const key of keys) {
+    const title = `#### ${key[0].toUpperCase()}${key.slice(1).toLowerCase()}\n`;
+
+    const values = commentMap[key];
     const list = `${values.map(v => `- ${v}`).join('\n')}\n\n`;
+
     notes += `${title}${list}`;
   }
 
-  return notes ? `# Notes\n${notes}` : '';
+  return notes ? `# Notes\n\n${notes}` : '';
 }
 
 async function main() {
   try {
     const commentMap: { [k: string]: string[] } = {};
-    const dirPaths = [
-      './',
-      '../client',
-      '../server',
-      '../shared',
-    ];
+    const dirPaths = ['./', '../client', '../server', '../shared'];
+
+    // @notes[notes] Notes are generated off of any comment that starts with `@notes[NAMESPACE]`
+    // @notes[notes] Namespaces are there to group related comments under one title
 
     for (const dir of dirPaths) {
       const dirPath = path.join(__dirname, dir);
@@ -67,7 +69,7 @@ async function main() {
     }
 
     const notes = createNotes(commentMap);
-    if (notes) fs.writeFileSync('notes.md', notes);
+    if (notes) fs.writeFileSync('NOTES.md', notes);
   } catch (e) {
     console.error(e);
   }

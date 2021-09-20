@@ -9,7 +9,7 @@ import { trackStateReducer } from '../../../shared/utils/trackStateUtils';
 import { validateTrackCreateParams } from './utils';
 import { dbTrackCreate } from './db';
 import { dbUserInTeam } from '../users/db';
-import { dbRolesUserCan } from '../roles/db';
+import { canCreateOrThrow } from '../roles/utils';
 import { EntityTrack, TrackState, TrackActionStart } from '../../../shared/types/entityTypes';
 
 
@@ -27,8 +27,7 @@ class TracksHandler {
     this.logger.logRequest(req);
 
     const userId = req.params.userId;
-    const canCreate = await dbRolesUserCan(this.client, 'right_create', userId);
-    if (!canCreate) return forbiddenException(res, `User: ${userId} does not have permissions to create a team`);
+    await canCreateOrThrow(res, this.client, userId);
 
     const teamId = req.params.teamId;
     const userInTeam = await dbUserInTeam(this.client, userId, teamId);

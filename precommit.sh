@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 fancy_log() {
 cat << EndOfMessage
 

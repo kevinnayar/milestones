@@ -6,7 +6,7 @@ import { forbiddenException } from '../../api/apiExceptions';
 import { validTeamCreateParams } from './utils';
 import { createGuid } from '../../../shared/utils/baseUtils';
 import { dbTeamCreate, dbTeamGetByUser } from './db';
-import { dbRolesUserCan } from '../roles/db';
+import { canCreateOrThrow, canReadOrThrow } from '../roles/utils';
 import { ServiceHandlerOpts, DBClient } from '../../serverTypes';
 import { EntityTeam } from '../../../shared/types/entityTypes';
 
@@ -24,10 +24,7 @@ class TeamsHandler {
     this.logger.logRequest(req);
 
     const userId = req.params.userId;
-    const canCreate = await dbRolesUserCan(this.client, 'right_create', userId);
-    if (!canCreate) {
-      return forbiddenException(res, `User: ${userId} does not have permissions to create a team`);
-    }
+    await canCreateOrThrow(res, this.client, userId);
 
     const teamId = createGuid('team');
     const params = validTeamCreateParams(req.body);
@@ -50,10 +47,7 @@ class TeamsHandler {
     this.logger.logRequest(req);
 
     const userId = req.params.userId;
-    const can = await dbRolesUserCan(this.client, 'right_read', userId);
-    if (!can) {
-      return forbiddenException(res, `User: ${userId} does not have permissions to see a team`);
-    }
+    await canReadOrThrow(res, this.client, userId);
 
     const team = await dbTeamGetByUser(this.client, userId);
 
