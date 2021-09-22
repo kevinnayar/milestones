@@ -7,9 +7,10 @@ import { forbiddenException, badRequestException } from '../../api/apiExceptions
 import { createGuid } from '../../../shared/utils/baseUtils';
 import { trackStateReducer } from '../../../shared/utils/trackStateUtils';
 import { validateTrackCreateParams } from './utils';
-import { dbTrackCreate } from './db';
+import { dbTrackCreate, dbTrackGetByTeam } from './db';
+import { dbGetTeamForUser } from '../teams/db';
 import { dbUserInTeam } from '../users/db';
-import { canCreateOrThrow } from '../roles/utils';
+import { canCreateOrThrow, canReadOrThrow } from '../roles/utils';
 import { EntityTrack, TrackState, TrackActionStart } from '../../../shared/types/entityTypes';
 
 
@@ -31,14 +32,16 @@ class TracksHandler {
 
     const teamId = req.params.teamId;
     const userInTeam = await dbUserInTeam(this.client, userId, teamId);
-    if (!userInTeam) return forbiddenException(res, `User '${userId}' is not in this team '${teamId}'`);
+    if (!userInTeam) {
+      return forbiddenException(res, `User '${userId}' is not in this team '${teamId}'`);
+    }
 
     const trackId = createGuid('track');
     const params = validateTrackCreateParams(req.body);
     const utcTimestamp = DateTime.now().toMillis();
 
     if (params.config.type === 'CUSTOM') {
-      return badRequestException(res, 'A track type of \'CUSTOM\' is not supported');
+      return badRequestException(res, "A track type of 'CUSTOM' is not supported");
     }
 
     const track: EntityTrack = {
@@ -65,6 +68,26 @@ class TracksHandler {
 
     return res.status(200).json({ track });
   };
+
+  getTrack = async (req: Request, res: Response) => {
+    this.logger.logRequest(req);
+
+    const userId = req.params.userId;
+    await canReadOrThrow(res, this.client, userId);
+
+    const teamId = req.params.teamId;
+    const team = await dbGetTeamForUser(this.client, userId, teamId);
+    if (!team) {
+      return forbiddenException(res, `User '${userId}' is does not have access to team '${teamId}'`);
+    }
+
+    const trackId = req.params.trackId;
+    await canReadOrThrow(res, this.client, trackId);
+
+    const track = await dbTrackGetByTeam(this.client, teamId, trackId);
+
+    return res.status(200).json(track);
+  };
 }
 
 export function handler(opts: ServiceHandlerOpts) {
@@ -72,4 +95,5 @@ export function handler(opts: ServiceHandlerOpts) {
   const tracks = new TracksHandler(opts);
 
   app.post('/api/v1/users/:userId/teams/:teamId/tracks/create', handleRequest(tracks.createTrack));
+  app.post('/api/v1/users/:userId/teams/:teamId/tracks/:trackId', handleRequest(tracks.getTrack));
 }

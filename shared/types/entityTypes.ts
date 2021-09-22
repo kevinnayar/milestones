@@ -15,11 +15,9 @@ export type EntityRole = {
 export type EntityUser = {
   userId: string;
   roleId: string;
-  teamId?: Maybe<string>;
   displayName: string;
   imgUrl?: Maybe<string>;
-  firstName: string;
-  lastName: string;
+  fullName: string;
   email: string;
   utcTimeCreated: number;
   utcTimeUpdated?: Maybe<number>;
@@ -27,18 +25,15 @@ export type EntityUser = {
 
 export type UserCreateParams = {
   roleId: string;
-  teamName: string;
   displayName: string;
   imgUrl?: Maybe<string>;
-  firstName: string;
-  lastName: string;
+  fullName: string;
   email: string;
   password: string;
 };
 
 export type UserNoPII = {
   userId: string;
-  teamId?: Maybe<string>;
   displayName: string;
   imgUrl?: Maybe<string>;
   utcTimeCreated: number;

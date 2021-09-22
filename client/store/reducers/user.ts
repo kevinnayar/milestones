@@ -19,7 +19,7 @@ export type UserReducer = {
 const initialState: UserReducer = {
   auth: fetchInit(),
   self: fetchInit(),
-  loginRedirectPath: '/tracks',
+  loginRedirectPath: '/teams',
 };
 
 type LoginCredentials = {

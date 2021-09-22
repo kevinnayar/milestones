@@ -24,17 +24,13 @@ export function validUserCreateParams(params: any): UserCreateParams {
     'Optional value image URL is in an invalid format',
   );
   const displayName = isStrictStringOrThrow(params.displayName, 'Display name is required');
-  const firstName = isStrictStringOrThrow(params.firstName, 'First name is required');
-  const lastName = isStrictStringOrThrow(params.lastName, 'Last name is required');
-  const teamName = isStrictStringOrThrow(params.displayName, 'Team name is required');
+  const fullName = isStrictStringOrThrow(params.fullName, 'Full name is required');
 
   const validParams: UserCreateParams = {
     roleId,
-    teamName,
     displayName,
     imgUrl,
-    firstName,
-    lastName,
+    fullName,
     email,
     password,
   };
@@ -44,7 +40,7 @@ export function validUserCreateParams(params: any): UserCreateParams {
 
 export function userRemovePII(user: EntityUser, rightIds?: RightType[]): UserNoPII {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
-  const { roleId: _r, firstName: _f, lastName: _l, email: _e, ...userNoPII } = user;
+  const { roleId: _r, fullName: _f, email: _e, ...userNoPII } = user;
   const userWithRights: UserNoPII = {
     ...userNoPII,
     rightIds,

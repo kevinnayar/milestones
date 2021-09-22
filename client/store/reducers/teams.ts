@@ -10,12 +10,12 @@ import {
 import { EntityTeam } from '../../../shared/types/entityTypes';
 import { FetchState } from '../../../shared/types/baseTypes';
 
-export type TeamReducer = {
-  current: FetchState<null | EntityTeam>;
+export type TeamsReducer = {
+  all: FetchState<EntityTeam[]>;
 };
 
-const initialState: TeamReducer = {
-  current: fetchInit(),
+const initialState: TeamsReducer = {
+  all: fetchInit(),
 };
 
 type AuthCredentials = {
@@ -23,10 +23,10 @@ type AuthCredentials = {
   token: string;
 };
 
-export const teamGetTeam = createAsyncThunk<null | EntityTeam, AuthCredentials>(
-  'team/getTeam',
+export const teamGetTeams = createAsyncThunk<EntityTeam[], AuthCredentials>(
+  'team/getTeams',
   async ({ userId, token }) => {
-    const teams: null | EntityTeam = await apiClient.post(`/users/${userId}/teams`, { token });
+    const teams: EntityTeam[] = await apiClient.post(`/users/${userId}/teams`, { token });
     return teams;
   },
 );
@@ -38,14 +38,14 @@ export const teamSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(teamGetTeam.pending, (state) => {
-        state.current = fetchRequest();
+      .addCase(teamGetTeams.pending, (state) => {
+        state.all = fetchRequest();
       })
-      .addCase(teamGetTeam.fulfilled, (state, action: PayloadAction<null | EntityTeam>) => {
-        state.current = fetchSuccess(action.payload);
+      .addCase(teamGetTeams.fulfilled, (state, action: PayloadAction<EntityTeam[]>) => {
+        state.all = fetchSuccess(action.payload);
       })
-      .addCase(teamGetTeam.rejected, (state, action) => {
-        state.current = fetchFailure(action.error.message);
+      .addCase(teamGetTeams.rejected, (state, action) => {
+        state.all = fetchFailure(action.error.message);
       });
   },
 });

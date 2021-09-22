@@ -12,13 +12,9 @@ export const MainNav = () => {
 
   const links = isAuthenticated ? (
     <>
-      <NavLink to="/tracks">
-        <i className="material-icons">insights</i>
-        <p>Tracks</p>
-      </NavLink>
-      <NavLink to="/team">
+      <NavLink to="/teams">
         <i className="material-icons">groups</i>
-        <p>Team</p>
+        <p>Teams</p>
       </NavLink>
       <Link onClick={() => dispatch(userLogout())} to="/login">
         <i className="material-icons">lock</i>

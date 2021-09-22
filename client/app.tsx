@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { BrowserRouter as Router, Switch, Redirect, Route, RouteProps } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
-import { useUserData } from './hooks/useUserData';
+import { useSelf } from './hooks/useSelf';
 import { useTheme } from './hooks/useTheme';
 
 import { AppHeader } from './components/AppHeader/AppHeader';
@@ -10,17 +10,16 @@ import { AppFooter } from './components/AppFooter/AppFooter';
 
 import { AuthLoginPage } from './pages/AuthLoginPage';
 import { AuthRegisterPage } from './pages/AuthRegisterPage';
-import { TracksPage } from './pages/TracksPage';
-import { TeamPage } from './pages/TeamPage';
+import { TeamsPage } from './pages/TeamsPage';
 import { Loader } from './components/Loader/Loader';
 
 type CustomRoute = RouteProps & { component: any };
 
 export const PrivateRoute = ({ component: Component, ...rest }: CustomRoute) => {
   const { isLoading: isAuthLoading, isAuthenticated } = useAuth(rest.path as string);
-  const { isLoading: isUserLoading } = useUserData();
+  const { isLoading: isSelfLoading } = useSelf();
 
-  const isLoading = isAuthLoading && isUserLoading;
+  const isLoading = isAuthLoading && isSelfLoading;
 
   if (isLoading) return <Loader />;
 
@@ -42,8 +41,7 @@ export default function App() {
           <Switch>
             <Route exact path="/login" component={AuthLoginPage} />
             <Route exact path="/register" component={AuthRegisterPage} />
-            <PrivateRoute exact path="/tracks" component={TracksPage} />
-            <PrivateRoute exact path="/team" component={TeamPage} />
+            <PrivateRoute exact path="/teams" component={TeamsPage} />
           </Switch>
         </AppContent>
         <AppFooter brand={brand} />

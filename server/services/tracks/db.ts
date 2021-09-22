@@ -67,3 +67,18 @@ export async function dbTrackCreate(
 
   return track.trackId;
 }
+
+export async function dbTrackGetByTeam(client: DBClient, teamId: string, trackId: string) {
+  const query = `
+    SELECT * FROM tracks
+      WHERE id = $1 
+      AND team_id = $2
+    ;
+  `;
+  const values = [trackId, teamId];
+
+  const rows = await client.query(query, values);
+  // const teams = rows && rows.length ? convertRowToTeam(rows[0]) : null;
+  // return teams;
+  return rows;
+}

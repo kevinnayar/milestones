@@ -4,31 +4,26 @@ import { EntityUser } from '../../../shared/types/entityTypes';
 export async function dbUserCreate(
   client: DBClient,
   user: EntityUser,
-  hashedPassword: string,
-  teamName: string,
+  hashedPassword: string
 ): Promise<string> {
   const userQuery = `
     INSERT INTO users (
       id,
       role_id,
-      team_id,
       display_name,
-      first_name,
-      last_name,
+      full_name,
       email,
       utc_time_created,
       utc_time_updated
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     ;
   `;
   const userValues = [
     user.userId,
     user.roleId,
-    user.teamId,
     user.displayName,
-    user.firstName,
-    user.lastName,
+    user.fullName,
     user.email,
     user.utcTimeCreated,
     user.utcTimeUpdated,
@@ -53,27 +48,9 @@ export async function dbUserCreate(
     user.utcTimeUpdated,
   ];
 
-  const teamQuery = `
-    INSERT INTO teams (
-      id,
-      name,
-      utc_time_created,
-      utc_time_updated
-    )
-    VALUES ($1, $2, $3, $4)
-    ;
-  `;
-  const teamValues = [
-    user.teamId,
-    teamName,
-    user.utcTimeCreated,
-    user.utcTimeUpdated,
-  ];
-
   await client.tx(async (t) => {
     await t.query(userQuery, userValues);
     await t.query(credsQuery, credsValues);
-    await t.query(teamQuery, teamValues);
   });
 
   return user.userId;
@@ -116,11 +93,9 @@ function convertToEntityUser(row: any): EntityUser {
   return {
     userId: row.id,
     roleId: row.role_id,
-    teamId: row.team_id,
     displayName: row.display_name,
     imgUrl: row.img_url,
-    firstName: row.first_name,
-    lastName: row.last_name,
+    fullName: row.full_name,
     email: row.email,
     utcTimeCreated: row.utc_time_created,
     utcTimeUpdated: row.utc_time_updated,

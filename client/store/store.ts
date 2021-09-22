@@ -1,17 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit';
 import user, { UserReducer } from './reducers/user';
-import team, { TeamReducer } from './reducers/team';
+import teams, { TeamsReducer } from './reducers/teams';
 
 export const store = configureStore({
   reducer: {
     user,
-    team,
+    teams,
   },
 });
 
 export type RootState = {
   user: UserReducer;
-  team: TeamReducer;
+  teams: TeamsReducer;
 };
 
 export type AppDispatch = typeof store.dispatch;

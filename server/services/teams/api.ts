@@ -2,10 +2,9 @@ import { Request, Response } from 'express';
 import { DateTime } from 'luxon';
 import Logger from '../../../shared/helpers/Logger';
 import { handleRequest } from '../../api/apiUtils';
-import { forbiddenException } from '../../api/apiExceptions';
 import { validTeamCreateParams } from './utils';
 import { createGuid } from '../../../shared/utils/baseUtils';
-import { dbTeamCreate, dbTeamGetByUser } from './db';
+import { dbCreateTeam, dbGetTeamsForUser } from './db';
 import { canCreateOrThrow, canReadOrThrow } from '../roles/utils';
 import { ServiceHandlerOpts, DBClient } from '../../serverTypes';
 import { EntityTeam } from '../../../shared/types/entityTypes';
@@ -38,18 +37,18 @@ class TeamsHandler {
       utcTimeUpdated: utcTimestamp,
     };
 
-    await dbTeamCreate(this.client, userId, team);
+    await dbCreateTeam(this.client, userId, team);
 
     return res.status(200).json({ team });
   };
 
-  getUserTeam = async (req: Request, res: Response) => {
+  getUserTeams = async (req: Request, res: Response) => {
     this.logger.logRequest(req);
 
     const userId = req.params.userId;
     await canReadOrThrow(res, this.client, userId);
 
-    const team = await dbTeamGetByUser(this.client, userId);
+    const team = await dbGetTeamsForUser(this.client, userId);
 
     return res.status(200).json(team);
   };
@@ -59,6 +58,6 @@ export function handler(opts: ServiceHandlerOpts) {
   const { app } = opts;
   const team = new TeamsHandler(opts);
 
-  app.post('/api/v1/users/:userId/teams', handleRequest(team.getUserTeam));
+  app.post('/api/v1/users/:userId/teams', handleRequest(team.getUserTeams));
   app.post('/api/v1/users/:userId/teams/create', handleRequest(team.createTeam));
 }

@@ -8,7 +8,6 @@ import {
   dbUserGetFromCredentials,
   dbUserGet,
 } from './db';
-import { dbTeamExists } from '../teams/db';
 import { dbRolesGetRightsByUser } from '../roles/db';
 import Logger from '../../../shared/helpers/Logger';
 import {
@@ -43,7 +42,6 @@ class UsersHandler {
     this.logger.logRequest(req);
 
     const userId = createGuid('user');
-    const teamId = createGuid('team');
     const params = validUserCreateParams(req.body);
     const utcTimestamp = DateTime.now().toMillis();
 
@@ -61,17 +59,15 @@ class UsersHandler {
     const user: EntityUser = {
       userId,
       roleId: params.roleId,
-      teamId,
       displayName: params.displayName,
       imgUrl: params.imgUrl,
-      firstName: params.firstName,
-      lastName: params.lastName,
+      fullName: params.fullName,
       email: params.email,
       utcTimeCreated: utcTimestamp,
       utcTimeUpdated: utcTimestamp,
     };
 
-    await dbUserCreate(this.client, user, hashedPassword, params.teamName);
+    await dbUserCreate(this.client, user, hashedPassword);
 
     const { token, tokenExpiration, refreshToken, refreshTokenExpiration } = createUserToken(
       userId,

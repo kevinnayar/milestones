@@ -10,7 +10,7 @@ export async function dbTeamExists(client: DBClient, teamId: string): Promise<bo
   return exists;
 }
 
-export async function dbTeamCreate(client: DBClient, userId: string, team: EntityTeam): Promise<string> {
+export async function dbCreateTeam(client: DBClient, userId: string, team: EntityTeam): Promise<string> {
   const userQuery = `
     UPDATE users 
       SET
@@ -50,17 +50,32 @@ export async function dbTeamCreate(client: DBClient, userId: string, team: Entit
   return team.teamId;
 }
 
-export async function dbTeamGetByUser(client: DBClient, userId: string): Promise<null | EntityTeam> {
+export async function dbGetTeamsForUser(client: DBClient, userId: string): Promise<EntityTeam[]> {
   const query = `
     SELECT teams.* FROM teams
-      JOIN users ON users.team_id = teams.id
-      AND users.id = $1
+      JOIN users_teams_junction ON users_teams_junction.team_id = teams.id
+      AND users_teams_junction.user_id = $1
     ;
   `;
   const values = [userId];
 
   const rows = await client.query(query, values);
-  const teams = rows && rows.length ? convertRowToTeam(rows[0]) : null;
+  const teams = rows && rows.length ? rows.map(convertRowToTeam) : [];
   return teams;
+}
+
+export async function dbGetTeamForUser(client: DBClient, userId: string, teamId: string): Promise<undefined | EntityTeam> {
+  const query = `
+    SELECT teams.* FROM teams
+      JOIN users_teams_junction ON users_teams_junction.team_id = teams.id
+      AND users_teams_junction.user_id = $1
+      AND users_teams_junction.team_id = $2
+    ;
+  `;
+  const values = [userId, teamId];
+
+  const rows = await client.query(query, values);
+  const team = rows && rows.length ? convertRowToTeam(rows[0]) : undefined;
+  return team;
 }
 

@@ -55,32 +55,32 @@ h1 {
 
 h2 {
   font-size: 2.4em;
-  margin-bottom: 0.67em;
+  margin-bottom: 1em;
 }
 
 h3 {
   font-size: 2em;
-  margin-bottom: 0.33em;
+  margin-bottom: 1em;
 }
 
 h4 {
   font-size: 1.8em;
-  margin-bottom: 0.2em;
+  margin-bottom: 1em;
 }
 
 h5 {
   font-size: 1.6em;
-  margin-bottom: 0.15em;
+  margin-bottom: 1em;
 }
 
 h6 {
   font-size: 1.3em;
-  margin-bottom: 0.15em;
+  margin-bottom: 1em;
 }
 
 p, ul li {
   font-size: 1.3em;
-  margin-bottom: 0.15em;
+  margin-bottom: 1em;
 }
 
 blockquote {
@@ -140,6 +140,7 @@ body.light {
   @import '../../components/Branding/branding.scss';
   @import '../../components/MainNav/main-nav.scss';
   @import '../../components/Auth/auth.scss';
+  @import '../../components/NoContent/no-content.scss';
 }
 
 body.dark {
@@ -170,5 +171,6 @@ body.dark {
   @import '../../components/Branding/branding.scss';
   @import '../../components/MainNav/main-nav.scss';
   @import '../../components/Auth/auth.scss';
+  @import '../../components/NoContent/no-content.scss';
 }
 

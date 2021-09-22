@@ -17,11 +17,9 @@ VALUES
 CREATE TABLE IF NOT EXISTS users (
   id VARCHAR NOT NULL UNIQUE,
   role_id VARCHAR NOT NULL,
-  team_id VARCHAR,
   display_name VARCHAR NOT NULL,
   img_url VARCHAR,
-  first_name VARCHAR NOT NULL,
-  last_name VARCHAR NOT NULL,
+  full_name VARCHAR NOT NULL,
   email VARCHAR NOT NULL,
   utc_time_created BIGINT NOT NULL,
   utc_time_updated BIGINT
@@ -50,9 +48,17 @@ CREATE TABLE IF NOT EXISTS teams (
   utc_time_updated BIGINT
 );
 
+-- teams
+CREATE TABLE IF NOT EXISTS users_teams_junction (
+  user_id VARCHAR NOT NULL,
+  team_id VARCHAR NOT NULL,
+  UNIQUE (user_id, team_id)
+);
+
 -- tracks
 CREATE TABLE IF NOT EXISTS tracks (
   id VARCHAR NOT NULL UNIQUE,
+  team_id VARCHAR NOT NULL,
   type VARCHAR NOT NULL,
   version SMALLINT,
   template VARCHAR,
@@ -67,6 +73,7 @@ CREATE TABLE IF NOT EXISTS tracks (
 CREATE TABLE IF NOT EXISTS track_actions (
   id VARCHAR NOT NULL UNIQUE,
   track_id VARCHAR NOT NULL,
+  action_type VARCHAR NOT NULL,
   action JSONB NOT NULL,
   state JSONB NOT NULL,
   utc_time_created BIGINT NOT NULL
@@ -74,5 +81,6 @@ CREATE TABLE IF NOT EXISTS track_actions (
 
 CREATE INDEX ON track_actions ("track_id");
 CREATE INDEX ON track_actions ("track_id", "utc_time_created");
+CREATE INDEX ON track_actions ("track_id", "action_type");
 
 

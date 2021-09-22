@@ -9,6 +9,7 @@ import { Button } from '../Button/Button';
 import { userRegister, userGetSelf } from '../../store/reducers/user';
 import { isValidEmailOrThrow, isValidPasswordOrThrow } from '../../../shared/utils/typeUtils';
 import { hasFetchNotStarted, hasFetchSucceeded } from '../../../shared/utils/asyncUtils';
+import { UserCreateParams } from '../../../shared/types/entityTypes';
 import { RootState } from '../../store/store';
 
 export const AuthRegister = (props: RouteComponentProps) => {
@@ -20,26 +21,20 @@ export const AuthRegister = (props: RouteComponentProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [teamName, setTeamName] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [fullName, setFullName] = useState('');
 
   const [errorTracker, setErrorTracker] = useState({
     email: false,
     password: false,
     displayName: false,
-    teamName: false,
-    firstName: false,
-    lastName: false,
+    fullName: false,
   });
 
   const canSubmit = Boolean(
     email &&
       password &&
-      firstName &&
-      lastName &&
       displayName &&
-      teamName &&
+      fullName &&
       Object.values(errorTracker).every((v) => v === false),
   );
 
@@ -47,12 +42,10 @@ export const AuthRegister = (props: RouteComponentProps) => {
     evt.preventDefault();
 
     if (canSubmit) {
-      const params = {
+      const params: UserCreateParams = {
         roleId: 'role_owner',
         displayName,
-        firstName,
-        lastName,
-        teamName,
+        fullName,
         email,
         password,
       };
@@ -75,7 +68,7 @@ export const AuthRegister = (props: RouteComponentProps) => {
   };
 
   const updateErrorTracker = (
-    input: 'email' | 'password' | 'firstName' | 'lastName' | 'displayName' | 'teamName',
+    input: 'email' | 'password' | 'fullName' | 'lastName' | 'displayName',
     hasError: boolean,
   ) => {
     setErrorTracker({
@@ -138,24 +131,6 @@ export const AuthRegister = (props: RouteComponentProps) => {
           setHasError={(hasError: boolean) => updateErrorTracker('password', hasError)}
         />
         <Input
-          name="firstName"
-          label="First Name"
-          required
-          value={firstName}
-          setValue={setFirstName}
-          validateOrThrow={(v: string) => validateText(v, 'First name')}
-          setHasError={(hasError: boolean) => updateErrorTracker('firstName', hasError)}
-        />
-        <Input
-          name="lastName"
-          label="Last Name"
-          required
-          value={lastName}
-          setValue={setLastName}
-          validateOrThrow={(v: string) => validateText(v, 'Last name')}
-          setHasError={(hasError: boolean) => updateErrorTracker('lastName', hasError)}
-        />
-        <Input
           name="displayName"
           label="Display Name"
           required
@@ -165,13 +140,13 @@ export const AuthRegister = (props: RouteComponentProps) => {
           setHasError={(hasError: boolean) => updateErrorTracker('displayName', hasError)}
         />
         <Input
-          name="teamName"
-          label="Team Name"
+          name="fullName"
+          label="Full Name"
           required
-          value={teamName}
-          setValue={setTeamName}
-          validateOrThrow={(v: string) => validateText(v, 'Team name')}
-          setHasError={(hasError: boolean) => updateErrorTracker('teamName', hasError)}
+          value={fullName}
+          setValue={setFullName}
+          validateOrThrow={(v: string) => validateText(v, 'First name')}
+          setHasError={(hasError: boolean) => updateErrorTracker('fullName', hasError)}
         />
         <div>
           <Button type="submit" disabled={!canSubmit}>
