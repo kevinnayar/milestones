@@ -9,18 +9,15 @@ import { useTeams } from '../hooks/useTeams';
 
 
 export const TeamsPage = () => {
-  const id = 'Teams';
   const { isLoading, teams } = useTeams();
   const history = useHistory();
+  const createRoute = '/teams/create';
 
   if (isLoading) return <Loader />;
 
-  const createRoute = '/teams/create';
-
   return (
-    <div id={`page${id}`} className="page">
-      <PageHeader>
-        <h1>{id}</h1>
+    <div className="page">
+      <PageHeader title="Teams">
         <Button icon="add" onClick={() => history.push(createRoute)}>{teams.length ? 'Add' : 'Create'} Team</Button>
       </PageHeader>
       <PageContent>

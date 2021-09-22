@@ -7,11 +7,12 @@ import { useTheme } from './hooks/useTheme';
 import { AppHeader } from './components/AppHeader/AppHeader';
 import { AppContent } from './components/AppContent/AppContent';
 import { AppFooter } from './components/AppFooter/AppFooter';
+import { Loader } from './components/Loader/Loader';
 
 import { AuthLoginPage } from './pages/AuthLoginPage';
 import { AuthRegisterPage } from './pages/AuthRegisterPage';
 import { TeamsPage } from './pages/TeamsPage';
-import { Loader } from './components/Loader/Loader';
+import { TeamCreatePage } from './pages/TeamCreatePage';
 
 type CustomRoute = RouteProps & { component: any };
 
@@ -19,12 +20,8 @@ export const PrivateRoute = ({ component: Component, ...rest }: CustomRoute) => 
   const { isLoading: isAuthLoading, isAuthenticated } = useAuth(rest.path as string);
   const { isLoading: isSelfLoading } = useSelf();
 
-  const isLoading = isAuthLoading && isSelfLoading;
-
-  if (isLoading) return <Loader />;
-
+  if (isAuthLoading || isSelfLoading) return <Loader />;
   if (!isAuthenticated) return <Redirect to="/login" />;
-
   return <Component {...rest} />;
 };
 
@@ -42,6 +39,7 @@ export default function App() {
             <Route exact path="/login" component={AuthLoginPage} />
             <Route exact path="/register" component={AuthRegisterPage} />
             <PrivateRoute exact path="/teams" component={TeamsPage} />
+            <PrivateRoute exact path="/teams/create" component={TeamCreatePage} />
           </Switch>
         </AppContent>
         <AppFooter brand={brand} />
