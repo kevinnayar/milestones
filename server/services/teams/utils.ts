@@ -29,8 +29,8 @@ export function convertRowToTeam(row: any): EntityTeam {
     name: row.name,
     description: row.description,
     imgUrl: row.img_url,
-    utcTimeCreated: row.utc_time_created,
-    utcTimeUpdated: row.utc_time_updated,
+    utcTimeCreated: parseInt(row.utc_time_created, 10),
+    utcTimeUpdated: parseInt(row.utc_time_updated, 10),
   };
   return team;
 }

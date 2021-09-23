@@ -97,8 +97,8 @@ function convertToEntityUser(row: any): EntityUser {
     imgUrl: row.img_url,
     fullName: row.full_name,
     email: row.email,
-    utcTimeCreated: row.utc_time_created,
-    utcTimeUpdated: row.utc_time_updated,
+    utcTimeCreated: parseInt(row.utc_time_created, 10),
+    utcTimeUpdated: parseInt(row.utc_time_updated, 10),
   };
 }
 

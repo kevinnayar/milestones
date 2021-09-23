@@ -17,7 +17,7 @@ export const TeamPage = ({ user: { userId, token }, match }: PrivateComponentPro
   const dispatch = useAppDispatch();
   const history = useHistory();
   const teamId = match?.params?.teamId;
-  const title = currentTeam.data ? currentTeam.data.name : 'Team';
+  const title = currentTeam.data ? `Team: ${currentTeam.data.name}` : 'Team';
 
   useEffect(() => {
     if (teamId) {
