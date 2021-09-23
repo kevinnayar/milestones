@@ -3,7 +3,7 @@
   flex-direction: column;
 
   &__label {
-    font-size: 0.9;
+    font-size: 1.4em;
     margin-bottom: 0.9em;
   }
 
@@ -18,6 +18,7 @@
     background: transparent;
     color: $color-text;
     border: 1px solid $color-shadow;
+    font-size: 1.4em;
 
     &:focus {
       border: 2px solid $color-blue;
@@ -28,8 +29,8 @@
     padding: 0;
     color: $color-error;
     text-align: left;
-    margin: -20px 0 20px;
+    margin: -16px 0 20px;
     line-height: 1.5;
-    font-size: 0.83em;
+    font-size: 1.2em;
   }
 }

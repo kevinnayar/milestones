@@ -2,49 +2,115 @@ import { useState, useEffect } from 'react';
 import { useAppSelector } from './useAppSelector';
 import { useAppDispatch } from './useAppDispatch';
 
-import { setLoginRedirectPath, userRefreshToken } from '../store/reducers/user';
+import { setLoginRedirectPath, userRefreshToken, userGetSelf } from '../store/reducers/user';
 import { hasFetchNotStarted, hasFetchSucceeded, hasFetchFailed } from '../../shared/utils/asyncUtils';
 import { RootState } from '../store/store';
+import { UserAuthResponse, UserAuthResponseTrue, UserNoPII } from '../../shared/types/entityTypes';
 
 type UseAuthResult = {
   isLoading: boolean;
-  isAuthenticated: boolean;
-  userId: null | string,
+  user: null | UserAuthResponseTrue,
 };
 
-export function useAuth(path: string): UseAuthResult {
-  const { auth, loginRedirectPath } = useAppSelector((state: RootState) => state.user);
-  const [isAuthenticated, setIsAuthenticated] = useState(auth.data ? auth.data.isAuthenticated : false);
-  const [isLoading, setIsLoading] = useState(true);
+function checkIsLoggedIn(authData: null | UserAuthResponse): boolean {
+  return Boolean(
+    authData &&
+    authData.isAuthenticated === true &&
+    authData.userId && typeof authData.userId === 'string' &&
+    authData.token && typeof authData.token === 'string' &&
+    authData.tokenExpiration && typeof authData.tokenExpiration === 'number'
+  );
+}
+
+function checkIfHasSelf(token: null | string, selfData: null | UserNoPII): boolean {
+  return Boolean(token && selfData);
+}
+
+function getAuthedUserOrNull(authData: null | UserAuthResponse, selfData: null | UserNoPII): null | UserAuthResponseTrue {
+  if (
+    checkIsLoggedIn(authData) &&
+    authData.isAuthenticated &&
+    checkIfHasSelf(authData.token, selfData) &&
+    authData.userId === selfData.userId
+  ) {
+    const { isAuthenticated, userId, token, tokenExpiration } = authData;
+    const user: UserAuthResponseTrue = {
+      isAuthenticated,
+      userId,
+      token,
+      tokenExpiration,
+    };
+    return user;
+  }
+  return null;
+}
+
+export function useAuth(path?: string): UseAuthResult {
+  const { auth, self, loginRedirectPath } = useAppSelector((state: RootState) => state.user);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(checkIsLoggedIn(auth.data));
+  const tokenMaybe = auth.data ? auth.data.token : null;
+  const [hasFetchedSelf, setHasFetchedSelf] = useState(checkIfHasSelf(tokenMaybe, self.data));
+  const [isLoading, setIsLoading] = useState(isLoggedIn && hasFetchedSelf);
+
   const dispatch = useAppDispatch();
 
   // set login redirect path
   useEffect(() => {
-    if (!isAuthenticated && path !== loginRedirectPath) {
+    if (!isLoggedIn && path && path !== loginRedirectPath) {
       dispatch(setLoginRedirectPath(path));
     }
-  }, [dispatch, isAuthenticated, path, loginRedirectPath]);
+  }, [dispatch, isLoggedIn, path, loginRedirectPath]);
 
-  // check token
+
+  // login
   useEffect(() => {
-    if (!isAuthenticated && hasFetchNotStarted(auth)) {
+    if (!isLoggedIn && hasFetchNotStarted(auth)) {
       dispatch(userRefreshToken());
     }
-  }, [dispatch, auth, isAuthenticated]);
+  }, [dispatch, auth, isLoggedIn]);
 
-  // set complete
   useEffect(() => {
-    if (hasFetchFailed(auth) || hasFetchSucceeded(auth)) {
-      setIsLoading(false);
-      setIsAuthenticated(auth.data.isAuthenticated);
+    if (!isLoggedIn && hasFetchSucceeded(auth)) {
+      setIsLoggedIn(checkIsLoggedIn(auth.data));
     }
-  }, [auth]);
+  }, [auth, isLoggedIn]);
+
+  useEffect(() => {
+    if (!isLoggedIn && hasFetchFailed(auth)) {
+      setIsLoading(false);
+    }
+  }, [auth, isLoggedIn]);
+
+  // getSelf
+  useEffect(() => {
+    if (isLoggedIn && !hasFetchedSelf && hasFetchNotStarted(self)) {
+      const { token } = auth.data;
+      dispatch(userGetSelf(token));
+    }
+  }, [dispatch, auth, isLoggedIn, hasFetchedSelf, self]);
+
+  useEffect(() => {
+    if (isLoggedIn && hasFetchSucceeded(self)) {
+      setIsLoading(false);
+      setHasFetchedSelf(true);
+    }
+  }, [isLoggedIn, hasFetchedSelf, self]);
+
+  useEffect(() => {
+    if (isLoggedIn && hasFetchFailed(self)) {
+      setIsLoading(false);
+      setHasFetchedSelf(checkIfHasSelf(auth.data.token, self.data));
+    }
+  }, [isLoggedIn, hasFetchedSelf, auth, self]);
+
 
   return {
     isLoading,
-    isAuthenticated,
-    userId: auth.data ? auth.data.userId : null,
+    user: getAuthedUserOrNull(auth.data, self.data),
   };
 }
+
+
 
 

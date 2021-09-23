@@ -11,16 +11,6 @@ export async function dbTeamExists(client: DBClient, teamId: string): Promise<bo
 }
 
 export async function dbCreateTeam(client: DBClient, userId: string, team: EntityTeam): Promise<string> {
-  const userQuery = `
-    UPDATE users 
-      SET
-        team_id = $1,
-        utc_time_updated = $2
-      WHERE id = $3
-    ;
-  `;
-  const userValues = [team.teamId, team.utcTimeCreated, userId];
-
   const teamQuery = `
     INSERT INTO teams (
       id,
@@ -42,9 +32,16 @@ export async function dbCreateTeam(client: DBClient, userId: string, team: Entit
     team.utcTimeUpdated,
   ];
 
+  const userQuery = `
+    INSERT INTO users_teams_junction (user_id, team_id)
+    VALUES ($1, $2)
+    ;
+  `;
+  const userValues = [userId, team.teamId];
+
   await client.tx(async t => {
-    await t.query(userQuery, userValues);
     await t.query(teamQuery, teamValues);
+    await t.query(userQuery, userValues);
   });
 
   return team.teamId;

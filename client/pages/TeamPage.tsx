@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useAppSelector } from '../hooks/useAppSelector';
 import { useAppDispatch } from '../hooks/useAppDispatch';
-import { getTeams } from '../store/reducers/teams';
+import { getTeam } from '../store/reducers/teams';
 import { PageHeader } from '../components/PageHeader/PageHeader';
 import { PageContent } from '../components/PageContent/PageContent';
 import { Loader } from '../components/Loader/Loader';
@@ -12,35 +12,38 @@ import { NoContent } from '../components/NoContent/NoContent';
 import { PrivateComponentProps } from '../app';
 import { RootState } from '../store/store';
 
-
-export const TeamsPage = ({ user: { userId, token } }: PrivateComponentProps) => {
-  const { allTeams } = useAppSelector((state: RootState) => state.teams);
+export const TeamPage = ({ user: { userId, token }, match }: PrivateComponentProps) => {
+  const { currentTeam } = useAppSelector((state: RootState) => state.teams);
   const dispatch = useAppDispatch();
   const history = useHistory();
+  const teamId = match?.params?.teamId;
+  const title = currentTeam.data ? currentTeam.data.name : 'Team';
 
   useEffect(() => {
-    dispatch(getTeams({ userId, token }));
-  }, [dispatch, token, userId]);
+    if (teamId) {
+      const extra = { teamId };
+      dispatch(getTeam({ userId, token, extra }));
+    }
+  }, [dispatch, token, userId, teamId]);
 
-  if (allTeams.data === null) return <Loader />;
+  if (currentTeam.data === null) return <Loader />;
 
   return (
     <div className="page">
-      <PageHeader title="Teams">
-        <Button icon="add" onClick={() => history.push('/teams/create')}>
-          {allTeams.data && allTeams.data.length ? 'Add' : 'Create'} Team
-        </Button>
+      <PageHeader title={title}>
+        {teamId && currentTeam.data && (
+          <Button icon="edit" onClick={() => history.push(`/teams/${teamId}/edit`)}>
+            Edit Team
+          </Button>
+        )}
       </PageHeader>
       <PageContent>
-        {allTeams.data && allTeams.data.length ? (
-          allTeams.data.map((team) => (
-            // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
-            <p key={team.teamId} onClick={() => history.push(`/teams/${team.teamId}`)}>{team.name}</p>
-          ))
+        {currentTeam.data ? (
+          <p>{currentTeam.data.name}</p>
         ) : (
-          <NoContent message="You haven't created any teams yet.">
+          <NoContent message="This team doesn't exist.">
             <Button icon="add" onClick={() => history.push('/teams/create')}>
-              Create Team
+              Create a Team
             </Button>
           </NoContent>
         )}
@@ -48,4 +51,3 @@ export const TeamsPage = ({ user: { userId, token } }: PrivateComponentProps) =>
     </div>
   );
 };
-

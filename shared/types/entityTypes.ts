@@ -41,14 +41,14 @@ export type UserNoPII = {
   rightIds?: RightType[];
 };
 
-type UserAuthResponseTrue = {
+export type UserAuthResponseTrue = {
   isAuthenticated: true;
   userId: string;
   token: string;
   tokenExpiration: number;
 };
 
-type UserAuthResponseFalse = {
+export type UserAuthResponseFalse = {
   isAuthenticated: false;
   userId: null;
   token: null;
