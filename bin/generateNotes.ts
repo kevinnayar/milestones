@@ -57,7 +57,7 @@ function createNotes(commentMap: { [k: string]: string[] }): string {
 async function main() {
   try {
     const commentMap: { [k: string]: string[] } = {};
-    const dirPaths = ['./', '../client', '../server', '../shared'];
+    const dirPaths = ['./', '../client', '../server', '../common'];
 
     // @notes[notes] Notes are generated off of any comment that starts with `@notes[NAMESPACE]`
     // @notes[notes] Namespaces are there to group related comments under one title
