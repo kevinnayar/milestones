@@ -3,9 +3,9 @@ import { useAppSelector } from './useAppSelector';
 import { useAppDispatch } from './useAppDispatch';
 
 import { setLoginRedirectPath, userRefreshToken, userGetSelf } from '../store/reducers/user';
-import { hasFetchNotStarted, hasFetchSucceeded, hasFetchFailed } from '../../shared/utils/asyncUtils';
+import { hasFetchNotStarted, hasFetchSucceeded, hasFetchFailed } from '../../common/utils/asyncUtils';
 import { RootState } from '../store/store';
-import { UserAuthResponse, UserAuthResponseTrue, UserNoPII } from '../../shared/types/entityTypes';
+import { UserAuthResponse, UserAuthResponseTrue, UserNoPII } from '../../common/types/entityTypes';
 
 type UseAuthResult = {
   isLoading: boolean;

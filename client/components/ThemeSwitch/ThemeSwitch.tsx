@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ThemeType } from 'shared/helpers/ThemeHelper';
+import { ThemeType } from 'common/helpers/ThemeHelper';
 
 export const ThemeSwitch = (props: { theme: ThemeType, toggleTheme: () => void }) => {
   return (

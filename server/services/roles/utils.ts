@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { forbiddenException } from '../../api/apiExceptions';
 import { dbRolesUserCan } from '../roles/db';
 import { DBClient } from '../../serverTypes';
-import { RightType } from '../../../shared/types/entityTypes';
+import { RightType } from '../../../common/types/entityTypes';
 
 // @notes[rights] There are 4 right types: `right_create`, `right_read`, `right_update`, `right_delete`
 

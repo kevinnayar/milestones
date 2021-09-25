@@ -9,8 +9,8 @@ import { PageContent } from '../components/PageContent/PageContent';
 import { Input } from '../components/Input/Input';
 import { Button } from '../components/Button/Button';
 import { PrivateComponentProps } from '../app';
-import { TeamCreateParams } from '../../shared/types/entityTypes';
-import { hasFetchSucceeded } from '../../shared/utils/asyncUtils';
+import { TeamCreateParams } from '../../common/types/entityTypes';
+import { hasFetchSucceeded } from '../../common/utils/asyncUtils';
 import { RootState } from '../store/store';
 
 export const TeamCreatePage = ({ user: { userId, token } }: PrivateComponentProps) => {

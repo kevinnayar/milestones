@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { isStringOrThrow, isNumberOrThrow } from '../shared/utils/typeUtils';
+import { isStringOrThrow, isNumberOrThrow } from '../common/utils/typeUtils';
 
 dotenv.config();
 

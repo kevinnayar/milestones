@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
 import { DateTime } from 'luxon';
-import Logger from '../../../shared/helpers/Logger';
+import Logger from '../../../common/helpers/Logger';
 import { handleRequest } from '../../api/apiUtils';
 import { validTeamCreateParams } from './utils';
-import { createGuid } from '../../../shared/utils/baseUtils';
+import { createGuid } from '../../../common/utils/baseUtils';
 import { dbCreateTeam, dbGetTeamsForUser, dbGetTeamForUser } from './db';
 import { canCreateOrThrow, canReadOrThrow } from '../roles/utils';
 import { ServiceHandlerOpts, DBClient } from '../../serverTypes';
-import { EntityTeam } from '../../../shared/types/entityTypes';
+import { EntityTeam } from '../../../common/types/entityTypes';
 
 class TeamsHandler {
   client: DBClient;

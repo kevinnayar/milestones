@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { ThemeType } from 'shared/helpers/ThemeHelper';
+import { ThemeType } from 'common/helpers/ThemeHelper';
 
 export const Logo = (props: { theme: ThemeType }) => {
   const colorBg = props.theme === 'light' ? '#2196f3' : '#F7FAFC';

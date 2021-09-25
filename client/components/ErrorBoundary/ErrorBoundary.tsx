@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { PureComponent, ErrorInfo } from 'react';
 import { Alert } from '../Alert/Alert';
-import { formatError } from '../../../shared/utils/baseUtils';
+import { formatError } from '../../../common/utils/baseUtils';
 
 type ComponentProps = {
   children?: any;

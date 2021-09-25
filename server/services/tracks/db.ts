@@ -1,4 +1,4 @@
-import { EntityTrack, TrackState, TrackActionStart } from '../../../shared/types/entityTypes';
+import { EntityTrack, TrackState, TrackActionStart } from '../../../common/types/entityTypes';
 import { DBClient } from '../../serverTypes';
 
 export async function dbTrackCreate(

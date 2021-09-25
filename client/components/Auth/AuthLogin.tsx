@@ -7,8 +7,8 @@ import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { Input } from '../Input/Input';
 import { Button } from '../Button/Button';
 import { userLogin, userGetSelf } from '../../store/reducers/user';
-import { isValidEmailOrThrow, isValidPasswordOrThrow } from '../../../shared/utils/typeUtils';
-import { hasFetchNotStarted, hasFetchSucceeded } from '../../../shared/utils/asyncUtils';
+import { isValidEmailOrThrow, isValidPasswordOrThrow } from '../../../common/utils/typeUtils';
+import { hasFetchNotStarted, hasFetchSucceeded } from '../../../common/utils/asyncUtils';
 import { RootState } from '../../store/store';
 
 export const AuthLogin = (props: RouteComponentProps) => {

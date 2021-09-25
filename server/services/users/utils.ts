@@ -3,16 +3,16 @@ import {
   isStrictStringNullVoidOrThrow,
   inStringUnionOrThrow,
   isValidEmailOrThrow,
-} from '../../../shared/utils/typeUtils';
-import { Maybe } from '../../../shared/types/baseTypes';
-import { getValidRoles } from '../../../shared/utils/roleUtils';
+} from '../../../common/utils/typeUtils';
+import { Maybe } from '../../../common/types/baseTypes';
+import { getValidRoles } from '../../../common/utils/roleUtils';
 import {
   UserCreateParams,
   RoleType,
   EntityUser,
   UserNoPII,
   RightType,
-} from '../../../shared/types/entityTypes';
+} from '../../../common/types/entityTypes';
 
 export function validUserCreateParams(params: any): UserCreateParams {
   const email = isValidEmailOrThrow(params.email, 'A valid email is required');

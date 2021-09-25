@@ -24,7 +24,7 @@ import { TrackPage } from './pages/TrackPage';
 import { TrackCreatePage } from './pages/TrackCreatePage';
 import { MemberPage } from './pages/MemberPage';
 import { MemberCreatePage } from './pages/MemberCreatePage';
-import { UserAuthResponseTrue } from '../shared/types/entityTypes';
+import { UserAuthResponseTrue } from '../common/types/entityTypes';
 
 type ComputedMatch = {
   isExact: boolean,

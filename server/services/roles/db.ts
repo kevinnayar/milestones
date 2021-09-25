@@ -1,5 +1,5 @@
-import { userCan } from '../../../shared/utils/roleUtils';
-import { RightType } from '../../../shared/types/entityTypes';
+import { userCan } from '../../../common/utils/roleUtils';
+import { RightType } from '../../../common/types/entityTypes';
 import { DBClient } from '../../serverTypes';
 
 export async function dbRolesGetRightsByUser(client: DBClient, userId: string): Promise<RightType[]> {

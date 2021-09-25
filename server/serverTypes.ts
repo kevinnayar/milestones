@@ -1,6 +1,6 @@
 import { Application } from 'express';
 import { IDatabase } from 'pg-promise';
-import Logger from '../shared/helpers/Logger';
+import Logger from '../common/helpers/Logger';
 
 export type DBClient = IDatabase<Record<string, unknown>, any>;
 

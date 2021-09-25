@@ -9,7 +9,7 @@ import {
   dbUserGet,
 } from './db';
 import { dbRolesGetRightsByUser } from '../roles/db';
-import Logger from '../../../shared/helpers/Logger';
+import Logger from '../../../common/helpers/Logger';
 import {
   handleRequest,
   createUserToken,
@@ -21,12 +21,12 @@ import {
   notFoundException,
   unauthorizedException,
 } from '../../api/apiExceptions';
-import { createGuid, formatError } from '../../../shared/utils/baseUtils';
-import { isStrictStringOrThrow } from '../../../shared/utils/typeUtils';
+import { createGuid, formatError } from '../../../common/utils/baseUtils';
+import { isStrictStringOrThrow } from '../../../common/utils/typeUtils';
 import { validUserCreateParams, userRemovePII } from './utils';
 
 import { ServiceHandlerOpts, DBClient } from '../../serverTypes';
-import { EntityUser, UserAuthResponse, UserNoPII } from '../../../shared/types/entityTypes';
+import { EntityUser, UserAuthResponse, UserNoPII } from '../../../common/types/entityTypes';
 
 class UsersHandler {
   client: DBClient;

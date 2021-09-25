@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import db from '../server/db/db';
 import { DBClient } from '../server/serverTypes';
-import { formatError } from '../shared/utils/baseUtils';
+import { formatError } from '../common/utils/baseUtils';
 
 async function execSqlStatementsFromFile(client: DBClient, filePath: string) {
   const fullPath = path.join(__dirname, filePath);

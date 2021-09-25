@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { formatError, slugify } from '../../../shared/utils/baseUtils';
+import { formatError, slugify } from '../../../common/utils/baseUtils';
 
 type InputProps = {
   name: string;

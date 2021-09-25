@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import ThemeHelper, { ThemeType } from '../../shared/helpers/ThemeHelper';
+import ThemeHelper, { ThemeType } from '../../common/helpers/ThemeHelper';
 
 export type UseThemeResult = {
   theme: ThemeType;

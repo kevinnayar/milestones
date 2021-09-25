@@ -1,6 +1,6 @@
-import { isStrictStringOrThrow, isStrictStringNullVoidOrThrow } from '../../../shared/utils/typeUtils';
-import { Maybe } from '../../../shared/types/baseTypes';
-import { TeamCreateParams, EntityTeam } from '../../../shared/types/entityTypes';
+import { isStrictStringOrThrow, isStrictStringNullVoidOrThrow } from '../../../common/utils/typeUtils';
+import { Maybe } from '../../../common/types/baseTypes';
+import { TeamCreateParams, EntityTeam } from '../../../common/types/entityTypes';
 
 export function validTeamCreateParams(params: any): TeamCreateParams {
   const name = isStrictStringOrThrow(params.name, 'Team name is required');

@@ -4,15 +4,15 @@ import {
   isStrictStringNullVoidOrThrow,
   isAbsoluteDateOrThrow,
   isNumberOrThrow,
-} from '../../../shared/utils/typeUtils';
-import { Maybe } from '../../../shared/types/baseTypes';
+} from '../../../common/utils/typeUtils';
+import { Maybe } from '../../../common/types/baseTypes';
 import {
   TrackCreateParams,
   TrackType,
   TrackConfigTemplate,
   TrackConfigCustom,
   TrackTemplate,
-} from '../../../shared/types/entityTypes';
+} from '../../../common/types/entityTypes';
 
 function validateTemplateConfig(config: any): TrackConfigTemplate | TrackConfigCustom {
   const allowedTracks: TrackType[] = ['CUSTOM', 'TEMPLATE'];

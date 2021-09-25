@@ -1,15 +1,15 @@
 /* eslint-disable no-param-reassign */
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { apiClient } from '../../../shared/helpers/ApiClient';
+import { apiClient } from '../../../common/helpers/ApiClient';
 import {
   fetchInit,
   fetchRequest,
   fetchSuccess,
   fetchFailure,
-} from '../../../shared/utils/asyncUtils';
-import { AuthCredentialsPlus } from '../../../shared/types/baseTypes';
-import { EntityTrack, TrackCreateParams } from '../../../shared/types/entityTypes';
-import { FetchState } from '../../../shared/types/baseTypes';
+} from '../../../common/utils/asyncUtils';
+import { AuthCredentialsPlus } from '../../../common/types/baseTypes';
+import { EntityTrack, TrackCreateParams } from '../../../common/types/entityTypes';
+import { FetchState } from '../../../common/types/baseTypes';
 
 export type TracksReducer = {
   allTracks: FetchState<EntityTrack[]>;

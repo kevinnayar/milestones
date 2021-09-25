@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import { Request, Response, NextFunction } from 'express';
 
 import config from '../serverConfig';
-import { formatError } from '../../shared/utils/baseUtils';
+import { formatError } from '../../common/utils/baseUtils';
 import { badRequestException, unauthorizedException } from './apiExceptions';
 
 // export function createUserSession(req: Request, userId: string) {

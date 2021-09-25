@@ -1,5 +1,5 @@
 import { convertRowToTeam } from './utils';
-import { EntityTeam } from '../../../shared/types/entityTypes';
+import { EntityTeam } from '../../../common/types/entityTypes';
 import { DBClient } from '../../serverTypes';
 
 export async function dbTeamExists(client: DBClient, teamId: string): Promise<boolean> {

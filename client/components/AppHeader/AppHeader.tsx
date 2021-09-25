@@ -3,7 +3,7 @@ import { MainNav } from '../MainNav/MainNav';
 import { Branding } from '../Branding/Branding';
 import { Logo } from '../Logo/Logo';
 import { ThemeSwitch } from '../ThemeSwitch/ThemeSwitch';
-import { ThemeType } from '../../../shared/helpers/ThemeHelper';
+import { ThemeType } from '../../../common/helpers/ThemeHelper';
 
 type HeaderProps = {
   brand: string,

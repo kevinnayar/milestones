@@ -1,17 +1,17 @@
 import { Request, Response } from 'express';
 import { DateTime } from 'luxon';
 import { ServiceHandlerOpts, DBClient } from '../../serverTypes';
-import Logger from '../../../shared/helpers/Logger';
+import Logger from '../../../common/helpers/Logger';
 import { handleRequest } from '../../api/apiUtils';
 import { forbiddenException, badRequestException } from '../../api/apiExceptions';
-import { createGuid } from '../../../shared/utils/baseUtils';
-import { trackStateReducer } from '../../../shared/utils/trackStateUtils';
+import { createGuid } from '../../../common/utils/baseUtils';
+import { trackStateReducer } from '../../../common/utils/trackStateUtils';
 import { validateTrackCreateParams } from './utils';
 import { dbTrackCreate, dbTrackGetByTeam } from './db';
 import { dbGetTeamForUser } from '../teams/db';
 import { dbUserInTeam } from '../users/db';
 import { canCreateOrThrow, canReadOrThrow } from '../roles/utils';
-import { EntityTrack, TrackState, TrackActionStart } from '../../../shared/types/entityTypes';
+import { EntityTrack, TrackState, TrackActionStart } from '../../../common/types/entityTypes';
 
 
 class TracksHandler {

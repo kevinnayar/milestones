@@ -1,5 +1,5 @@
 import { DBClient } from '../../serverTypes';
-import { EntityUser } from '../../../shared/types/entityTypes';
+import { EntityUser } from '../../../common/types/entityTypes';
 
 export async function dbUserCreate(
   client: DBClient,
