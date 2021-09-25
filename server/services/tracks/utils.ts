@@ -42,6 +42,7 @@ function validateTemplateConfig(config: any): TrackConfigTemplate | TrackConfigC
 
 export function validateTrackCreateParams(params: any): TrackCreateParams {
   const name = isStrictStringOrThrow(params.name, 'A name is required');
+  const teamId = isStrictStringOrThrow(params.teamId, 'A Team ID is required');
   const description: Maybe<string> = isStrictStringNullVoidOrThrow(params.description, 'Description is in an invalid format');
   const imgUrl: Maybe<string> = isStrictStringNullVoidOrThrow(params.imgUrl, 'Image URL is in an invalid format');
   const startDate = isAbsoluteDateOrThrow(params.startDate, 'A valid start date is required');
@@ -49,6 +50,7 @@ export function validateTrackCreateParams(params: any): TrackCreateParams {
 
   return {
     name,
+    teamId,
     description,
     imgUrl,
     config,

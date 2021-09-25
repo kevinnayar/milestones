@@ -7,6 +7,7 @@ import {
   fetchSuccess,
   fetchFailure,
 } from '../../../shared/utils/asyncUtils';
+import { AuthCredentials, AuthCredentialsPlus } from '../../../shared/types/baseTypes';
 import { EntityTeam, TeamCreateParams } from '../../../shared/types/entityTypes';
 import { FetchState } from '../../../shared/types/baseTypes';
 
@@ -22,19 +23,8 @@ const initialState: TeamsReducer = {
   currentTeam: fetchInit(),
 };
 
-type AuthCredentials = {
-  userId: string;
-  token: string;
-};
-
-type AuthCredentialsPlus<T> = {
-  userId: string;
-  token: string;
-  extra: T,
-};
-
 export const getTeams = createAsyncThunk<EntityTeam[], AuthCredentials>(
-  'team/getTeams',
+  'teams/getTeams',
   async ({ userId, token }) => {
     const teams: EntityTeam[] = await apiClient.post(`/users/${userId}/teams`, { token });
     return teams;
@@ -42,7 +32,7 @@ export const getTeams = createAsyncThunk<EntityTeam[], AuthCredentials>(
 );
 
 export const createTeam = createAsyncThunk<EntityTeam, AuthCredentialsPlus<TeamCreateParams>>(
-  'team/createTeam',
+  'teams/createTeam',
   async ({ userId, token, extra }) => {
     const team: EntityTeam = await apiClient.post(`/users/${userId}/teams/create`, { token, body: extra });
     return team;
@@ -50,7 +40,7 @@ export const createTeam = createAsyncThunk<EntityTeam, AuthCredentialsPlus<TeamC
 );
 
 export const getTeam = createAsyncThunk<undefined | EntityTeam, AuthCredentialsPlus<{ teamId: string }>>(
-  'team/getTeam',
+  'teams/getTeam',
   async ({ userId, token, extra }) => {
     const team: undefined | EntityTeam = await apiClient.post(`/users/${userId}/teams/${extra.teamId}`, { token });
     return team;
@@ -58,7 +48,7 @@ export const getTeam = createAsyncThunk<undefined | EntityTeam, AuthCredentialsP
 );
 
 export const teamsSlice = createSlice({
-  name: 'team',
+  name: 'teams',
   initialState,
   reducers: {
     resetCreateTeam: (state) => {

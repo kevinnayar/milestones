@@ -101,6 +101,7 @@ export type EntityTrack = {
 };
 
 export type TrackCreateParams = {
+  teamId: string,
   name: string;
   config: TrackConfigCustom | TrackConfigTemplate;
   description?: Maybe<string>;

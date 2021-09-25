@@ -7,6 +7,7 @@ import {
   fetchSuccess,
   fetchFailure,
 } from '../../../shared/utils/asyncUtils';
+import { LoginCredentials } from '../../../shared/types/baseTypes';
 import { UserAuthResponse, UserNoPII, UserCreateParams } from '../../../shared/types/entityTypes';
 import { FetchState } from '../../../shared/types/baseTypes';
 
@@ -20,11 +21,6 @@ const initialState: UserReducer = {
   auth: fetchInit(),
   self: fetchInit(),
   loginRedirectPath: '/teams',
-};
-
-type LoginCredentials = {
-  email: string;
-  password: string;
 };
 
 export const userLogin = createAsyncThunk<UserAuthResponse, LoginCredentials>(

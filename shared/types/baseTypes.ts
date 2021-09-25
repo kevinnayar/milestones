@@ -22,3 +22,16 @@ export type FetchState<T> = {
   error: null | string;
 };
 
+export type LoginCredentials = {
+  email: string;
+  password: string;
+};
+
+export type AuthCredentials = {
+  userId: string;
+  token: string;
+};
+
+export type AuthCredentialsPlus<T> = AuthCredentials & { extra: T };
+
+
