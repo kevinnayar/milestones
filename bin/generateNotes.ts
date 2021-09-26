@@ -1,20 +1,23 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+function titleCase(text: string): string {
+  return `${text[0].toUpperCase()}${text.slice(1).toLowerCase()}`;
+}
+
 function writeNotesToFile(outputFile: string, mutableCommentMap: { [k: string]: string[] }) {
-  let notes = '';
+  let notes = '# Notes\n\n';
+
   const keys = Object.keys(mutableCommentMap).sort();
 
   for (const key of keys) {
-    const title = `#### ${key[0].toUpperCase()}${key.slice(1).toLowerCase()}\n`;
+    const title = `#### ${titleCase(key)}`;
 
     const values = mutableCommentMap[key];
-    const list = `${values.map((v) => `- ${v}`).join('\n')}\n\n`;
+    const list = `${values.map((v) => `- ${v}`).join('\n')}`;
 
-    notes += `${title}${list}`;
+    notes += `${title}\n${list}\n\n`;
   }
-
-  notes = notes ? `# Notes\n\n${notes}` : '';
 
   fs.writeFileSync(outputFile, notes);
 }
