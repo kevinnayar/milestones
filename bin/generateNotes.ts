@@ -7,6 +7,7 @@ function insertFileCommentsInMap(rawText: string, mutableCommentMap: { [k: strin
 
   for (const l of lines) {
     const line = l.trim();
+
     if (line.startsWith(identifier)) {
       const regex = /\[(.*?)\]/;
       const namespace = regex.exec(line)[1];
@@ -79,6 +80,7 @@ async function main() {
     await main();
     console.log('\n  ✅ Notes completed!\n');
   } catch (e) {
+    console.log('Could not generate notes');
     console.error(e);
   }
 })();
