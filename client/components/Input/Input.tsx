@@ -5,15 +5,28 @@ import { formatError, slugify } from '../../../common/utils/baseUtils';
 type InputProps = {
   name: string;
   label: string;
+  className?: string;
   type?: string;
   required?: boolean;
+  readOnly?: boolean;
   value: string;
-  setValue: (_value: string) => void,
+  setValue: (_value: string) => void;
   validateOrThrow?: (_value: string) => void;
   setHasError?: (_has: boolean) => void;
 };
 
-export const Input = ({ name, label, type, required, value, setValue, validateOrThrow, setHasError }: InputProps) => {
+export const Input = ({
+  name,
+  label,
+  className,
+  type,
+  required,
+  readOnly,
+  value,
+  setValue,
+  validateOrThrow,
+  setHasError,
+}: InputProps) => {
   const [error, setError] = useState<null | string>(null);
 
   const onChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,19 +54,25 @@ export const Input = ({ name, label, type, required, value, setValue, validateOr
     }
   };
 
+  const classNames = [
+    'input-content',
+    `input-content--${slugify(name)}`,
+    ...(readOnly ? ['input-content--read-only'] : [undefined]),
+    ...(error ? ['input-content--error'] : [undefined]),
+    ...(className ? [`input-content--${className}`] : [undefined]),
+  ].filter((c) => !!c).join(' ');
+
   return (
-    <div
-      className={`input-content input-content--${slugify(name)} ${error ? 'input-content--error' : ''}`}
-    >
+    <div className={classNames}>
       <label className="input-content__label" htmlFor={name}>
-        {label}{' '}
-        {required && <span>*</span>}
+        {label} {required && <span>*</span>}
       </label>
       <input
         className="input-content__input"
         type={type || 'text'}
         value={value}
         name={name}
+        readOnly={readOnly || false}
         onChange={onChange}
         onBlur={onBlur}
       />

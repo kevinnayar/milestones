@@ -3,4 +3,23 @@
   min-height: 666px;
   border-radius: 4px;
   padding: 3%;
+
+  .form {
+    form {
+      display: flex;
+      flex-wrap: wrap;
+
+      .input-content {
+        width: 48.5%;
+        
+        &--odd {
+          margin-right: 1.5%;
+        }
+
+        &--even {
+          margin-left: 1.5%;
+        }
+      }
+    }
+  }
 }

@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useAppSelector } from '../hooks/useAppSelector';
 import { useAppDispatch } from '../hooks/useAppDispatch';
+import { BasePageTemplate } from '../templates/BasePageTemplate';
 import { getTeams } from '../store/reducers/teams';
 import { PageHeader } from '../components/PageHeader/PageHeader';
 import { PageContent } from '../components/PageContent/PageContent';
@@ -17,7 +18,6 @@ import {
 import { NoContent } from '../components/NoContent/NoContent';
 import { PrivateComponentProps } from '../app';
 import { RootState } from '../store/store';
-
 
 export const TeamsPage = ({ user: { userId, token } }: PrivateComponentProps) => {
   const { allTeams } = useAppSelector((state: RootState) => state.teams);
@@ -40,24 +40,30 @@ export const TeamsPage = ({ user: { userId, token } }: PrivateComponentProps) =>
   ];
 
   return (
-    <div className="page">
-      <PageHeader title="Teams">
-        <Button icon="add" onClick={() => history.push('/teams/create')}>
-          {allTeams.data && allTeams.data.length ? 'Add' : 'Create'} Team
-        </Button>
-      </PageHeader>
-      <PageContent>
-        {allTeams.data && allTeams.data.length ? (
-          <Grid headers={headers} rows={allTeams.data} linker={{ route: '/teams/', key: 'teamId'}} />
-        ) : (
-          <NoContent message="You haven't created any teams yet.">
-            <Button icon="add" onClick={() => history.push('/teams/create')}>
-              Create Team
-            </Button>
-          </NoContent>
-        )}
-      </PageContent>
-    </div>
+    <BasePageTemplate>
+      <div className="page">
+        <PageHeader title="Teams">
+          <Button icon="add" onClick={() => history.push('/teams/create')}>
+            {allTeams.data && allTeams.data.length ? 'Add' : 'Create'} Team
+          </Button>
+        </PageHeader>
+        <PageContent>
+          {allTeams.data && allTeams.data.length ? (
+            <Grid
+              headers={headers}
+              rows={allTeams.data}
+              linker={{ route: '/teams/', key: 'teamId' }}
+            />
+          ) : (
+            <NoContent message="You haven't created any teams yet.">
+              <Button icon="add" onClick={() => history.push('/teams/create')}>
+                Create Team
+              </Button>
+            </NoContent>
+          )}
+        </PageContent>
+      </div>
+    </BasePageTemplate>
   );
 };
 

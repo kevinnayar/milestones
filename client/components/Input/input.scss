@@ -33,4 +33,13 @@
     line-height: 1.5;
     font-size: 1.2em;
   }
+
+  &--read-only {
+    .input-content__input {
+      &:focus {
+        border: 1px solid $color-shadow;
+      }
+    }
+  }
 }
+

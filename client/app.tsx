@@ -8,13 +8,7 @@ import {
   useLocation,
 } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
-import { useTheme } from './hooks/useTheme';
-
-import { AppHeader } from './components/AppHeader/AppHeader';
-import { AppContent } from './components/AppContent/AppContent';
-import { AppFooter } from './components/AppFooter/AppFooter';
 import { Loader } from './components/Loader/Loader';
-
 import { AuthLoginPage } from './pages/AuthLoginPage';
 import { AuthRegisterPage } from './pages/AuthRegisterPage';
 import { TeamsPage } from './pages/TeamsPage';
@@ -33,9 +27,15 @@ type ComputedMatch = {
   url: string,
 };
 
-type PrivateCustomRouteProps = RouteProps & { component: any, computedMatch?: ComputedMatch };
+type PrivateCustomRouteProps = RouteProps & {
+  component: any,
+  computedMatch?: ComputedMatch,
+};
 
-export type PrivateComponentProps = { user: UserAuthResponseTrue; match: undefined | ComputedMatch };
+export type PrivateComponentProps = {
+  user: UserAuthResponseTrue;
+  match: undefined | ComputedMatch,
+};
 
 const PrivateRoute = ({ component: Component, ...rest }: PrivateCustomRouteProps) => {
   const location = useLocation();
@@ -43,35 +43,36 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateCustomRouteProps
 
   if (isLoading) return <Loader />;
   if (!user) return <Redirect to="/login" />;
-  return <Component {...rest} user={user} match={rest.computedMatch} />;
+  return (
+    <Component
+      {...rest}
+      user={user}
+      match={rest.computedMatch}
+    />
+  );
 };
 
 export default function App() {
-  const brand = 'milestones';
-  const { theme, toggleTheme } = useTheme();
-
   return (
     <Router>
       <div className="app">
-        <AppHeader brand={brand} theme={theme} toggleTheme={toggleTheme} />
-        <AppContent>
-          <Redirect from="/" to="/login" />
-          <Switch>
-            <Route exact path="/login" component={AuthLoginPage} />
-            <Route exact path="/register" component={AuthRegisterPage} />
+        <Redirect exact from="/" to="/login" />
+        <Switch>
+          <Route exact path="/login" component={AuthLoginPage} />
+          <Route exact path="/register" component={AuthRegisterPage} />
 
-            <PrivateRoute exact path="/teams" component={TeamsPage} />
-            <PrivateRoute exact path="/teams/create" component={TeamCreatePage} />
-            <PrivateRoute path="/teams/:teamId" component={TeamPage} />
-            <PrivateRoute exact path="/teams/:teamId/tracks/create" component={TrackCreatePage} />
-            <PrivateRoute exact path="/teams/:teamId/tracks/:trackId" component={TrackPage} />
-            <PrivateRoute exact path="/teams/:teamId/members/create" component={MemberCreatePage} />
-            <PrivateRoute exact path="/teams/:teamId/members/:teamId" component={MemberPage} />
-          </Switch>
-        </AppContent>
-        <AppFooter brand={brand} />
+          <PrivateRoute exact path="/teams" component={TeamsPage} />
+          <PrivateRoute exact path="/teams/create" component={TeamCreatePage} />
+          <PrivateRoute path="/teams/:teamId" component={TeamPage} />
+          <PrivateRoute exact path="/teams/:teamId/tracks/create" component={TrackCreatePage} />
+          <PrivateRoute exact path="/teams/:teamId/tracks/:trackId" component={TrackPage} />
+          <PrivateRoute exact path="/teams/:teamId/members/create" component={MemberCreatePage} />
+          <PrivateRoute exact path="/teams/:teamId/members/:teamId" component={MemberPage} />
+        </Switch>
       </div>
     </Router>
   );
 }
+
+
 

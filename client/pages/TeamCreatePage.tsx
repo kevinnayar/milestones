@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useAppSelector } from '../hooks/useAppSelector';
 import { useAppDispatch } from '../hooks/useAppDispatch';
+import { BasePageTemplate } from '../templates/BasePageTemplate';
 import { createTeam, resetCreateTeam } from '../store/reducers/teams';
 import { PageHeader } from '../components/PageHeader/PageHeader';
 import { PageContent } from '../components/PageContent/PageContent';
@@ -51,34 +52,38 @@ export const TeamCreatePage = ({ user: { userId, token } }: PrivateComponentProp
   }, [dispatch, history, createdTeam]);
 
   return (
-    <div className="page">
-      <PageHeader title="Create team" />
-      <PageContent>
-        <div className="form">
-          <form onSubmit={onSubmit}>
-            <Input
-              name="name"
-              label="Name"
-              required
-              value={name}
-              setValue={setName}
-              validateOrThrow={validateName}
-            />
-            <Input
-              name="decription"
-              label="Description"
-              value={description}
-              setValue={setDescription}
-            />
-            <div>
-              <Button type="submit" disabled={!canSubmit}>
-                Submit
-              </Button>
-            </div>
-          </form>
-        </div>
-      </PageContent>
-    </div>
+    <BasePageTemplate>
+      <div className="page">
+        <PageHeader title="Create team" />
+        <PageContent>
+          <div className="form">
+            <form onSubmit={onSubmit}>
+              <Input
+                name="name"
+                className="odd"
+                label="Name"
+                required
+                value={name}
+                setValue={setName}
+                validateOrThrow={validateName}
+              />
+              <Input
+                name="description"
+                className="even"
+                label="Description"
+                value={description}
+                setValue={setDescription}
+              />
+              <div>
+                <Button type="submit" disabled={!canSubmit}>
+                  Submit
+                </Button>
+              </div>
+            </form>
+          </div>
+        </PageContent>
+      </div>
+    </BasePageTemplate>
   );
 };
 
