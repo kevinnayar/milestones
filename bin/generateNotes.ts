@@ -22,7 +22,7 @@ function insertFileCommentsInMap(rawText: string, mutableCommentMap: { [k: strin
   }
 }
 
-function getDirContentsRecursively(dirPath: string, mutableCommentMap: { [k: string]: string[] }) {
+async function getDirContentsRecursively(dirPath: string, mutableCommentMap: { [k: string]: string[] }) {
   const files = fs.readdirSync(dirPath);
 
   for (const file of files) {
@@ -31,7 +31,7 @@ function getDirContentsRecursively(dirPath: string, mutableCommentMap: { [k: str
     const isFile = Boolean(!isDir && filePath.match('.ts'));
 
     if (isFile) insertFileCommentsInMap(fs.readFileSync(filePath).toString(), mutableCommentMap);
-    if (isDir) getDirContentsRecursively(filePath, mutableCommentMap);
+    if (isDir) await getDirContentsRecursively(filePath, mutableCommentMap);
   }
 }
 
@@ -53,7 +53,7 @@ function writeNotesToFile(outputFile: string, mutableCommentMap: { [k: string]: 
   fs.writeFileSync(outputFile, notes);
 }
 
-function main() {
+async function main() {
   try {
     const dirPaths = ['./', '../client', '../server', '../common'];
     const outputFile = 'NOTES.md';
@@ -64,7 +64,7 @@ function main() {
 
     for (const dir of dirPaths) {
       const dirPath = path.join(__dirname, dir);
-      getDirContentsRecursively(dirPath, mutableCommentMap);
+      await getDirContentsRecursively(dirPath, mutableCommentMap);
       console.log(`    -> completed: ${dirPath}`);
     }
 
@@ -74,9 +74,9 @@ function main() {
   }
 }
 
-(() => {
+(async () => {
   try {
-    main();
+    await main();
     console.log('\n  ✅ Notes completed!\n');
   } catch (e) {
     console.error(e);
