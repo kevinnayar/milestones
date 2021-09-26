@@ -63,7 +63,7 @@ async function main() {
     const outputFile = 'NOTES.md';
     const mutableCommentMap: { [k: string]: string[] } = {};
 
-    // @notes[notes] Notes are generated off of any comment that starts with `@notes[NAMESPACE]`
+    // @notes[notes] Notes are generated off of any comment that starts with `// @notes[NAMESPACE]`
     // @notes[notes] Namespaces are there to group related comments under one title
 
     for (const dir of dirPaths) {
