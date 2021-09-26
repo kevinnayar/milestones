@@ -1,6 +1,24 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+function writeNotesToFile(outputFile: string, mutableCommentMap: { [k: string]: string[] }) {
+  let notes = '';
+  const keys = Object.keys(mutableCommentMap).sort();
+
+  for (const key of keys) {
+    const title = `#### ${key[0].toUpperCase()}${key.slice(1).toLowerCase()}\n`;
+
+    const values = mutableCommentMap[key];
+    const list = `${values.map((v) => `- ${v}`).join('\n')}\n\n`;
+
+    notes += `${title}${list}`;
+  }
+
+  notes = notes ? `# Notes\n\n${notes}` : '';
+
+  fs.writeFileSync(outputFile, notes);
+}
+
 function insertFileCommentsInMap(rawText: string, mutableCommentMap: { [k: string]: string[] }) {
   const identifier = '// @notes';
   const lines: string[] = rawText.split('\n');
@@ -23,7 +41,7 @@ function insertFileCommentsInMap(rawText: string, mutableCommentMap: { [k: strin
   }
 }
 
-async function getDirContentsRecursively(dirPath: string, mutableCommentMap: { [k: string]: string[] }) {
+async function recursivelyinsertDirFileCommentsInMap(dirPath: string, mutableCommentMap: { [k: string]: string[] }) {
   const files = fs.readdirSync(dirPath);
 
   for (const file of files) {
@@ -32,26 +50,8 @@ async function getDirContentsRecursively(dirPath: string, mutableCommentMap: { [
     const isFile = Boolean(!isDir && filePath.match('.ts'));
 
     if (isFile) insertFileCommentsInMap(fs.readFileSync(filePath).toString(), mutableCommentMap);
-    if (isDir) await getDirContentsRecursively(filePath, mutableCommentMap);
+    if (isDir) await recursivelyinsertDirFileCommentsInMap(filePath, mutableCommentMap);
   }
-}
-
-function writeNotesToFile(outputFile: string, mutableCommentMap: { [k: string]: string[] }) {
-  let notes = '';
-  const keys = Object.keys(mutableCommentMap).sort();
-
-  for (const key of keys) {
-    const title = `#### ${key[0].toUpperCase()}${key.slice(1).toLowerCase()}\n`;
-
-    const values = mutableCommentMap[key];
-    const list = `${values.map(v => `- ${v}`).join('\n')}\n\n`;
-
-    notes += `${title}${list}`;
-  }
-
-  notes = notes ? `# Notes\n\n${notes}` : '';
-
-  fs.writeFileSync(outputFile, notes);
 }
 
 async function main() {
@@ -65,7 +65,7 @@ async function main() {
 
     for (const dir of dirPaths) {
       const dirPath = path.join(__dirname, dir);
-      await getDirContentsRecursively(dirPath, mutableCommentMap);
+      await recursivelyinsertDirFileCommentsInMap(dirPath, mutableCommentMap);
       console.log(`    -> completed: ${dirPath}`);
     }
 
