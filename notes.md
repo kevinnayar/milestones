@@ -1,7 +1,7 @@
 # Notes
 
 #### Notes
-- Notes are generated off of any comment that starts with `@notes[NAMESPACE]`
+- Notes are generated off of any comment that starts with `// @notes[NAMESPACE]`
 - Namespaces are there to group related comments under one title
 
 #### Rights
