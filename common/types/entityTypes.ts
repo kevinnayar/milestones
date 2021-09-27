@@ -69,12 +69,11 @@ export type EntityTeam = {
   utcTimeUpdated?: Maybe<number>;
 };
 
-export type TeamCreateParams = {
+export type TeamUpsertParams = {
   name: string;
   description?: Maybe<string>;
   imgUrl?: Maybe<string>;
 };
-
 
 // TRACKS
 export type TrackType = 'TEMPLATE' | 'CUSTOM';

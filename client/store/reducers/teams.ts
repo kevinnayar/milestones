@@ -8,7 +8,7 @@ import {
   fetchFailure,
 } from '../../../common/utils/asyncUtils';
 import { AuthCredentials, AuthCredentialsPlus } from '../../../common/types/baseTypes';
-import { EntityTeam, TeamCreateParams } from '../../../common/types/entityTypes';
+import { EntityTeam, TeamUpsertParams } from '../../../common/types/entityTypes';
 import { FetchState } from '../../../common/types/baseTypes';
 
 export type TeamsReducer = {
@@ -31,7 +31,7 @@ export const getTeams = createAsyncThunk<EntityTeam[], AuthCredentials>(
   },
 );
 
-export const createTeam = createAsyncThunk<EntityTeam, AuthCredentialsPlus<TeamCreateParams>>(
+export const createTeam = createAsyncThunk<EntityTeam, AuthCredentialsPlus<TeamUpsertParams>>(
   'teams/createTeam',
   async ({ userId, token, extra }) => {
     const team: EntityTeam = await apiClient.post(`/users/${userId}/teams/create`, { token, body: extra });

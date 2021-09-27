@@ -1,8 +1,8 @@
 import { isStrictStringOrThrow, isStrictStringNullVoidOrThrow } from '../../../common/utils/typeUtils';
 import { Maybe } from '../../../common/types/baseTypes';
-import { TeamCreateParams, EntityTeam } from '../../../common/types/entityTypes';
+import { TeamUpsertParams, EntityTeam } from '../../../common/types/entityTypes';
 
-export function validTeamCreateParams(params: any): TeamCreateParams {
+export function validTeamCreateParams(params: any): TeamUpsertParams {
   const name = isStrictStringOrThrow(params.name, 'Team name is required');
   const description: Maybe<string> = isStrictStringNullVoidOrThrow(
     params.description,
@@ -13,7 +13,7 @@ export function validTeamCreateParams(params: any): TeamCreateParams {
     'Optional value image URL is in an invalid format',
   );
 
-  const validParams: TeamCreateParams = {
+  const validParams: TeamUpsertParams = {
     name,
     description,
     imgUrl,

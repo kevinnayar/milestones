@@ -9,12 +9,12 @@ import { PageHeader } from '../components/PageHeader/PageHeader';
 import { PageContent } from '../components/PageContent/PageContent';
 import { Loader } from '../components/Loader/Loader';
 import { Button } from '../components/Button/Button';
-import { Input } from '../components/Input/Input';
+import { TeamForm } from '../components/Forms/TeamForm';
 import { NoContent } from '../components/NoContent/NoContent';
 import { PrivateComponentProps } from '../app';
 import { RootState } from '../store/store';
 
-export const TeamPage = ({ user: { userId, token }, match }: PrivateComponentProps) => {
+export const TeamViewPage = ({ user: { userId, token }, match }: PrivateComponentProps) => {
   const { currentTeam } = useAppSelector((state: RootState) => state.teams);
   const dispatch = useAppDispatch();
   const history = useHistory();
@@ -41,33 +41,14 @@ export const TeamPage = ({ user: { userId, token }, match }: PrivateComponentPro
       <div className="page">
         <PageHeader title={currentTeam.data ? currentTeam.data.name : 'Team'}>
           {teamId && currentTeam.data && (
-            <Button icon="edit" onClick={() => history.push(`/teams/${teamId}/edit`)}>
+            <Button icon="edit" onClick={() => history.push(`/teams/${teamId}/update`)}>
               Edit Team
             </Button>
           )}
         </PageHeader>
         <PageContent>
           {currentTeam.data ? (
-            <div className="form">
-              <form>
-                <Input
-                  name="name"
-                  className="odd"
-                  label="Name"
-                  readOnly
-                  value={currentTeam.data.name}
-                  setValue={() => undefined}
-                />
-                <Input
-                  name="description"
-                  className="even"
-                  label="Description"
-                  readOnly
-                  value={currentTeam.data.description || ''}
-                  setValue={() => undefined}
-                />
-              </form>
-            </div>
+            <TeamForm team={currentTeam.data} readOnly />
           ) : (
             <NoContent message="This team doesn't exist.">
               <Button icon="add" onClick={() => history.push('/teams/create')}>
