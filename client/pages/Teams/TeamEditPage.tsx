@@ -10,7 +10,7 @@ import { PageContent } from '../../components/PageContent/PageContent';
 import { Loader } from '../../components/Loader/Loader';
 import { TeamForm } from '../../components/Forms/TeamForm';
 import { TeamUpsertParams } from '../../../common/types/entityTypes';
-import { PrivateComponentProps } from '../../app';
+import { PrivateComponentProps } from '../../routes';
 import { hasFetchSucceeded } from '../../../common/utils/asyncUtils';
 import { RootState } from '../../store/store';
 

@@ -7,7 +7,7 @@ import { BasePageTemplate } from '../../templates/BasePageTemplate';
 import { createTeam, resetCreateTeam } from '../../store/reducers/teams';
 import { PageHeader } from '../../components/PageHeader/PageHeader';
 import { PageContent } from '../../components/PageContent/PageContent';
-import { PrivateComponentProps } from '../../app';
+import { PrivateComponentProps } from '../../routes';
 import { TeamUpsertParams } from '../../../common/types/entityTypes';
 import { hasFetchSucceeded } from '../../../common/utils/asyncUtils';
 import { RootState } from '../../store/store';

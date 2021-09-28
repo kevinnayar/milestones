@@ -11,7 +11,7 @@ import { Loader } from '../../components/Loader/Loader';
 import { Button } from '../../components/Button/Button';
 import { TeamForm } from '../../components/Forms/TeamForm';
 import { NoContent } from '../../components/NoContent/NoContent';
-import { PrivateComponentProps } from '../../app';
+import { PrivateComponentProps } from '../../routes';
 import { RootState } from '../../store/store';
 
 export const TeamInfoPage = ({ user: { userId, token }, match }: PrivateComponentProps) => {

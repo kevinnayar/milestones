@@ -15,7 +15,7 @@ import {
   GridHeader,
 } from '../../components/Grid/Grid';
 import { NoContent } from '../../components/NoContent/NoContent';
-import { PrivateComponentProps } from '../../app';
+import { PrivateComponentProps } from '../../routes';
 import { RootState } from '../../store/store';
 
 export const TeamsListPage = ({ user: { userId, token } }: PrivateComponentProps) => {

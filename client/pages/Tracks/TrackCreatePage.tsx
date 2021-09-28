@@ -8,7 +8,7 @@ import { PageHeader } from '../../components/PageHeader/PageHeader';
 import { PageContent } from '../../components/PageContent/PageContent';
 import { createTrack, resetCreateTrack } from '../../store/reducers/tracks';
 import { RootState } from '../../store/store';
-import { PrivateComponentProps } from '../../app';
+import { PrivateComponentProps } from '../../routes';
 import { TrackCreateParams } from '../../../common/types/entityTypes';
 import { hasFetchSucceeded } from '../../../common/utils/asyncUtils';
 import { TrackForm } from '../../components/Forms/TrackForm';
