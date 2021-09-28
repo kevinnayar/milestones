@@ -40,7 +40,6 @@ CREATE INDEX ON user_credentials ("email");
 -- teams
 CREATE TABLE IF NOT EXISTS teams (
   id VARCHAR NOT NULL UNIQUE,
-  track_ids VARCHAR[],
   name VARCHAR NOT NULL,
   description VARCHAR,
   img_url VARCHAR,
@@ -65,6 +64,7 @@ CREATE TABLE IF NOT EXISTS tracks (
   name VARCHAR NOT NULL,
   description VARCHAR,
   img_url VARCHAR,
+  start_date JSONB NOT NULL,
   utc_time_created BIGINT NOT NULL,
   utc_time_updated BIGINT
 );

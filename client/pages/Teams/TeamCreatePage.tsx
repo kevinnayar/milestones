@@ -1,25 +1,30 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useAppSelector } from '../hooks/useAppSelector';
-import { useAppDispatch } from '../hooks/useAppDispatch';
-import { BasePageTemplate } from '../templates/BasePageTemplate';
-import { createTeam, resetCreateTeam } from '../store/reducers/teams';
-import { PageHeader } from '../components/PageHeader/PageHeader';
-import { PageContent } from '../components/PageContent/PageContent';
-import { PrivateComponentProps } from '../app';
-import { TeamUpsertParams } from '../../common/types/entityTypes';
-import { hasFetchSucceeded } from '../../common/utils/asyncUtils';
-import { RootState } from '../store/store';
-import { TeamForm } from '../components/Forms/TeamForm';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { BasePageTemplate } from '../../templates/BasePageTemplate';
+import { createTeam, resetCreateTeam } from '../../store/reducers/teams';
+import { PageHeader } from '../../components/PageHeader/PageHeader';
+import { PageContent } from '../../components/PageContent/PageContent';
+import { PrivateComponentProps } from '../../app';
+import { TeamUpsertParams } from '../../../common/types/entityTypes';
+import { hasFetchSucceeded } from '../../../common/utils/asyncUtils';
+import { RootState } from '../../store/store';
+import { TeamForm } from '../../components/Forms/TeamForm';
 
 export const TeamCreatePage = ({ user: { userId, token } }: PrivateComponentProps) => {
   const { createdTeam } = useAppSelector((state: RootState) => state.teams);
   const dispatch = useAppDispatch();
   const history = useHistory();
 
-  const onCreate = (extra: TeamUpsertParams) => {
+  const onSave = (extra: TeamUpsertParams) => {
     dispatch(createTeam({ userId, token, extra }));
+  };
+
+  const onCancel = () => {
+    const pathname = history.location.pathname.replace('/create', '');
+    history.push(pathname);
   };
 
   useEffect(() => {
@@ -39,7 +44,7 @@ export const TeamCreatePage = ({ user: { userId, token } }: PrivateComponentProp
       <div className="page">
         <PageHeader title="Create team" />
         <PageContent>
-          <TeamForm team={null} onSave={onCreate} />
+          <TeamForm team={null} onSave={onSave} onCancel={onCancel} />
         </PageContent>
       </div>
     </BasePageTemplate>

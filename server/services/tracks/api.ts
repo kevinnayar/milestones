@@ -40,10 +40,6 @@ class TracksHandler {
     const params = validateTrackCreateParams(req.body);
     const utcTimestamp = DateTime.now().toMillis();
 
-    if (params.config.type === 'CUSTOM') {
-      return badRequestException(res, "A track type of 'CUSTOM' is not supported");
-    }
-
     const track: EntityTrack = {
       ...params,
       trackId,
@@ -53,20 +49,22 @@ class TracksHandler {
 
     const trackActionId = createGuid('trackAction');
 
-    const trackAction: TrackActionStart = {
+    const trackAction: null | TrackActionStart = params.config.type === 'TEMPLATE' ? {
       type: 'START',
       payload: {
         startDate: params.startDate,
         template: params.config.template,
         version: params.config.version,
       },
-    };
+    } : null;
 
-    const trackState: TrackState = trackStateReducer(trackAction);
+    const trackState: null | TrackState = trackAction
+      ? trackStateReducer(trackAction)
+      : null;
 
-    await dbTrackCreate(this.client, teamId, track, trackActionId, trackAction, trackState);
+    await dbTrackCreate(this.client, track, trackActionId, trackAction, trackState);
 
-    return res.status(200).json({ track });
+    return res.status(200).json(track);
   };
 
   getTrack = async (req: Request, res: Response) => {

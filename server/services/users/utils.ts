@@ -1,6 +1,6 @@
 import {
   isStrictStringOrThrow,
-  isStrictStringNullVoidOrThrow,
+  isMaybeStringOrThrow,
   inStringUnionOrThrow,
   isValidEmailOrThrow,
 } from '../../../common/utils/typeUtils';
@@ -19,7 +19,7 @@ export function validUserCreateParams(params: any): UserCreateParams {
   const password = isStrictStringOrThrow(params.password, 'Password is required');
 
   const roleId: RoleType = inStringUnionOrThrow(params.roleId, getValidRoles(), 'A valid role is required');
-  const imgUrl: Maybe<string> = isStrictStringNullVoidOrThrow(
+  const imgUrl: Maybe<string> = isMaybeStringOrThrow(
     params.imgUrl,
     'Optional value image URL is in an invalid format',
   );

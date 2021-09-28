@@ -1,9 +1,13 @@
+.form__buttons {
+  display: flex;
+}
+
 .button {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 22px;
-  margin-bottom: 1em;
+  margin: 0 1em 1em 0;
   height: 48px;
   color: $color-white;
   background: $color-blue;
@@ -20,14 +24,12 @@
   }
 
   &:disabled {
-    background: $color-subtle-bg;
-    color: $color-subtle-text;
+    opacity: 0.5;
     pointer-events: auto;
     cursor: not-allowed;
 
     &:hover {
-      opacity: 1;
-      box-shadow: none;
+      opacity: 0.5;
     }
   }
 
@@ -45,6 +47,16 @@
   
   &--success {
     background: $color-success;
+  }
+
+  &--primary {
+    background: $color-blue;
+  }
+
+  &--secondary {
+    background: $color-bg;
+    color: $color-blue;
+    border: 2px solid $color-blue;
   }
 
   &--with-icon {

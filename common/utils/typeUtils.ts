@@ -11,15 +11,11 @@ export function isStrictStringOrThrow(value: any, msg: string): string {
   return str;
 }
 
-export function isStrictStringNullOrThrow(value: any, msg: string): null | string {
-  if (typeof value === 'string' && value) return value;
-  if (value === null) return null;
-  throw new Error(msg);
-}
-
-export function isStrictStringNullVoidOrThrow(value: any, msg: string): Maybe<string> {
+export function isMaybeStringOrThrow(value: any, msg: string): Maybe<string> {
   if (value === undefined) return undefined;
-  return isStrictStringNullOrThrow(value, msg);
+  if (value === null) return null;
+  if (typeof value === 'string') return value;
+  throw new Error(msg);
 }
 
 export function inStringUnionOrThrow<U extends string>(value: string, unionList: U[], msg: string): U {

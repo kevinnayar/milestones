@@ -1,25 +1,24 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useAppSelector } from '../hooks/useAppSelector';
-import { useAppDispatch } from '../hooks/useAppDispatch';
-import { BasePageTemplate } from '../templates/BasePageTemplate';
-import { getTeams } from '../store/reducers/teams';
-import { PageHeader } from '../components/PageHeader/PageHeader';
-import { PageContent } from '../components/PageContent/PageContent';
-import { Loader } from '../components/Loader/Loader';
-import { Button } from '../components/Button/Button';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { BasePageTemplate } from '../../templates/BasePageTemplate';
+import { getTeams } from '../../store/reducers/teams';
+import { PageHeader } from '../../components/PageHeader/PageHeader';
+import { PageContent } from '../../components/PageContent/PageContent';
+import { Loader } from '../../components/Loader/Loader';
+import { Button } from '../../components/Button/Button';
 import {
   Grid,
-  gridFormatterListLength,
   gridFormatterDateTime,
   GridHeader,
-} from '../components/Grid/Grid';
-import { NoContent } from '../components/NoContent/NoContent';
-import { PrivateComponentProps } from '../app';
-import { RootState } from '../store/store';
+} from '../../components/Grid/Grid';
+import { NoContent } from '../../components/NoContent/NoContent';
+import { PrivateComponentProps } from '../../app';
+import { RootState } from '../../store/store';
 
-export const TeamsPage = ({ user: { userId, token } }: PrivateComponentProps) => {
+export const TeamsListPage = ({ user: { userId, token } }: PrivateComponentProps) => {
   const { allTeams } = useAppSelector((state: RootState) => state.teams);
   const dispatch = useAppDispatch();
   const history = useHistory();
@@ -32,7 +31,6 @@ export const TeamsPage = ({ user: { userId, token } }: PrivateComponentProps) =>
 
   const headers: GridHeader[] = [
     ['name', 'Name', true],
-    ['trackIds', 'Number of tracks', true, gridFormatterListLength],
     ['teamId', 'Team ID', false],
     ['description', 'Description', true],
     ['utcTimeCreated', 'Created on', true, gridFormatterDateTime],

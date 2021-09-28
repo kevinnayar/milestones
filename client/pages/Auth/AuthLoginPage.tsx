@@ -2,15 +2,15 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { DateTime } from 'luxon';
-import { useAppSelector } from '../hooks/useAppSelector';
-import { useAppDispatch } from '../hooks/useAppDispatch';
-import { AuthPageTemplate } from '../templates/AuthPageTemplate';
-import { Input } from '../components/Input/Input';
-import { Button } from '../components/Button/Button';
-import { userLogin, userGetSelf } from '../store/reducers/user';
-import { isValidEmailOrThrow, isValidPasswordOrThrow } from '../../common/utils/typeUtils';
-import { hasFetchNotStarted, hasFetchSucceeded } from '../../common/utils/asyncUtils';
-import { RootState } from '../store/store';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { AuthPageTemplate } from '../../templates/AuthPageTemplate';
+import { Input } from '../../components/Input/Input';
+import { Button } from '../../components/Button/Button';
+import { userLogin, userGetSelf } from '../../store/reducers/user';
+import { isValidEmailOrThrow, isValidPasswordOrThrow } from '../../../common/utils/typeUtils';
+import { hasFetchNotStarted, hasFetchSucceeded } from '../../../common/utils/asyncUtils';
+import { RootState } from '../../store/store';
 
 export const AuthLoginPage = (props: RouteComponentProps) => {
   const { auth, self, loginRedirectPath } = useAppSelector((state: RootState) => state.user);

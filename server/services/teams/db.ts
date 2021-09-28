@@ -1,5 +1,5 @@
 import { convertRowToTeam } from './utils';
-import { EntityTeam } from '../../../common/types/entityTypes';
+import { EntityTeam, TeamUpsertParams } from '../../../common/types/entityTypes';
 import { DBClient } from '../../serverTypes';
 
 export async function dbTeamExists(client: DBClient, teamId: string): Promise<boolean> {
@@ -14,18 +14,16 @@ export async function dbCreateTeam(client: DBClient, userId: string, team: Entit
   const teamQuery = `
     INSERT INTO teams (
       id,
-      track_ids,
       name,
       description,
       utc_time_created,
       utc_time_updated
     )
-    VALUES ($1, $2, $3, $4, $5, $6)
+    VALUES ($1, $2, $3, $4, $5)
     ;
   `;
   const teamValues = [
     team.teamId,
-    team.trackIds,
     team.name,
     team.description,
     team.utcTimeCreated,
@@ -46,6 +44,30 @@ export async function dbCreateTeam(client: DBClient, userId: string, team: Entit
 
   return team.teamId;
 }
+
+export async function dbUpdateTeam(
+  client: DBClient,
+  teamId: string,
+  params: TeamUpsertParams,
+  utcTimestamp: number,
+): Promise<undefined | EntityTeam> {
+  const query = `
+    UPDATE teams 
+    SET
+      name = $1,
+      description = $2,
+      utc_time_updated = $3
+    WHERE id = $4
+    RETURNING *
+    ;
+  `;
+  const values = [params.name, params.description, utcTimestamp, teamId];
+
+  const rows = await client.query(query, values);
+  const team = rows && rows.length ? convertRowToTeam(rows[0]) : undefined;
+  return team;
+}
+
 
 export async function dbGetTeamsForUser(client: DBClient, userId: string): Promise<EntityTeam[]> {
   const query = `

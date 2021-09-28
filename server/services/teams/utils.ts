@@ -1,14 +1,14 @@
-import { isStrictStringOrThrow, isStrictStringNullVoidOrThrow } from '../../../common/utils/typeUtils';
+import { isStrictStringOrThrow, isMaybeStringOrThrow } from '../../../common/utils/typeUtils';
 import { Maybe } from '../../../common/types/baseTypes';
 import { TeamUpsertParams, EntityTeam } from '../../../common/types/entityTypes';
 
-export function validTeamCreateParams(params: any): TeamUpsertParams {
+export function validTeamUpsertParams(params: any): TeamUpsertParams {
   const name = isStrictStringOrThrow(params.name, 'Team name is required');
-  const description: Maybe<string> = isStrictStringNullVoidOrThrow(
+  const description: Maybe<string> = isMaybeStringOrThrow(
     params.description,
     'Optional value description is in an invalid format',
   );
-  const imgUrl: Maybe<string> = isStrictStringNullVoidOrThrow(
+  const imgUrl: Maybe<string> = isMaybeStringOrThrow(
     params.imgUrl,
     'Optional value image URL is in an invalid format',
   );
@@ -25,7 +25,6 @@ export function validTeamCreateParams(params: any): TeamUpsertParams {
 export function convertRowToTeam(row: any): EntityTeam {
   const team: EntityTeam = {
     teamId: row.id,
-    trackIds: row.track_ids,
     name: row.name,
     description: row.description,
     imgUrl: row.img_url,

@@ -8,18 +8,18 @@ import {
   useLocation,
 } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
-import { Loader } from './components/Loader/Loader';
-import { AuthLoginPage } from './pages/AuthLoginPage';
-import { AuthRegisterPage } from './pages/AuthRegisterPage';
-import { TeamsPage } from './pages/TeamsPage';
-import { TeamCreatePage } from './pages/TeamCreatePage';
-import { TeamViewPage } from './pages/TeamViewPage';
-import { TeamUpdatePage } from './pages/TeamUpdatePage';
-import { TrackPage } from './pages/TrackPage';
-import { TrackCreatePage } from './pages/TrackCreatePage';
-import { MemberPage } from './pages/MemberPage';
-import { MemberCreatePage } from './pages/MemberCreatePage';
 import { UserAuthResponseTrue } from '../common/types/entityTypes';
+import { Loader } from './components/Loader/Loader';
+import { AuthLoginPage } from './pages/Auth/AuthLoginPage';
+import { AuthRegisterPage } from './pages/Auth/AuthRegisterPage';
+import { TeamsListPage } from './pages/Teams/TeamsListPage';
+import { TeamCreatePage } from './pages/Teams/TeamCreatePage';
+import { TeamInfoPage } from './pages/Teams/TeamInfoPage';
+import { TeamEditPage } from './pages/Teams/TeamEditPage';
+import { TrackInfoPage } from './pages/Tracks/TrackInfoPage';
+import { TrackCreatePage } from './pages/Tracks/TrackCreatePage';
+import { MemberInfoPage } from './pages/Members/MemberInfoPage';
+import { MemberCreatePage } from './pages/Members/MemberCreatePage';
 
 type ComputedMatch = {
   isExact: boolean,
@@ -44,6 +44,7 @@ const PrivateRoute = ({ component: Component, ...rest }: PrivateCustomRouteProps
 
   if (isLoading) return <Loader />;
   if (!user) return <Redirect to="/login" />;
+
   return (
     <Component
       {...rest}
@@ -62,16 +63,19 @@ export default function App() {
           <Route path="/login" exact component={AuthLoginPage} />
           <Route path="/register" exact component={AuthRegisterPage} />
 
-          <PrivateRoute path="/teams" exact component={TeamsPage} />
+          <PrivateRoute path="/teams" exact component={TeamsListPage} />
 
           <PrivateRoute path="/teams/create" exact component={TeamCreatePage} />
-          <PrivateRoute path="/teams/:teamId" exact component={TeamViewPage} />
-          <PrivateRoute path="/teams/:teamId/update" exact component={TeamUpdatePage} />
+          <PrivateRoute path="/teams/:teamId" exact component={TeamInfoPage} />
+          <PrivateRoute path="/teams/:teamId/edit" exact component={TeamEditPage} />
 
           <PrivateRoute path="/teams/:teamId/tracks/create" exact component={TrackCreatePage} />
-          <PrivateRoute path="/teams/:teamId/tracks/:trackId" exact component={TrackPage} />
+          <PrivateRoute path="/teams/:teamId/tracks/:trackId" exact component={TrackInfoPage} />
+          <PrivateRoute path="/teams/:teamId/tracks/:trackId/edit" exact component={TrackCreatePage} />
+
           <PrivateRoute path="/teams/:teamId/members/create" exact component={MemberCreatePage} />
-          <PrivateRoute path="/teams/:teamId/members/:teamId" exact component={MemberPage} />
+          <PrivateRoute path="/teams/:teamId/members/:memberId" exact component={MemberInfoPage} />
+          <PrivateRoute path="/teams/:teamId/members/:memberId/edit" exact component={MemberCreatePage} />
         </Switch>
       </div>
     </Router>

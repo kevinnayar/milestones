@@ -3,66 +3,73 @@ import { DBClient } from '../../serverTypes';
 
 export async function dbTrackCreate(
   client: DBClient,
-  teamId: string,
   track: EntityTrack,
   trackActionId: string,
-  trackAction: TrackActionStart,
-  trackState: TrackState,
+  trackAction: null | TrackActionStart,
+  trackState: null | TrackState,
 ): Promise<string> {
-  const trackActionQuery = `
-    INSERT INTO track_actions (
-      id,
-      track_id,
-      action,
-      state,
-      utc_time_created
-    )
-    VALUES ($1, $2, $3, $4, $5)
-    ;
-  `;
-  const trackActionValues = [trackActionId, track.trackId, trackAction, trackState, track.utcTimeCreated];
-
   const trackTemplate = track.config.type === 'TEMPLATE' ? track.config.template : null;
   const trackVersion = track.config.type === 'TEMPLATE' ? track.config.version : null;
   const trackQuery = `
     INSERT INTO tracks (
       id,
+      team_id,
       type,
       template,
       version,
       name,
       description,
+      start_date,
       utc_time_created,
       utc_time_updated
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     ;
   `;
   const trackValues = [
     track.trackId,
+    track.teamId,
     track.config.type,
     trackTemplate,
     trackVersion,
     track.name,
     track.description,
+    track.startDate,
     track.utcTimeCreated,
     track.utcTimeUpdated,
   ];
 
-  const teamQuery = `
-    UPDATE teams
-      SET
-        track_ids = array_append(track_ids, $1),
-        utc_time_updated = $2
-      WHERE id = $3
-    ;
-  `;
-  const teamValues = [track.trackId, track.utcTimeCreated, teamId];
+  const queryTuples: Array<[string, any[]]> = [[trackQuery, trackValues]];
+
+  if (trackAction && trackState) {
+    const trackActionQuery = `
+      INSERT INTO track_actions (
+        id,
+        track_id,
+        action_type,
+        action,
+        state,
+        utc_time_created
+      )
+      VALUES ($1, $2, $3, $4, $5, $6)
+      ;
+    `;
+    const trackActionValues = [
+      trackActionId,
+      track.trackId,
+      trackAction.type,
+      trackAction.payload,
+      trackState,
+      track.utcTimeCreated,
+    ];
+
+    queryTuples.push([trackActionQuery, trackActionValues]);
+  }
 
   await client.tx(async (t) => {
-    await t.query(trackQuery, trackValues);
-    await t.query(trackActionQuery, trackActionValues);
-    await t.query(teamQuery, teamValues);
+    for (const tuple of queryTuples) {
+      await t.query(tuple[0], tuple[1]);
+    }
   });
 
   return track.trackId;

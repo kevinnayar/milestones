@@ -1,29 +1,47 @@
 import * as React from 'react';
+import { DateTime } from 'luxon';
 import { useState } from 'react';
 import { Input } from '../Input/Input';
 import { Button } from '../Button/Button';
 import { Maybe } from '../../../common/types/baseTypes';
-import { EntityTeam, TeamUpsertParams } from '../../../common/types/entityTypes';
+import { EntityTrack, TrackCreateParams } from '../../../common/types/entityTypes';
 
-type TeamFormProps = {
-  team: Maybe<EntityTeam>;
+type TrackFormProps = {
+  teamId: string,
+  track: Maybe<EntityTrack>;
   readOnly?: boolean;
-  onSave?: (_params: TeamUpsertParams) => void;
+  onSave?: (_params: TrackCreateParams) => void;
   onCancel?: () => void;
 };
 
-function createTeamParams(team: Maybe<EntityTeam>): TeamUpsertParams {
-  return team ? {
-    name: team.name,
-    description: team.description,
+function createTrackParams(teamId: string, track: Maybe<EntityTrack>): TrackCreateParams {
+  const now = DateTime.now();
+
+  return track ? {
+    teamId,
+    name: track.name,
+    description: track.description,
+    config: track.config,
+    startDate: track.startDate,
   } : {
+    teamId,
     name: '',
     description: '',
+    config: {
+      type: 'TEMPLATE',
+      template: 'CHILD_MILESTONES',
+      version: 1,
+    },
+    startDate: {
+      days: now.day,
+      months: now.month,
+      years: now.year,
+    },
   };
 }
 
-export const TeamForm = ({ team, readOnly, onSave, onCancel }: TeamFormProps) => {
-  const [params, setParams] = useState<TeamUpsertParams>(createTeamParams(team));
+export const TrackForm = ({ teamId, track, readOnly, onSave, onCancel }: TrackFormProps) => {
+  const [params, setParams] = useState<TrackCreateParams>(createTrackParams(teamId, track));
   const canSubmit = Boolean(params.name && !readOnly && onSave);
 
   const onSubmit = (evt: React.FormEvent<HTMLFormElement>) => {

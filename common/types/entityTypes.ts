@@ -61,7 +61,6 @@ export type UserAuthResponse = UserAuthResponseTrue | UserAuthResponseFalse;
 // TEAMS
 export type EntityTeam = {
   teamId: string;
-  trackIds: string[];
   name: string;
   description?: Maybe<string>;
   imgUrl?: Maybe<string>;
@@ -90,17 +89,19 @@ export type TrackConfigCustom = {
 };
 
 export type EntityTrack = {
+  teamId: string;
   trackId: string;
   name: string;
   config: TrackConfigCustom | TrackConfigTemplate;
   description?: Maybe<string>;
   imgUrl?: Maybe<string>;
+  startDate: SimpleDate;
   utcTimeCreated: number;
   utcTimeUpdated?: Maybe<number>;
 };
 
 export type TrackCreateParams = {
-  teamId: string,
+  teamId: string;
   name: string;
   config: TrackConfigCustom | TrackConfigTemplate;
   description?: Maybe<string>;

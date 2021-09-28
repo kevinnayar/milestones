@@ -34,18 +34,37 @@ export const getTeams = createAsyncThunk<EntityTeam[], AuthCredentials>(
 export const createTeam = createAsyncThunk<EntityTeam, AuthCredentialsPlus<TeamUpsertParams>>(
   'teams/createTeam',
   async ({ userId, token, extra }) => {
-    const team: EntityTeam = await apiClient.post(`/users/${userId}/teams/create`, { token, body: extra });
+    const team: EntityTeam = await apiClient.post(`/users/${userId}/teams/create`, {
+      token,
+      body: extra,
+    });
     return team;
   },
 );
 
-export const getTeam = createAsyncThunk<undefined | EntityTeam, AuthCredentialsPlus<{ teamId: string }>>(
-  'teams/getTeam',
-  async ({ userId, token, extra }) => {
-    const team: undefined | EntityTeam = await apiClient.post(`/users/${userId}/teams/${extra.teamId}`, { token });
-    return team;
-  },
-);
+export const getTeam = createAsyncThunk<
+  undefined | EntityTeam,
+  AuthCredentialsPlus<{ teamId: string }>
+>('teams/getTeam', async ({ userId, token, extra }) => {
+  const team: undefined | EntityTeam = await apiClient.post(
+    `/users/${userId}/teams/${extra.teamId}`,
+    { token },
+  );
+  return team;
+});
+
+export const updateTeam = createAsyncThunk<
+  EntityTeam,
+  AuthCredentialsPlus<{ teamId: string; params: TeamUpsertParams }>
+>('teams/updateTeam', async ({ userId, token, extra }) => {
+  const body = { ...extra.params };
+  const team: EntityTeam = await apiClient.put(`/users/${userId}/teams/${extra.teamId}`, {
+    token,
+    body,
+  });
+  return team;
+});
+
 
 export const teamsSlice = createSlice({
   name: 'teams',
@@ -85,6 +104,16 @@ export const teamsSlice = createSlice({
         state.currentTeam = fetchSuccess(action.payload);
       })
       .addCase(getTeam.rejected, (state, action) => {
+        state.currentTeam = fetchFailure(action.error.message);
+      })
+      // updateTeam
+      .addCase(updateTeam.pending, (state) => {
+        state.currentTeam = fetchRequest();
+      })
+      .addCase(updateTeam.fulfilled, (state, action: PayloadAction<undefined | EntityTeam>) => {
+        state.currentTeam = fetchSuccess(action.payload);
+      })
+      .addCase(updateTeam.rejected, (state, action) => {
         state.currentTeam = fetchFailure(action.error.message);
       });
   },

@@ -2,10 +2,10 @@ import { Request, Response } from 'express';
 import { DateTime } from 'luxon';
 import Logger from '../../../common/helpers/Logger';
 import { handleRequest } from '../../api/apiUtils';
-import { validTeamCreateParams } from './utils';
+import { validTeamUpsertParams } from './utils';
 import { createGuid } from '../../../common/utils/baseUtils';
-import { dbCreateTeam, dbGetTeamsForUser, dbGetTeamForUser } from './db';
-import { canCreateOrThrow, canReadOrThrow } from '../roles/utils';
+import { dbCreateTeam, dbGetTeamsForUser, dbGetTeamForUser, dbUpdateTeam } from './db';
+import { canCreateOrThrow, canReadOrThrow, canUpdateOrThrow } from '../roles/utils';
 import { ServiceHandlerOpts, DBClient } from '../../serverTypes';
 import { EntityTeam } from '../../../common/types/entityTypes';
 
@@ -26,13 +26,12 @@ class TeamsHandler {
     await canCreateOrThrow(res, this.client, userId);
 
     const teamId = createGuid('team');
-    const params = validTeamCreateParams(req.body);
+    const params = validTeamUpsertParams(req.body);
     const utcTimestamp = DateTime.now().toMillis();
 
     const team: EntityTeam = {
       ...params,
       teamId,
-      trackIds: [],
       utcTimeCreated: utcTimestamp,
       utcTimeUpdated: utcTimestamp,
     };
@@ -64,6 +63,25 @@ class TeamsHandler {
 
     return res.status(200).json(team);
   };
+
+  updateTeam = async (req: Request, res: Response) => {
+    this.logger.logRequest(req);
+
+    const userId = req.params.userId;
+    await canUpdateOrThrow(res, this.client, userId);
+
+    const teamId = req.params.teamId;
+    const params = validTeamUpsertParams(req.body);
+    const utcTimestamp = DateTime.now().toMillis();
+
+    const team: undefined | EntityTeam = await dbUpdateTeam(this.client, teamId, params, utcTimestamp);
+
+    if (!team) {
+      throw new Error(`Could not update team: "${teamId}"`);
+    }
+
+    return res.status(200).json(team);
+  };
 }
 
 export function handler(opts: ServiceHandlerOpts) {
@@ -73,4 +91,5 @@ export function handler(opts: ServiceHandlerOpts) {
   app.post('/api/v1/users/:userId/teams', handleRequest(team.getTeams));
   app.post('/api/v1/users/:userId/teams/create', handleRequest(team.createTeam));
   app.post('/api/v1/users/:userId/teams/:teamId', handleRequest(team.getTeam));
+  app.put('/api/v1/users/:userId/teams/:teamId', handleRequest(team.updateTeam));
 }

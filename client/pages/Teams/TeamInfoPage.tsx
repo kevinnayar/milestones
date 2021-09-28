@@ -1,20 +1,20 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useAppSelector } from '../hooks/useAppSelector';
-import { useAppDispatch } from '../hooks/useAppDispatch';
-import { BasePageTemplate } from '../templates/BasePageTemplate';
-import { getTeam } from '../store/reducers/teams';
-import { PageHeader } from '../components/PageHeader/PageHeader';
-import { PageContent } from '../components/PageContent/PageContent';
-import { Loader } from '../components/Loader/Loader';
-import { Button } from '../components/Button/Button';
-import { TeamForm } from '../components/Forms/TeamForm';
-import { NoContent } from '../components/NoContent/NoContent';
-import { PrivateComponentProps } from '../app';
-import { RootState } from '../store/store';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { BasePageTemplate } from '../../templates/BasePageTemplate';
+import { getTeam } from '../../store/reducers/teams';
+import { PageHeader } from '../../components/PageHeader/PageHeader';
+import { PageContent } from '../../components/PageContent/PageContent';
+import { Loader } from '../../components/Loader/Loader';
+import { Button } from '../../components/Button/Button';
+import { TeamForm } from '../../components/Forms/TeamForm';
+import { NoContent } from '../../components/NoContent/NoContent';
+import { PrivateComponentProps } from '../../app';
+import { RootState } from '../../store/store';
 
-export const TeamViewPage = ({ user: { userId, token }, match }: PrivateComponentProps) => {
+export const TeamInfoPage = ({ user: { userId, token }, match }: PrivateComponentProps) => {
   const { currentTeam } = useAppSelector((state: RootState) => state.teams);
   const dispatch = useAppDispatch();
   const history = useHistory();
@@ -41,9 +41,14 @@ export const TeamViewPage = ({ user: { userId, token }, match }: PrivateComponen
       <div className="page">
         <PageHeader title={currentTeam.data ? currentTeam.data.name : 'Team'}>
           {teamId && currentTeam.data && (
-            <Button icon="edit" onClick={() => history.push(`/teams/${teamId}/update`)}>
-              Edit Team
-            </Button>
+            <>
+              <Button icon="edit" onClick={() => history.push(`/teams/${teamId}/edit`)}>
+                Edit Team
+              </Button>
+              <Button icon="add" onClick={() => history.push(`/teams/${teamId}/tracks/create`)}>
+                Add Track
+              </Button>
+            </>
           )}
         </PageHeader>
         <PageContent>

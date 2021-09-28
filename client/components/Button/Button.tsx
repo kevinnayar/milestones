@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ReactNode } from 'react';
 
-type Variant = 'error' | 'warning' | 'info' | 'success';
+type Variant = 'error' | 'warning' | 'info' | 'success' | 'primary' | 'secondary';
 
 type ButtonType = 'submit' | 'button' | 'reset';
 
@@ -15,11 +15,12 @@ type ButtonProps = {
   onClick?: () => void;
 };
 
-export const Button = ({ children, disabled, type, className, variant, icon, onClick }: ButtonProps) => {
+export const Button = ({ children, disabled, type, className, variant: propVariant, icon, onClick }: ButtonProps) => {
+  const variant = propVariant || 'primary';
   const classNames = [
     'button',
+    `button--${variant}`,
     ...(className ? [className] : [undefined]),
-    ...(variant ? [`button--${variant}`] : [undefined]),
     ...(icon ? ['button--with-icon'] : [undefined]),
   ].filter((c) => !!c).join(' ');
 

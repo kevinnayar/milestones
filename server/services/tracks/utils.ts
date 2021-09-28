@@ -1,12 +1,13 @@
 import {
   isStrictStringOrThrow,
   inStringUnionOrThrow,
-  isStrictStringNullVoidOrThrow,
+  isMaybeStringOrThrow,
   isAbsoluteDateOrThrow,
   isNumberOrThrow,
 } from '../../../common/utils/typeUtils';
 import { Maybe } from '../../../common/types/baseTypes';
 import {
+  EntityTrack,
   TrackCreateParams,
   TrackType,
   TrackConfigTemplate,
@@ -43,8 +44,8 @@ function validateTemplateConfig(config: any): TrackConfigTemplate | TrackConfigC
 export function validateTrackCreateParams(params: any): TrackCreateParams {
   const name = isStrictStringOrThrow(params.name, 'A name is required');
   const teamId = isStrictStringOrThrow(params.teamId, 'A Team ID is required');
-  const description: Maybe<string> = isStrictStringNullVoidOrThrow(params.description, 'Description is in an invalid format');
-  const imgUrl: Maybe<string> = isStrictStringNullVoidOrThrow(params.imgUrl, 'Image URL is in an invalid format');
+  const description: Maybe<string> = isMaybeStringOrThrow(params.description, 'Description is in an invalid format');
+  const imgUrl: Maybe<string> = isMaybeStringOrThrow(params.imgUrl, 'Image URL is in an invalid format');
   const startDate = isAbsoluteDateOrThrow(params.startDate, 'A valid start date is required');
   const config = validateTemplateConfig(params.config);
 
@@ -57,3 +58,32 @@ export function validateTrackCreateParams(params: any): TrackCreateParams {
     startDate,
   };
 }
+
+export function convertRowToTrack(row: any): EntityTrack {
+  const config: TrackConfigCustom | TrackConfigTemplate =
+    row.type === 'CUSTOM'
+      ? {
+        type: 'CUSTOM',
+      }
+      : {
+        type: 'TEMPLATE',
+        template: row.template,
+        version: parseInt(row.version, 10),
+      };
+
+  const track: EntityTrack = {
+    trackId: row.id,
+    teamId: row.team_id,
+    config,
+    name: row.name,
+    description: row.description,
+    startDate: row.state_date,
+    imgUrl: row.img_url,
+    utcTimeCreated: parseInt(row.utc_time_created, 10),
+    utcTimeUpdated: parseInt(row.utc_time_updated, 10),
+  };
+
+  return track;
+}
+
+

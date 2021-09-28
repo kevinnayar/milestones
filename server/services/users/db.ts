@@ -136,7 +136,7 @@ export async function dbUserInTeam(
   userId: string,
   teamId: string,
 ): Promise<boolean> {
-  const query = 'SELECT EXISTS (SELECT TRUE FROM users WHERE id = $1 AND team_id = $2)';
+  const query = 'SELECT EXISTS (SELECT TRUE FROM users_teams_junction WHERE user_id = $1 AND team_id = $2)';
   const values = [userId, teamId];
   const rows = await client.query(query, values);
   const exists = rows && rows.length ? rows[0].exists : false;
