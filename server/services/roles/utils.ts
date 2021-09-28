@@ -20,36 +20,20 @@ async function canOrThrow(
   return can;
 }
 
-export async function canReadOrThrow(
-  res: Response,
-  client: DBClient,
-  userId: string,
-): Promise<boolean> {
+export const canReadOrThrow = async (res: Response, client: DBClient, userId: string) => {
   return await canOrThrow(res, client, userId, 'right_read');
-}
+};
 
-export async function canCreateOrThrow(
-  res: Response,
-  client: DBClient,
-  userId: string,
-): Promise<boolean> {
+export const canCreateOrThrow = async (res: Response, client: DBClient, userId: string) => {
   return await canOrThrow(res, client, userId, 'right_create');
-}
+};
 
-export async function canUpdateOrThrow(
-  res: Response,
-  client: DBClient,
-  userId: string,
-): Promise<boolean> {
+export const canUpdateOrThrow = async (res: Response, client: DBClient, userId: string) => {
   return await canOrThrow(res, client, userId, 'right_update');
-}
+};
 
-export async function canDeleteOrThrow(
-  res: Response,
-  client: DBClient,
-  userId: string,
-): Promise<boolean> {
+export const canDeleteOrThrow = async (res: Response, client: DBClient, userId: string) => {
   return await canOrThrow(res, client, userId, 'right_delete');
-}
+};
 
 
