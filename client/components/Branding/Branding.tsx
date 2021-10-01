@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export const Branding = (props: { brand: string }) => {
   return (
-    <h1 className="branding"><Link to="/login">{props.brand}</Link></h1>
+    <h1 className="branding"><Link to="/teams">{props.brand}</Link></h1>
   );
 };
 

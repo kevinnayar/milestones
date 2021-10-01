@@ -85,8 +85,8 @@ export const AuthLoginPage = (props: RouteComponentProps) => {
 
   return (
     <AuthPageTemplate>
-      <div className="form--auth">
-        {error && <p className="auth-page__error">{error}</p>}
+      <div className="page--auth__form">
+        {error && <p className="page--auth__error">{error}</p>}
 
         <form onSubmit={onSubmit}>
           <Input
@@ -113,7 +113,7 @@ export const AuthLoginPage = (props: RouteComponentProps) => {
               Submit
             </Button>
           </div>
-          {/* <Link className="auth-page__switch-link" to="" onClick={(evt: any) => evt.preventDefault()}>
+          {/* <Link className="page--auth__switch-link" to="" onClick={(evt: any) => evt.preventDefault()}>
             Forgot Password?
           </Link> */}
         </form>

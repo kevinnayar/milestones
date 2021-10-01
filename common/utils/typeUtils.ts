@@ -1,3 +1,4 @@
+import { DateObject } from 'luxon';
 import { Maybe, SimpleDate } from '../types/baseTypes';
 
 export function isStringOrThrow(value: any, msg: string): string {
@@ -122,6 +123,15 @@ export function isRelativeDateOrThrow(value: any, msg: string): SimpleDate {
     years,
   };
 }
+
+export function simpleDateToDateObject(d: SimpleDate): DateObject {
+  return {
+    year: d.years,
+    month: d.months,
+    day: d.days,
+  };
+}
+
 
 
 

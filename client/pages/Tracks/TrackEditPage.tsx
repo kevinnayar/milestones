@@ -4,30 +4,33 @@ import { useHistory } from 'react-router-dom';
 import { useAppSelector } from '../../hooks/useAppSelector';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { BasePageTemplate } from '../../templates/BasePageTemplate';
-import { getTeam, updateTeam } from '../../store/reducers/teams';
+import { getTrack, updateTrack } from '../../store/reducers/tracks';
 import { PageHeader } from '../../components/PageHeader/PageHeader';
 import { PageContent } from '../../components/PageContent/PageContent';
 import { Loader } from '../../components/Loader/Loader';
-import { TeamForm } from '../../components/Teams/TeamForm';
-import { TeamUpsertParams } from '../../../common/types/entityTypes';
+import { TrackForm } from '../../components/Tracks/TrackForm';
+import { TrackUpsertParams } from '../../../common/types/entityTypes';
 import { PrivateComponentProps } from '../../routes';
 import { hasFetchSucceeded } from '../../../common/utils/asyncUtils';
 import { RootState } from '../../store/store';
 
-export const TeamEditPage = ({ user: { userId, token }, match }: PrivateComponentProps) => {
-  const { currentTeam } = useAppSelector((state: RootState) => state.teams);
+export const TrackEditPage = ({ user: { userId, token }, match }: PrivateComponentProps) => {
+  const { currentTrack } = useAppSelector((state: RootState) => state.tracks);
 
   const dispatch = useAppDispatch();
   const history = useHistory();
   const teamId = match?.params?.teamId;
+  const trackId = match?.params?.trackId;
+
   const [isSaving, setIsSaving] = useState(false);
 
-  const onSave = (params: TeamUpsertParams) => {
+  const onSave = (params: TrackUpsertParams) => {
     const extra = {
       teamId,
+      trackId,
       params,
     };
-    dispatch(updateTeam({ userId, token, extra }));
+    dispatch(updateTrack({ userId, token, extra }));
     setIsSaving(true);
   };
 
@@ -38,25 +41,25 @@ export const TeamEditPage = ({ user: { userId, token }, match }: PrivateComponen
 
   useEffect(() => {
     if (teamId) {
-      const extra = { teamId };
-      dispatch(getTeam({ userId, token, extra }));
+      const extra = { teamId, trackId };
+      dispatch(getTrack({ userId, token, extra }));
     }
-  }, [dispatch, token, userId, teamId]);
+  }, [dispatch, token, userId, teamId, trackId]);
 
   useEffect(() => {
-    if (isSaving && hasFetchSucceeded(currentTeam) && currentTeam.data) {
+    if (isSaving && hasFetchSucceeded(currentTrack) && currentTrack.data) {
       const pathname = history.location.pathname.replace('/edit', '');
       history.push(pathname);
     }
-  }, [dispatch, history, isSaving, currentTeam]);
+  }, [dispatch, history, isSaving, currentTrack]);
 
-  if (currentTeam.data === null || isSaving) return <Loader />;
+  if (currentTrack.data === null || isSaving) return <Loader />;
 
   return (
     <BasePageTemplate>
       <PageHeader title="Update team" />
       <PageContent>
-        <TeamForm team={currentTeam.data} onSave={onSave} onCancel={onCancel} />
+        <TrackForm teamId={teamId} track={currentTrack.data} onSave={onSave} onCancel={onCancel} />
       </PageContent>
     </BasePageTemplate>
   );

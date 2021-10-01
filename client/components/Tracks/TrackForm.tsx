@@ -4,17 +4,17 @@ import { useState } from 'react';
 import { Input } from '../Input/Input';
 import { Button } from '../Button/Button';
 import { Maybe } from '../../../common/types/baseTypes';
-import { EntityTrack, TrackCreateParams } from '../../../common/types/entityTypes';
+import { EntityTrack, TrackUpsertParams } from '../../../common/types/entityTypes';
 
 type TrackFormProps = {
   teamId: string,
   track: Maybe<EntityTrack>;
   readOnly?: boolean;
-  onSave?: (_params: TrackCreateParams) => void;
+  onSave?: (_params: TrackUpsertParams) => void;
   onCancel?: () => void;
 };
 
-function createTrackParams(teamId: string, track: Maybe<EntityTrack>): TrackCreateParams {
+function createTrackParams(teamId: string, track: Maybe<EntityTrack>): TrackUpsertParams {
   const now = DateTime.now();
 
   return track ? {
@@ -41,7 +41,7 @@ function createTrackParams(teamId: string, track: Maybe<EntityTrack>): TrackCrea
 }
 
 export const TrackForm = ({ teamId, track, readOnly, onSave, onCancel }: TrackFormProps) => {
-  const [params, setParams] = useState<TrackCreateParams>(createTrackParams(teamId, track));
+  const [params, setParams] = useState<TrackUpsertParams>(createTrackParams(teamId, track));
   const canSubmit = Boolean(params.name && !readOnly && onSave);
 
   const onSubmit = (evt: React.FormEvent<HTMLFormElement>) => {

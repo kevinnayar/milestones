@@ -8,17 +8,17 @@ import {
   fetchFailure,
 } from '../../../common/utils/asyncUtils';
 import { AuthCredentialsPlus } from '../../../common/types/baseTypes';
-import { EntityTrack, TrackCreateParams } from '../../../common/types/entityTypes';
+import { EntityTrack, TrackUpsertParams } from '../../../common/types/entityTypes';
 import { FetchState } from '../../../common/types/baseTypes';
 
 export type TracksReducer = {
-  allTracks: FetchState<EntityTrack[]>;
+  teamTracks: FetchState<EntityTrack[]>;
   createdTrack: FetchState<EntityTrack>;
   currentTrack: FetchState<EntityTrack>;
 };
 
 const initialState: TracksReducer = {
-  allTracks: fetchInit(),
+  teamTracks: fetchInit(),
   createdTrack: fetchInit(),
   currentTrack: fetchInit(),
 };
@@ -26,26 +26,50 @@ const initialState: TracksReducer = {
 export const getTracks = createAsyncThunk<EntityTrack[], AuthCredentialsPlus<{ teamId: string }>>(
   'tracks/getTracks',
   async ({ userId, token, extra }) => {
-    const tracks: EntityTrack[] = await apiClient.post(`/users/${userId}/teams/${extra.teamId}/tracks`, { token });
+    const tracks: EntityTrack[] = await apiClient.post(
+      `/users/${userId}/teams/${extra.teamId}/tracks`,
+      { token },
+    );
     return tracks;
   },
 );
 
-export const createTrack = createAsyncThunk<EntityTrack, AuthCredentialsPlus<TrackCreateParams>>(
+export const createTrack = createAsyncThunk<EntityTrack, AuthCredentialsPlus<TrackUpsertParams>>(
   'tracks/createTrack',
   async ({ userId, token, extra }) => {
-    const track: EntityTrack = await apiClient.post(`/users/${userId}/teams/${extra.teamId}/tracks/create`, {
-      token,
-      body: extra,
-    });
+    const track: EntityTrack = await apiClient.post(
+      `/users/${userId}/teams/${extra.teamId}/tracks/create`,
+      {
+        token,
+        body: extra,
+      },
+    );
     return track;
   },
 );
 
-export const getTrack = createAsyncThunk<undefined | EntityTrack, AuthCredentialsPlus<{ teamId: string, trackId: string }>>(
-  'tracks/getTrack',
+export const getTrack = createAsyncThunk<
+  undefined | EntityTrack,
+  AuthCredentialsPlus<{ teamId: string; trackId: string }>
+>('tracks/getTrack', async ({ userId, token, extra }) => {
+  const track: undefined | EntityTrack = await apiClient.post(
+    `/users/${userId}/teams/${extra.teamId}/tracks/${extra.trackId}`,
+    { token },
+  );
+  return track;
+});
+
+export const updateTrack = createAsyncThunk<EntityTrack, AuthCredentialsPlus<{ teamId: string, trackId: string, params: TrackUpsertParams }>>(
+  'tracks/updateTrack',
   async ({ userId, token, extra }) => {
-    const track: undefined | EntityTrack = await apiClient.post(`/users/${userId}/teams/${extra.teamId}/tracks/${extra.trackId}`, { token });
+    const body = { ...extra.params };
+    const track: EntityTrack = await apiClient.put(
+      `/users/${userId}/teams/${extra.teamId}/tracks/${extra.trackId}`,
+      {
+        token,
+        body,
+      },
+    );
     return track;
   },
 );
@@ -62,13 +86,13 @@ export const tracksSlice = createSlice({
     builder
       // getTracks
       .addCase(getTracks.pending, (state) => {
-        state.allTracks = fetchRequest();
+        state.teamTracks = fetchRequest();
       })
       .addCase(getTracks.fulfilled, (state, action: PayloadAction<EntityTrack[]>) => {
-        state.allTracks = fetchSuccess(action.payload);
+        state.teamTracks = fetchSuccess(action.payload);
       })
       .addCase(getTracks.rejected, (state, action) => {
-        state.allTracks = fetchFailure(action.error.message);
+        state.teamTracks = fetchFailure(action.error.message);
       })
       // createTrack
       .addCase(createTrack.pending, (state) => {
@@ -88,6 +112,16 @@ export const tracksSlice = createSlice({
         state.currentTrack = fetchSuccess(action.payload);
       })
       .addCase(getTrack.rejected, (state, action) => {
+        state.currentTrack = fetchFailure(action.error.message);
+      })
+      // updateTrack
+      .addCase(updateTrack.pending, (state) => {
+        state.currentTrack = fetchRequest();
+      })
+      .addCase(updateTrack.fulfilled, (state, action: PayloadAction<undefined | EntityTrack>) => {
+        state.currentTrack = fetchSuccess(action.payload);
+      })
+      .addCase(updateTrack.rejected, (state, action) => {
         state.currentTrack = fetchFailure(action.error.message);
       });
   },

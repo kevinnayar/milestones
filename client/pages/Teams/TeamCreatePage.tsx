@@ -11,7 +11,7 @@ import { PrivateComponentProps } from '../../routes';
 import { TeamUpsertParams } from '../../../common/types/entityTypes';
 import { hasFetchSucceeded } from '../../../common/utils/asyncUtils';
 import { RootState } from '../../store/store';
-import { TeamForm } from '../../components/Forms/TeamForm';
+import { TeamForm } from '../../components/Teams/TeamForm';
 
 export const TeamCreatePage = ({ user: { userId, token } }: PrivateComponentProps) => {
   const { createdTeam } = useAppSelector((state: RootState) => state.teams);
@@ -41,12 +41,10 @@ export const TeamCreatePage = ({ user: { userId, token } }: PrivateComponentProp
 
   return (
     <BasePageTemplate>
-      <div className="page">
-        <PageHeader title="Create team" />
-        <PageContent>
-          <TeamForm team={null} onSave={onSave} onCancel={onCancel} />
-        </PageContent>
-      </div>
+      <PageHeader title="Create team" />
+      <PageContent>
+        <TeamForm team={null} onSave={onSave} onCancel={onCancel} />
+      </PageContent>
     </BasePageTemplate>
   );
 };

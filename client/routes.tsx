@@ -13,8 +13,9 @@ import { TeamsListPage } from './pages/Teams/TeamsListPage';
 import { TeamCreatePage } from './pages/Teams/TeamCreatePage';
 import { TeamInfoPage } from './pages/Teams/TeamInfoPage';
 import { TeamEditPage } from './pages/Teams/TeamEditPage';
-import { TrackInfoPage } from './pages/Tracks/TrackInfoPage';
 import { TrackCreatePage } from './pages/Tracks/TrackCreatePage';
+import { TrackInfoPage } from './pages/Tracks/TrackInfoPage';
+import { TrackEditPage } from './pages/Tracks/TrackEditPage';
 import { MemberInfoPage } from './pages/Members/MemberInfoPage';
 import { MemberCreatePage } from './pages/Members/MemberCreatePage';
 
@@ -30,7 +31,7 @@ export const privateRouteMap: { [k: string]: any } = {
   '/teams/:teamId/edit': TeamEditPage,
   '/teams/:teamId/tracks/create': TrackCreatePage,
   '/teams/:teamId/tracks/:trackId': TrackInfoPage,
-  '/teams/:teamId/tracks/:trackId/edit': TrackCreatePage,
+  '/teams/:teamId/tracks/:trackId/edit': TrackEditPage,
   '/teams/:teamId/members/create': MemberCreatePage,
   '/teams/:teamId/members/:memberId': MemberInfoPage,
   '/teams/:teamId/members/:memberId/edit': MemberCreatePage,

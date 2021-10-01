@@ -1,5 +1,6 @@
-import { EntityTrack, TrackState, TrackActionStart } from '../../../common/types/entityTypes';
+import { EntityTrack, TrackState, TrackActionStart, TrackUpsertParams } from '../../../common/types/entityTypes';
 import { DBClient } from '../../serverTypes';
+import { convertRowToTrack } from './utils';
 
 export async function dbTrackCreate(
   client: DBClient,
@@ -75,7 +76,20 @@ export async function dbTrackCreate(
   return track.trackId;
 }
 
-export async function dbTrackGetByTeam(client: DBClient, teamId: string, trackId: string) {
+export async function dbTracksForTeam(client: DBClient, teamId: string) {
+  const query = `
+    SELECT * FROM tracks
+      WHERE team_id = $1 
+    ;
+  `;
+  const values = [teamId];
+
+  const rows = await client.query(query, values);
+  const tracks = rows && rows.length ? rows.map(convertRowToTrack) : null;
+  return tracks;
+}
+
+export async function dbTrackForTeam(client: DBClient, teamId: string, trackId: string) {
   const query = `
     SELECT * FROM tracks
       WHERE id = $1 
@@ -85,7 +99,35 @@ export async function dbTrackGetByTeam(client: DBClient, teamId: string, trackId
   const values = [trackId, teamId];
 
   const rows = await client.query(query, values);
-  // const teams = rows && rows.length ? convertRowToTeam(rows[0]) : null;
-  // return teams;
-  return rows;
+  const track = rows && rows.length ? convertRowToTrack(rows[0]) : null;
+  return track;
 }
+
+export async function dbTrackExistsForTeam(client: DBClient, teamId: string, trackId: string) {
+  const query = 'SELECT EXISTS (SELECT TRUE FROM tracks WHERE id = $1 AND team_id = $2)';
+  const values = [trackId, teamId];
+  const rows = await client.query(query, values);
+  const exists = rows && rows.length ? rows[0].exists : false;
+  return exists;
+}
+
+export async function dbUpdateTrack(client: DBClient, trackId: string, params: TrackUpsertParams,
+  utcTimestamp: number) {
+  const query = `
+    UPDATE tracks 
+    SET
+      name = $1,
+      description = $2,
+      utc_time_updated = $3
+    WHERE id = $4
+    RETURNING *
+    ;
+  `;
+  const values = [params.name, params.description, utcTimestamp, trackId];
+  const rows = await client.query(query, values);
+  const track = rows && rows.length ? convertRowToTrack(rows[0]) : undefined;
+  return track;
+}
+
+
+

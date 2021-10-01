@@ -8,7 +8,7 @@ import {
 import { Maybe } from '../../../common/types/baseTypes';
 import {
   EntityTrack,
-  TrackCreateParams,
+  TrackUpsertParams,
   TrackType,
   TrackConfigTemplate,
   TrackConfigCustom,
@@ -41,7 +41,7 @@ function validateTemplateConfig(config: any): TrackConfigTemplate | TrackConfigC
   }
 }
 
-export function validateTrackCreateParams(params: any): TrackCreateParams {
+export function validateTrackUpsertParams(params: any): TrackUpsertParams {
   const name = isStrictStringOrThrow(params.name, 'A name is required');
   const teamId = isStrictStringOrThrow(params.teamId, 'A Team ID is required');
   const description: Maybe<string> = isMaybeStringOrThrow(params.description, 'Description is in an invalid format');
@@ -77,7 +77,7 @@ export function convertRowToTrack(row: any): EntityTrack {
     config,
     name: row.name,
     description: row.description,
-    startDate: row.state_date,
+    startDate: row.start_date,
     imgUrl: row.img_url,
     utcTimeCreated: parseInt(row.utc_time_created, 10),
     utcTimeUpdated: parseInt(row.utc_time_updated, 10),

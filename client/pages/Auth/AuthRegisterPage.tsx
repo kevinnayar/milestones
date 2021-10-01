@@ -110,8 +110,8 @@ export const AuthRegisterPage = (props: RouteComponentProps) => {
 
   return (
     <AuthPageTemplate>
-      <div className="form--auth">
-        {error && <p className="auth-page__error">{error}</p>}
+      <div className="page--auth__form">
+        {error && <p className="page--auth__error">{error}</p>}
 
         <form onSubmit={onSubmit}>
           <Input

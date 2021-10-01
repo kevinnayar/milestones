@@ -9,12 +9,7 @@ import { PageHeader } from '../../components/PageHeader/PageHeader';
 import { PageContent } from '../../components/PageContent/PageContent';
 import { Loader } from '../../components/Loader/Loader';
 import { Button } from '../../components/Button/Button';
-import {
-  Grid,
-  gridFormatterDateTime,
-  GridHeader,
-} from '../../components/Grid/Grid';
-import { NoContent } from '../../components/NoContent/NoContent';
+import { TeamsList } from '../../components/Teams/TeamsList';
 import { PrivateComponentProps } from '../../routes';
 import { RootState } from '../../store/store';
 
@@ -29,38 +24,16 @@ export const TeamsListPage = ({ user: { userId, token } }: PrivateComponentProps
 
   if (allTeams.data === null) return <Loader />;
 
-  const headers: GridHeader[] = [
-    ['name', 'Name', true],
-    ['teamId', 'Team ID', false],
-    ['description', 'Description', true],
-    ['utcTimeCreated', 'Created on', true, gridFormatterDateTime],
-    ['utcTimeUpdated', 'Updated on', true, gridFormatterDateTime],
-  ];
-
   return (
     <BasePageTemplate>
-      <div className="page">
-        <PageHeader title="Teams">
-          <Button icon="add" onClick={() => history.push('/teams/create')}>
-            {allTeams.data && allTeams.data.length ? 'Add' : 'Create'} Team
-          </Button>
-        </PageHeader>
-        <PageContent>
-          {allTeams.data && allTeams.data.length ? (
-            <Grid
-              headers={headers}
-              rows={allTeams.data}
-              linker={{ route: '/teams/', key: 'teamId' }}
-            />
-          ) : (
-            <NoContent message="You haven't created any teams yet.">
-              <Button icon="add" onClick={() => history.push('/teams/create')}>
-                Create Team
-              </Button>
-            </NoContent>
-          )}
-        </PageContent>
-      </div>
+      <PageHeader title="Teams">
+        <Button icon="add" onClick={() => history.push('/teams/create')}>
+          {allTeams.data && allTeams.data.length ? 'Add' : 'Create'} Team
+        </Button>
+      </PageHeader>
+      <PageContent>
+        <TeamsList teams={allTeams.data} />
+      </PageContent>
     </BasePageTemplate>
   );
 };

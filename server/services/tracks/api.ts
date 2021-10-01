@@ -3,14 +3,20 @@ import { DateTime } from 'luxon';
 import { ServiceHandlerOpts, DBClient } from '../../serverTypes';
 import Logger from '../../../common/helpers/Logger';
 import { handleRequest } from '../../api/apiUtils';
-import { forbiddenException, badRequestException } from '../../api/apiExceptions';
+import { forbiddenException } from '../../api/apiExceptions';
 import { createGuid } from '../../../common/utils/baseUtils';
 import { trackStateReducer } from '../../../common/utils/trackStateUtils';
-import { validateTrackCreateParams } from './utils';
-import { dbTrackCreate, dbTrackGetByTeam } from './db';
+import { validateTrackUpsertParams } from './utils';
+import {
+  dbTrackCreate,
+  dbTracksForTeam,
+  dbTrackForTeam,
+  dbUpdateTrack,
+  dbTrackExistsForTeam,
+} from './db';
 import { dbGetTeamForUser } from '../teams/db';
 import { dbUserInTeam } from '../users/db';
-import { canCreateOrThrow, canReadOrThrow } from '../roles/utils';
+import { canCreateOrThrow, canReadOrThrow, canUpdateOrThrow } from '../roles/utils';
 import { EntityTrack, TrackState, TrackActionStart } from '../../../common/types/entityTypes';
 
 
@@ -23,6 +29,26 @@ class TracksHandler {
     this.client = client;
     this.logger = logger;
   }
+
+  getTracks = async (req: Request, res: Response) => {
+    this.logger.logRequest(req);
+
+    const userId = req.params.userId;
+    await canReadOrThrow(res, this.client, userId);
+
+    const teamId = req.params.teamId;
+    const team = await dbGetTeamForUser(this.client, userId, teamId);
+    if (!team) {
+      return forbiddenException(
+        res,
+        `User '${userId}' is does not have access to team '${teamId}'`,
+      );
+    }
+
+    const track = await dbTracksForTeam(this.client, teamId);
+
+    return res.status(200).json(track);
+  };
 
   createTrack = async (req: Request, res: Response) => {
     this.logger.logRequest(req);
@@ -37,7 +63,7 @@ class TracksHandler {
     }
 
     const trackId = createGuid('track');
-    const params = validateTrackCreateParams(req.body);
+    const params = validateTrackUpsertParams(req.body);
     const utcTimestamp = DateTime.now().toMillis();
 
     const track: EntityTrack = {
@@ -49,18 +75,19 @@ class TracksHandler {
 
     const trackActionId = createGuid('trackAction');
 
-    const trackAction: null | TrackActionStart = params.config.type === 'TEMPLATE' ? {
-      type: 'START',
-      payload: {
-        startDate: params.startDate,
-        template: params.config.template,
-        version: params.config.version,
-      },
-    } : null;
+    const trackAction: null | TrackActionStart =
+      params.config.type === 'TEMPLATE'
+        ? {
+          type: 'START',
+          payload: {
+            startDate: params.startDate,
+            template: params.config.template,
+            version: params.config.version,
+          },
+        }
+        : null;
 
-    const trackState: null | TrackState = trackAction
-      ? trackStateReducer(trackAction)
-      : null;
+    const trackState: null | TrackState = trackAction ? trackStateReducer(trackAction) : null;
 
     await dbTrackCreate(this.client, track, trackActionId, trackAction, trackState);
 
@@ -76,13 +103,44 @@ class TracksHandler {
     const teamId = req.params.teamId;
     const team = await dbGetTeamForUser(this.client, userId, teamId);
     if (!team) {
-      return forbiddenException(res, `User '${userId}' is does not have access to team '${teamId}'`);
+      return forbiddenException(
+        res,
+        `User '${userId}' is does not have access to team '${teamId}'`,
+      );
     }
 
     const trackId = req.params.trackId;
-    await canReadOrThrow(res, this.client, trackId);
+    const track = await dbTrackForTeam(this.client, teamId, trackId);
 
-    const track = await dbTrackGetByTeam(this.client, teamId, trackId);
+    return res.status(200).json(track);
+  };
+
+  updateTrack = async (req: Request, res: Response) => {
+    this.logger.logRequest(req);
+
+    const userId = req.params.userId;
+    await canUpdateOrThrow(res, this.client, userId);
+
+    const teamId = req.params.teamId;
+    const trackId = req.params.trackId;
+    const trackExists = await dbTrackExistsForTeam(this.client, teamId, trackId);
+    if (!trackExists) {
+      return forbiddenException(res, `Track '${trackId}' does not exist for this team '${teamId}'`);
+    }
+
+    const params = validateTrackUpsertParams(req.body);
+    const utcTimestamp = DateTime.now().toMillis();
+
+    const track: undefined | EntityTrack = await dbUpdateTrack(
+      this.client,
+      trackId,
+      params,
+      utcTimestamp,
+    );
+
+    if (!track) {
+      throw new Error(`Could not update track: "${trackId}"`);
+    }
 
     return res.status(200).json(track);
   };
@@ -92,6 +150,8 @@ export function handler(opts: ServiceHandlerOpts) {
   const { app } = opts;
   const tracks = new TracksHandler(opts);
 
+  app.post('/api/v1/users/:userId/teams/:teamId/tracks/', handleRequest(tracks.getTracks));
   app.post('/api/v1/users/:userId/teams/:teamId/tracks/create', handleRequest(tracks.createTrack));
   app.post('/api/v1/users/:userId/teams/:teamId/tracks/:trackId', handleRequest(tracks.getTrack));
+  app.put('/api/v1/users/:userId/teams/:teamId/tracks/:trackId', handleRequest(tracks.updateTrack));
 }

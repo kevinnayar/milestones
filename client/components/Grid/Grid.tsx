@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { DateTime } from 'luxon';
+import { DateTime, DateObject } from 'luxon';
 import { Link } from 'react-router-dom';
+import { simpleDateToDateObject } from '../../../common/utils/typeUtils';
+import { SimpleDate } from '../../../common/types/baseTypes';
 
-type GridFormatter = (_value: any) => string;
+type GridFormatter = (_value: any) => string | JSX.Element;
 
 export type GridHeader = [
   key: string,
@@ -63,7 +65,20 @@ export function gridFormatterListLength(v: any[]) {
   return `${v.length}`;
 }
 
-export function gridFormatterDateTime(v: number) {
-  return DateTime.fromMillis(v).toLocaleString(DateTime.DATE_MED);
+export function gridFormatterDateTime(v: number | SimpleDate) {
+  const format = DateTime.DATE_MED;
+
+  if (typeof v === 'object') {
+    const d: DateObject = simpleDateToDateObject(v);
+    return DateTime.fromObject(d).toLocaleString(format);
+  }
+
+  return DateTime.fromMillis(v).toLocaleString(format);
 }
+
+export function gridFormatterJson(v: Record<string, unknown>) {
+  return <pre>{JSON.stringify(v, null, 2)}</pre>;
+}
+
+
 

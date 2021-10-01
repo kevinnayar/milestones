@@ -100,7 +100,7 @@ export type EntityTrack = {
   utcTimeUpdated?: Maybe<number>;
 };
 
-export type TrackCreateParams = {
+export type TrackUpsertParams = {
   teamId: string;
   name: string;
   config: TrackConfigCustom | TrackConfigTemplate;

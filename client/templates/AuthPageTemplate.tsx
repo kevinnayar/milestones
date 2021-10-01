@@ -13,7 +13,7 @@ export const AuthPageTemplate = (props: { children: any }) => {
     <div className="app public">
       <AppHeader brand={brand} theme={theme} toggleTheme={toggleTheme} />
       <AppContent>
-        <div className="auth-page">
+        <div className="page page--auth">
           <AuthLinks />
           {props.children}
         </div>

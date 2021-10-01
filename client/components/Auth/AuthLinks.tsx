@@ -19,7 +19,7 @@ export const AuthLinks = () => {
   };
 
   return (
-    <div className="auth-page__nav-links">
+    <div className="auth-links">
       <ButtonGroup items={Object.values(routeMap)} currentItem={currentItem} onClick={onClick} />
     </div>
   );

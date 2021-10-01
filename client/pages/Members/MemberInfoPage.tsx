@@ -10,10 +10,8 @@ export const MemberInfoPage = ({ user: { userId, token } }: PrivateComponentProp
   const history = useHistory();
   return (
     <BasePageTemplate>
-      <div className="page">
-        <PageHeader title="Member" />
-        <PageContent />
-      </div>
+      <PageHeader title="Member" />
+      <PageContent />
     </BasePageTemplate>
   );
 };

@@ -12,7 +12,7 @@ export const BasePageTemplate = (props: { children: any }) => {
     <div className="app private">
       <AppHeader brand={brand} theme={theme} toggleTheme={toggleTheme} />
       <AppContent>
-        <div className="base-page">
+        <div className="page page--base">
           {props.children}
         </div>
       </AppContent>

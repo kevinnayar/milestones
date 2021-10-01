@@ -9,17 +9,18 @@ import { PageContent } from '../../components/PageContent/PageContent';
 import { createTrack, resetCreateTrack } from '../../store/reducers/tracks';
 import { RootState } from '../../store/store';
 import { PrivateComponentProps } from '../../routes';
-import { TrackCreateParams } from '../../../common/types/entityTypes';
+import { TrackUpsertParams } from '../../../common/types/entityTypes';
 import { hasFetchSucceeded } from '../../../common/utils/asyncUtils';
-import { TrackForm } from '../../components/Forms/TrackForm';
+import { TrackForm } from '../../components/Tracks/TrackForm';
 
 export const TrackCreatePage = ({ user: { userId, token }, match }: PrivateComponentProps) => {
   const { createdTrack } = useAppSelector((state: RootState) => state.tracks);
+
   const dispatch = useAppDispatch();
   const history = useHistory();
   const teamId = match?.params?.teamId;
 
-  const onSave = (extra: TrackCreateParams) => {
+  const onSave = (extra: TrackUpsertParams) => {
     dispatch(createTrack({ userId, token, extra }));
   };
 
@@ -45,12 +46,10 @@ export const TrackCreatePage = ({ user: { userId, token }, match }: PrivateCompo
 
   return (
     <BasePageTemplate>
-      <div className="page">
-        <PageHeader title="Create track" />
-        <PageContent>
-          <TrackForm teamId={teamId} track={null} onSave={onSave} onCancel={onCancel} />
-        </PageContent>
-      </div>
+      <PageHeader title="Create track" />
+      <PageContent>
+        <TrackForm teamId={teamId} track={null} onSave={onSave} onCancel={onCancel} />
+      </PageContent>
     </BasePageTemplate>
   );
 };

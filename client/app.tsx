@@ -10,17 +10,15 @@ import { publicRouteMap, privateRouteMap, PrivateRoute } from './routes';
 export default function App() {
   return (
     <Router>
-      <div className="app">
-        <Redirect exact from="/" to="/login" />
-        <Switch>
-          {Object.entries(publicRouteMap).map(([path, component]) => (
-            <Route key={path} path={path} exact component={component} />
-          ))}
-          {Object.entries(privateRouteMap).map(([path, component]) => (
-            <PrivateRoute key={path} path={path} exact component={component} />
-          ))}
-        </Switch>
-      </div>
+      <Redirect exact from="/" to="/login" />
+      <Switch>
+        {Object.entries(publicRouteMap).map(([path, component]) => (
+          <Route key={path} path={path} exact component={component} />
+        ))}
+        {Object.entries(privateRouteMap).map(([path, component]) => (
+          <PrivateRoute key={path} path={path} exact component={component} />
+        ))}
+      </Switch>
     </Router>
   );
 }
