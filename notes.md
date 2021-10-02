@@ -1,5 +1,9 @@
 # Notes
 
+#### Apiclient
+- This is a singleton class
+- It contains a copy of auth state
+
 #### Notes
 - Notes are generated off of any comment that starts with `// @notes[NAMESPACE]`
 - Namespaces are there to group related comments under one title
