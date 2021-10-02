@@ -1,20 +1,13 @@
 import * as chalk from 'chalk';
+import { DateTime } from 'luxon';
 import { Request } from 'express';
 
 function redactPII<T>(inputData: T): T {
-  const redactedKeys = [
-    'roleId',
-    'role_id',
-    'password',
-    'firstName',
-    'first_name',
-    'lastName',
-    'last_name',
-  ];
+  const redactedKeys = ['roleId', 'role_id', 'password', 'fullName', 'full_name'];
   const redactedData = {};
 
   for (const key of redactedKeys) {
-    if (key in inputData) redactedData[key] = '<REDACTED>';
+    if (key in inputData) redactedData[key] = '**REDACTED**';
   }
 
   return {
@@ -50,6 +43,7 @@ export default class Logger {
       params: redactPII(req.params),
       query: redactPII(req.query),
       body: redactPII(req.body),
+      utcTimestamp: DateTime.now().toMillis(),
     };
 
     console.log(chalk.magenta(this.namespace), chalk.cyan('[REQUEST]'), messages);

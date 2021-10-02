@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useAppSelector } from '../../hooks/useAppSelector';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
-import { getTrack } from '../../store/reducers/tracks';
+import { getTrack, getTrackReduction } from '../../store/reducers/tracks';
 import { BasePageTemplate } from '../../templates/BasePageTemplate';
 import { PageHeader } from '../../components/PageHeader/PageHeader';
 import { PageContent } from '../../components/PageContent/PageContent';
@@ -15,7 +15,7 @@ import { PrivateComponentProps } from '../../routes';
 import { RootState } from '../../store/store';
 
 export const TrackInfoPage = ({ user: { userId, token }, match }: PrivateComponentProps) => {
-  const { currentTrack } = useAppSelector((state: RootState) => state.tracks);
+  const { currentTrack, currentTrackReduction } = useAppSelector((state: RootState) => state.tracks);
 
   const dispatch = useAppDispatch();
   const history = useHistory();
@@ -26,6 +26,7 @@ export const TrackInfoPage = ({ user: { userId, token }, match }: PrivateCompone
     if (teamId && trackId) {
       const extra = { teamId, trackId };
       dispatch(getTrack({ userId, token, extra }));
+      dispatch(getTrackReduction({ userId, token, extra }));
     }
   }, [dispatch, token, userId, teamId, trackId]);
 
@@ -52,6 +53,12 @@ export const TrackInfoPage = ({ user: { userId, token }, match }: PrivateCompone
               <h2>Details</h2>
               <TrackForm teamId={teamId} track={currentTrack.data} readOnly />
             </div>
+            {currentTrackReduction.data && (
+              <div className="section">
+                <h2>Reduction</h2>
+                <pre>{JSON.stringify(currentTrackReduction.data, null, 2)}</pre>
+              </div>
+            )}
           </>
         ) : (
           <NoContent message="This track doesn't exist.">

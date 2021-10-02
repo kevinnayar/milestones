@@ -191,3 +191,9 @@ export type TrackState = {
   idMap: { [k: string]: ResolvedMilestone };
 };
 
+export type TrackReduction = {
+  actions: TrackAction[],
+  state: TrackState,
+};
+
+

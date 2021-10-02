@@ -8,19 +8,21 @@ import {
   fetchFailure,
 } from '../../../common/utils/asyncUtils';
 import { AuthCredentialsPlus } from '../../../common/types/baseTypes';
-import { EntityTrack, TrackUpsertParams } from '../../../common/types/entityTypes';
+import { EntityTrack, TrackReduction, TrackUpsertParams } from '../../../common/types/entityTypes';
 import { FetchState } from '../../../common/types/baseTypes';
 
 export type TracksReducer = {
   teamTracks: FetchState<EntityTrack[]>;
   createdTrack: FetchState<EntityTrack>;
   currentTrack: FetchState<EntityTrack>;
+  currentTrackReduction: FetchState<TrackReduction>;
 };
 
 const initialState: TracksReducer = {
   teamTracks: fetchInit(),
   createdTrack: fetchInit(),
   currentTrack: fetchInit(),
+  currentTrackReduction: fetchInit(),
 };
 
 export const getTracks = createAsyncThunk<EntityTrack[], AuthCredentialsPlus<{ teamId: string }>>(
@@ -59,20 +61,33 @@ export const getTrack = createAsyncThunk<
   return track;
 });
 
-export const updateTrack = createAsyncThunk<EntityTrack, AuthCredentialsPlus<{ teamId: string, trackId: string, params: TrackUpsertParams }>>(
-  'tracks/updateTrack',
-  async ({ userId, token, extra }) => {
-    const body = { ...extra.params };
-    const track: EntityTrack = await apiClient.put(
-      `/users/${userId}/teams/${extra.teamId}/tracks/${extra.trackId}`,
-      {
-        token,
-        body,
-      },
-    );
-    return track;
-  },
-);
+export const updateTrack = createAsyncThunk<
+  EntityTrack,
+  AuthCredentialsPlus<{ teamId: string; trackId: string; params: TrackUpsertParams }>
+>('tracks/updateTrack', async ({ userId, token, extra }) => {
+  const body = { ...extra.params };
+  const track: EntityTrack = await apiClient.put(
+    `/users/${userId}/teams/${extra.teamId}/tracks/${extra.trackId}`,
+    {
+      token,
+      body,
+    },
+  );
+  return track;
+});
+
+export const getTrackReduction = createAsyncThunk<
+  TrackReduction,
+  AuthCredentialsPlus<{ teamId: string; trackId: string; }>
+>('tracks/getTrackReduction', async ({ userId, token, extra }) => {
+  const reduction: TrackReduction = await apiClient.post(
+    `/users/${userId}/teams/${extra.teamId}/tracks/${extra.trackId}/reduction`,
+    {
+      token,
+    },
+  );
+  return reduction;
+});
 
 export const tracksSlice = createSlice({
   name: 'tracks',
@@ -123,6 +138,16 @@ export const tracksSlice = createSlice({
       })
       .addCase(updateTrack.rejected, (state, action) => {
         state.currentTrack = fetchFailure(action.error.message);
+      })
+      // getTrackReduction
+      .addCase(getTrackReduction.pending, (state) => {
+        state.currentTrackReduction = fetchRequest();
+      })
+      .addCase(getTrackReduction.fulfilled, (state, action: PayloadAction<undefined | TrackReduction>) => {
+        state.currentTrackReduction = fetchSuccess(action.payload);
+      })
+      .addCase(getTrackReduction.rejected, (state, action) => {
+        state.currentTrackReduction = fetchFailure(action.error.message);
       });
   },
 });

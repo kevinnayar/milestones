@@ -39,8 +39,6 @@ class UsersHandler {
   }
 
   register = async (req: Request, res: Response) => {
-    this.logger.logRequest(req);
-
     const userId = createGuid('user');
     const params = validUserCreateParams(req.body);
     const utcTimestamp = DateTime.now().toMillis();
@@ -68,7 +66,6 @@ class UsersHandler {
     };
 
     await dbUserCreate(this.client, user, hashedPassword);
-
     const { token, tokenExpiration, refreshToken, refreshTokenExpiration } = createUserToken(
       userId,
       utcTimestamp,
@@ -87,8 +84,6 @@ class UsersHandler {
   };
 
   login = async (req: Request, res: Response) => {
-    this.logger.logRequest(req);
-
     const email = isStrictStringOrThrow(req.body.email, 'Email is required');
     const password = isStrictStringOrThrow(req.body.password, 'Password is required');
 
@@ -125,8 +120,6 @@ class UsersHandler {
   };
 
   logout = async (req: Request, res: Response) => {
-    this.logger.logRequest(req);
-
     res.clearCookie('refresh_token');
 
     const authResponse: UserAuthResponse = {
@@ -140,8 +133,6 @@ class UsersHandler {
   };
 
   getSelf = async (req: Request, res: Response) => {
-    this.logger.logRequest(req);
-
     const userId = isStrictStringOrThrow(req.body.userId, 'Could not get user ID');
 
     const user = await dbUserGet(this.client, userId);
@@ -154,8 +145,6 @@ class UsersHandler {
   };
 
   refreshToken = async  (req: Request, res: Response) => {
-    this.logger.logRequest(req);
-
     try {
       const currentRefreshToken = isStrictStringOrThrow(
         req.cookies.refresh_token,
@@ -190,10 +179,10 @@ export function handler(opts: ServiceHandlerOpts) {
   const { app } = opts;
   const users = new UsersHandler(opts);
 
-  app.post('/api/v1/users/register', handleRequest(users.register));
-  app.post('/api/v1/users/login', handleRequest(users.login));
-  app.get('/api/v1/users/logout', handleRequest(users.logout));
-  app.post('/api/v1/users/self', handleRequest(users.getSelf));
-  app.post('/api/v1/users/refresh-token', handleRequest(users.refreshToken));
+  app.post('/api/v1/users/register', handleRequest(users.register, opts));
+  app.post('/api/v1/users/login', handleRequest(users.login, opts));
+  app.get('/api/v1/users/logout', handleRequest(users.logout, opts));
+  app.post('/api/v1/users/self', handleRequest(users.getSelf, opts));
+  app.post('/api/v1/users/refresh-token', handleRequest(users.refreshToken, opts));
 }
 

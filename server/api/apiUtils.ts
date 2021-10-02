@@ -5,6 +5,7 @@ import { Request, Response, NextFunction } from 'express';
 import config from '../serverConfig';
 import { formatError } from '../../common/utils/baseUtils';
 import { badRequestException, unauthorizedException } from './apiExceptions';
+import { ServiceHandlerOpts } from '../serverTypes';
 
 // export function createUserSession(req: Request, userId: string) {
 //   // @ts-ignore
@@ -91,7 +92,7 @@ export function verifyUserTokenAndSession(res: Response, token: string): string 
 
 type ExpressRouteFn = (_req: Request, _res: Response, _next: NextFunction) => any;
 
-export function handleRequest(route: ExpressRouteFn): ExpressRouteFn {
+export function handleRequest(route: ExpressRouteFn, opts: ServiceHandlerOpts): ExpressRouteFn {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const publicRoutes: { [k: string]: true } = {
@@ -113,8 +114,11 @@ export function handleRequest(route: ExpressRouteFn): ExpressRouteFn {
         };
       }
 
+      opts.logger.logRequest(req);
+
       await route(req, res, next);
     } catch (e) {
+      opts.logger.logRequest(req);
       if (res.headersSent) return next(e);
       return badRequestException(res, formatError(e));
     }

@@ -1,8 +1,15 @@
-import { EntityTrack, TrackState, TrackActionStart, TrackUpsertParams } from '../../../common/types/entityTypes';
+import {
+  EntityTrack,
+  TrackActionStart,
+  TrackUpsertParams,
+  TrackAction,
+  TrackState,
+  TrackReduction,
+} from '../../../common/types/entityTypes';
 import { DBClient } from '../../serverTypes';
 import { convertRowToTrack } from './utils';
 
-export async function dbTrackCreate(
+export async function dbCreateTrack(
   client: DBClient,
   track: EntityTrack,
   trackActionId: string,
@@ -76,7 +83,25 @@ export async function dbTrackCreate(
   return track.trackId;
 }
 
-export async function dbTracksForTeam(client: DBClient, teamId: string) {
+export async function dbUpdateTrack(client: DBClient, trackId: string, params: TrackUpsertParams,
+  utcTimestamp: number) {
+  const query = `
+    UPDATE tracks 
+    SET
+      name = $1,
+      description = $2,
+      utc_time_updated = $3
+    WHERE id = $4
+    RETURNING *
+    ;
+  `;
+  const values = [params.name, params.description, utcTimestamp, trackId];
+  const rows = await client.query(query, values);
+  const track = rows && rows.length ? convertRowToTrack(rows[0]) : undefined;
+  return track;
+}
+
+export async function dbGetTracksForTeam(client: DBClient, teamId: string) {
   const query = `
     SELECT * FROM tracks
       WHERE team_id = $1 
@@ -89,7 +114,7 @@ export async function dbTracksForTeam(client: DBClient, teamId: string) {
   return tracks;
 }
 
-export async function dbTrackForTeam(client: DBClient, teamId: string, trackId: string) {
+export async function dbGetTrackForTeam(client: DBClient, teamId: string, trackId: string) {
   const query = `
     SELECT * FROM tracks
       WHERE id = $1 
@@ -111,22 +136,27 @@ export async function dbTrackExistsForTeam(client: DBClient, teamId: string, tra
   return exists;
 }
 
-export async function dbUpdateTrack(client: DBClient, trackId: string, params: TrackUpsertParams,
-  utcTimestamp: number) {
-  const query = `
-    UPDATE tracks 
-    SET
-      name = $1,
-      description = $2,
-      utc_time_updated = $3
-    WHERE id = $4
-    RETURNING *
-    ;
-  `;
-  const values = [params.name, params.description, utcTimestamp, trackId];
-  const rows = await client.query(query, values);
-  const track = rows && rows.length ? convertRowToTrack(rows[0]) : undefined;
-  return track;
+export async function dbGetTrackReduction(client: DBClient, trackId: string): Promise<void | TrackReduction> {
+  const actionsRows = await client.query(
+    'SELECT action FROM track_actions WHERE track_id = $1 ORDER BY utc_time_created ASC;',
+    [trackId],
+  );
+
+  const actions: void | TrackAction[] = actionsRows && actionsRows.length ? actionsRows.map(a => a.action) : undefined;
+  if (!actions) return undefined;
+
+  const stateRows = await client.query(
+    'SELECT state FROM track_actions WHERE track_id = $1 ORDER BY utc_time_created DESC LIMIT 1;',
+    [trackId],
+  );
+
+  const state: void | TrackState = stateRows && stateRows.length ? stateRows[0].state : undefined;
+  if (!state) return undefined;
+
+  return {
+    actions,
+    state,
+  };
 }
 
 

@@ -20,8 +20,6 @@ class TeamsHandler {
   }
 
   createTeam = async (req: Request, res: Response) => {
-    this.logger.logRequest(req);
-
     const userId = req.params.userId;
     await canCreateOrThrow(res, this.client, userId);
 
@@ -42,8 +40,6 @@ class TeamsHandler {
   };
 
   getTeams = async (req: Request, res: Response) => {
-    this.logger.logRequest(req);
-
     const userId = req.params.userId;
     await canReadOrThrow(res, this.client, userId);
 
@@ -53,8 +49,6 @@ class TeamsHandler {
   };
 
   getTeam = async (req: Request, res: Response) => {
-    this.logger.logRequest(req);
-
     const userId = req.params.userId;
     await canReadOrThrow(res, this.client, userId);
     const teamId = req.params.teamId;
@@ -65,8 +59,6 @@ class TeamsHandler {
   };
 
   updateTeam = async (req: Request, res: Response) => {
-    this.logger.logRequest(req);
-
     const userId = req.params.userId;
     await canUpdateOrThrow(res, this.client, userId);
 
@@ -88,8 +80,8 @@ export function handler(opts: ServiceHandlerOpts) {
   const { app } = opts;
   const team = new TeamsHandler(opts);
 
-  app.post('/api/v1/users/:userId/teams', handleRequest(team.getTeams));
-  app.post('/api/v1/users/:userId/teams/create', handleRequest(team.createTeam));
-  app.post('/api/v1/users/:userId/teams/:teamId', handleRequest(team.getTeam));
-  app.put('/api/v1/users/:userId/teams/:teamId', handleRequest(team.updateTeam));
+  app.post('/api/v1/users/:userId/teams', handleRequest(team.getTeams, opts));
+  app.post('/api/v1/users/:userId/teams/create', handleRequest(team.createTeam, opts));
+  app.post('/api/v1/users/:userId/teams/:teamId', handleRequest(team.getTeam, opts));
+  app.put('/api/v1/users/:userId/teams/:teamId', handleRequest(team.updateTeam, opts));
 }

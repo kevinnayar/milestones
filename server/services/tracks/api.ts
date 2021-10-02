@@ -8,11 +8,12 @@ import { createGuid } from '../../../common/utils/baseUtils';
 import { trackStateReducer } from '../../../common/utils/trackStateUtils';
 import { validateTrackUpsertParams } from './utils';
 import {
-  dbTrackCreate,
-  dbTracksForTeam,
-  dbTrackForTeam,
+  dbCreateTrack,
+  dbGetTracksForTeam,
+  dbGetTrackForTeam,
   dbUpdateTrack,
   dbTrackExistsForTeam,
+  dbGetTrackReduction,
 } from './db';
 import { dbGetTeamForUser } from '../teams/db';
 import { dbUserInTeam } from '../users/db';
@@ -31,8 +32,6 @@ class TracksHandler {
   }
 
   getTracks = async (req: Request, res: Response) => {
-    this.logger.logRequest(req);
-
     const userId = req.params.userId;
     await canReadOrThrow(res, this.client, userId);
 
@@ -45,14 +44,12 @@ class TracksHandler {
       );
     }
 
-    const track = await dbTracksForTeam(this.client, teamId);
+    const track = await dbGetTracksForTeam(this.client, teamId);
 
     return res.status(200).json(track);
   };
 
   createTrack = async (req: Request, res: Response) => {
-    this.logger.logRequest(req);
-
     const userId = req.params.userId;
     await canCreateOrThrow(res, this.client, userId);
 
@@ -89,14 +86,12 @@ class TracksHandler {
 
     const trackState: null | TrackState = trackAction ? trackStateReducer(trackAction) : null;
 
-    await dbTrackCreate(this.client, track, trackActionId, trackAction, trackState);
+    await dbCreateTrack(this.client, track, trackActionId, trackAction, trackState);
 
     return res.status(200).json(track);
   };
 
   getTrack = async (req: Request, res: Response) => {
-    this.logger.logRequest(req);
-
     const userId = req.params.userId;
     await canReadOrThrow(res, this.client, userId);
 
@@ -110,14 +105,12 @@ class TracksHandler {
     }
 
     const trackId = req.params.trackId;
-    const track = await dbTrackForTeam(this.client, teamId, trackId);
+    const track = await dbGetTrackForTeam(this.client, teamId, trackId);
 
     return res.status(200).json(track);
   };
 
   updateTrack = async (req: Request, res: Response) => {
-    this.logger.logRequest(req);
-
     const userId = req.params.userId;
     await canUpdateOrThrow(res, this.client, userId);
 
@@ -144,14 +137,34 @@ class TracksHandler {
 
     return res.status(200).json(track);
   };
+
+  getTrackReduction = async (req: Request, res: Response) => {
+    const userId = req.params.userId;
+    await canReadOrThrow(res, this.client, userId);
+
+    const teamId = req.params.teamId;
+    const team = await dbGetTeamForUser(this.client, userId, teamId);
+    if (!team) {
+      return forbiddenException(
+        res,
+        `User '${userId}' is does not have access to team '${teamId}'`,
+      );
+    }
+
+    const trackId = req.params.trackId;
+    const reduction = await dbGetTrackReduction(this.client, trackId);
+
+    return res.status(200).json(reduction);
+  }
 }
 
 export function handler(opts: ServiceHandlerOpts) {
   const { app } = opts;
   const tracks = new TracksHandler(opts);
 
-  app.post('/api/v1/users/:userId/teams/:teamId/tracks/', handleRequest(tracks.getTracks));
-  app.post('/api/v1/users/:userId/teams/:teamId/tracks/create', handleRequest(tracks.createTrack));
-  app.post('/api/v1/users/:userId/teams/:teamId/tracks/:trackId', handleRequest(tracks.getTrack));
-  app.put('/api/v1/users/:userId/teams/:teamId/tracks/:trackId', handleRequest(tracks.updateTrack));
+  app.post('/api/v1/users/:userId/teams/:teamId/tracks/', handleRequest(tracks.getTracks, opts));
+  app.post('/api/v1/users/:userId/teams/:teamId/tracks/create', handleRequest(tracks.createTrack, opts));
+  app.post('/api/v1/users/:userId/teams/:teamId/tracks/:trackId', handleRequest(tracks.getTrack, opts));
+  app.put('/api/v1/users/:userId/teams/:teamId/tracks/:trackId', handleRequest(tracks.updateTrack, opts));
+  app.post('/api/v1/users/:userId/teams/:teamId/tracks/:trackId/reduction', handleRequest(tracks.getTrackReduction, opts));
 }
