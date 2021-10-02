@@ -7,7 +7,6 @@ import {
   fetchSuccess,
   fetchFailure,
 } from '../../../common/utils/asyncUtils';
-import { AuthCredentials, AuthCredentialsPlus } from '../../../common/types/baseTypes';
 import { EntityTeam, TeamUpsertParams } from '../../../common/types/entityTypes';
 import { FetchState } from '../../../common/types/baseTypes';
 
@@ -23,20 +22,19 @@ const initialState: TeamsReducer = {
   currentTeam: fetchInit(),
 };
 
-export const getTeams = createAsyncThunk<EntityTeam[], AuthCredentials>(
+export const getTeams = createAsyncThunk<EntityTeam[], string>(
   'teams/getTeams',
-  async ({ userId, token }) => {
-    const teams: EntityTeam[] = await apiClient.post(`/users/${userId}/teams`, { token });
+  async (userId) => {
+    const teams: EntityTeam[] = await apiClient.post(`/users/${userId}/teams`);
     return teams;
   },
 );
 
-export const createTeam = createAsyncThunk<EntityTeam, AuthCredentialsPlus<TeamUpsertParams>>(
+export const createTeam = createAsyncThunk<EntityTeam, {userId: string, params: TeamUpsertParams }>(
   'teams/createTeam',
-  async ({ userId, token, extra }) => {
+  async ({ userId, params }) => {
     const team: EntityTeam = await apiClient.post(`/users/${userId}/teams/create`, {
-      token,
-      body: extra,
+      body: { ...params },
     });
     return team;
   },
@@ -44,27 +42,23 @@ export const createTeam = createAsyncThunk<EntityTeam, AuthCredentialsPlus<TeamU
 
 export const getTeam = createAsyncThunk<
   undefined | EntityTeam,
-  AuthCredentialsPlus<{ teamId: string }>
->('teams/getTeam', async ({ userId, token, extra }) => {
+  { userId: string, teamId: string }
+>('teams/getTeam', async ({ userId, teamId }) => {
   const team: undefined | EntityTeam = await apiClient.post(
-    `/users/${userId}/teams/${extra.teamId}`,
-    { token },
+    `/users/${userId}/teams/${teamId}`,
   );
   return team;
 });
 
 export const updateTeam = createAsyncThunk<
   EntityTeam,
-  AuthCredentialsPlus<{ teamId: string; params: TeamUpsertParams }>
->('teams/updateTeam', async ({ userId, token, extra }) => {
-  const body = { ...extra.params };
-  const team: EntityTeam = await apiClient.put(`/users/${userId}/teams/${extra.teamId}`, {
-    token,
-    body,
+  { userId: string, teamId: string; params: TeamUpsertParams }
+>('teams/updateTeam', async ({ userId, teamId, params }) => {
+  const team: EntityTeam = await apiClient.put(`/users/${userId}/teams/${teamId}`, {
+    body: { ...params },
   });
   return team;
 });
-
 
 export const teamsSlice = createSlice({
   name: 'teams',
@@ -122,6 +116,3 @@ export const teamsSlice = createSlice({
 export const { resetCreateTeam } = teamsSlice.actions;
 
 export default teamsSlice.reducer;
-
-
-

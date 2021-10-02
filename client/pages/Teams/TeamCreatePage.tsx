@@ -13,13 +13,13 @@ import { hasFetchSucceeded } from '../../../common/utils/asyncUtils';
 import { RootState } from '../../store/store';
 import { TeamForm } from '../../components/Teams/TeamForm';
 
-export const TeamCreatePage = ({ user: { userId, token } }: PrivateComponentProps) => {
+export const TeamCreatePage = ({ user: { userId } }: PrivateComponentProps) => {
   const { createdTeam } = useAppSelector((state: RootState) => state.teams);
   const dispatch = useAppDispatch();
   const history = useHistory();
 
-  const onSave = (extra: TeamUpsertParams) => {
-    dispatch(createTeam({ userId, token, extra }));
+  const onSave = (params: TeamUpsertParams) => {
+    dispatch(createTeam({ userId, params }));
   };
 
   const onCancel = () => {

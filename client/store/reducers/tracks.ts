@@ -7,7 +7,6 @@ import {
   fetchSuccess,
   fetchFailure,
 } from '../../../common/utils/asyncUtils';
-import { AuthCredentialsPlus } from '../../../common/types/baseTypes';
 import { EntityTrack, TrackReduction, TrackUpsertParams } from '../../../common/types/entityTypes';
 import { FetchState } from '../../../common/types/baseTypes';
 
@@ -25,25 +24,23 @@ const initialState: TracksReducer = {
   currentTrackReduction: fetchInit(),
 };
 
-export const getTracks = createAsyncThunk<EntityTrack[], AuthCredentialsPlus<{ teamId: string }>>(
+export const getTracks = createAsyncThunk<EntityTrack[], { userId: string, teamId: string }>(
   'tracks/getTracks',
-  async ({ userId, token, extra }) => {
+  async ({ userId, teamId }) => {
     const tracks: EntityTrack[] = await apiClient.post(
-      `/users/${userId}/teams/${extra.teamId}/tracks`,
-      { token },
+      `/users/${userId}/teams/${teamId}/tracks`,
     );
     return tracks;
   },
 );
 
-export const createTrack = createAsyncThunk<EntityTrack, AuthCredentialsPlus<TrackUpsertParams>>(
+export const createTrack = createAsyncThunk<EntityTrack, { userId: string, teamId: string, params: TrackUpsertParams }>(
   'tracks/createTrack',
-  async ({ userId, token, extra }) => {
+  async ({ userId, teamId, params }) => {
     const track: EntityTrack = await apiClient.post(
-      `/users/${userId}/teams/${extra.teamId}/tracks/create`,
+      `/users/${userId}/teams/${teamId}/tracks/create`,
       {
-        token,
-        body: extra,
+        body: { ...params },
       },
     );
     return track;
@@ -52,25 +49,22 @@ export const createTrack = createAsyncThunk<EntityTrack, AuthCredentialsPlus<Tra
 
 export const getTrack = createAsyncThunk<
   undefined | EntityTrack,
-  AuthCredentialsPlus<{ teamId: string; trackId: string }>
->('tracks/getTrack', async ({ userId, token, extra }) => {
+  { userId: string, teamId: string, trackId: string }
+>('tracks/getTrack', async ({ userId, teamId, trackId }) => {
   const track: undefined | EntityTrack = await apiClient.post(
-    `/users/${userId}/teams/${extra.teamId}/tracks/${extra.trackId}`,
-    { token },
+    `/users/${userId}/teams/${teamId}/tracks/${trackId}`,
   );
   return track;
 });
 
 export const updateTrack = createAsyncThunk<
   EntityTrack,
-  AuthCredentialsPlus<{ teamId: string; trackId: string; params: TrackUpsertParams }>
->('tracks/updateTrack', async ({ userId, token, extra }) => {
-  const body = { ...extra.params };
+  { userId: string, teamId: string; trackId: string; params: TrackUpsertParams }
+>('tracks/updateTrack', async ({ userId, teamId, trackId, params }) => {
   const track: EntityTrack = await apiClient.put(
-    `/users/${userId}/teams/${extra.teamId}/tracks/${extra.trackId}`,
+    `/users/${userId}/teams/${teamId}/tracks/${trackId}`,
     {
-      token,
-      body,
+      body: { ...params },
     },
   );
   return track;
@@ -78,13 +72,10 @@ export const updateTrack = createAsyncThunk<
 
 export const getTrackReduction = createAsyncThunk<
   TrackReduction,
-  AuthCredentialsPlus<{ teamId: string; trackId: string; }>
->('tracks/getTrackReduction', async ({ userId, token, extra }) => {
+  { userId: string, teamId: string; trackId: string }
+>('tracks/getTrackReduction', async ({ userId, teamId, trackId }) => {
   const reduction: TrackReduction = await apiClient.post(
-    `/users/${userId}/teams/${extra.teamId}/tracks/${extra.trackId}/reduction`,
-    {
-      token,
-    },
+    `/users/${userId}/teams/${teamId}/tracks/${trackId}/reduction`,
   );
   return reduction;
 });
@@ -143,9 +134,12 @@ export const tracksSlice = createSlice({
       .addCase(getTrackReduction.pending, (state) => {
         state.currentTrackReduction = fetchRequest();
       })
-      .addCase(getTrackReduction.fulfilled, (state, action: PayloadAction<undefined | TrackReduction>) => {
-        state.currentTrackReduction = fetchSuccess(action.payload);
-      })
+      .addCase(
+        getTrackReduction.fulfilled,
+        (state, action: PayloadAction<undefined | TrackReduction>) => {
+          state.currentTrackReduction = fetchSuccess(action.payload);
+        },
+      )
       .addCase(getTrackReduction.rejected, (state, action) => {
         state.currentTrackReduction = fetchFailure(action.error.message);
       });
@@ -155,6 +149,3 @@ export const tracksSlice = createSlice({
 export const { resetCreateTrack } = tracksSlice.actions;
 
 export default tracksSlice.reducer;
-
-
-

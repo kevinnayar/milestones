@@ -8,7 +8,12 @@ import {
   fetchFailure,
 } from '../../../common/utils/asyncUtils';
 import { LoginCredentials } from '../../../common/types/baseTypes';
-import { UserAuthResponse, UserNoPII, UserCreateParams } from '../../../common/types/entityTypes';
+import {
+  UserAuthResponse,
+  UserAuthResponseFalse,
+  UserNoPII,
+  UserCreateParams,
+} from '../../../common/types/entityTypes';
 import { FetchState } from '../../../common/types/baseTypes';
 
 export type UserReducer = {
@@ -26,41 +31,40 @@ const initialState: UserReducer = {
 export const userLogin = createAsyncThunk<UserAuthResponse, LoginCredentials>(
   'user/login',
   async (body: LoginCredentials) => {
-    const user: UserAuthResponse = await apiClient.post('/users/login', { body });
-    return user;
+    const auth: UserAuthResponse = await apiClient.post('/users/login', { body });
+    apiClient.setAuth(auth);
+    return auth;
   },
 );
 
 export const userRegister = createAsyncThunk<UserAuthResponse, LoginCredentials>(
   'user/register',
   async (body: UserCreateParams) => {
-    const user: UserAuthResponse = await apiClient.post('/users/register', { body });
-    return user;
+    const auth: UserAuthResponse = await apiClient.post('/users/register', { body });
+    apiClient.setAuth(auth);
+    return auth;
   },
 );
 
-export const userGetSelf = createAsyncThunk<UserNoPII, string>(
-  'user/getSelf',
-  async (token: string) => {
-    const self: UserNoPII = await apiClient.post('/users/self', { token });
-    return self;
-  },
-);
-
-export const userLogout = createAsyncThunk(
-  'user/logout',
-  async () => {
-    await apiClient.get('/users/logout');
-  },
-);
+export const userLogout = createAsyncThunk('user/logout', async () => {
+  const auth: UserAuthResponseFalse = await apiClient.get('/users/logout');
+  apiClient.setAuth(auth);
+  return auth;
+});
 
 export const userRefreshToken = createAsyncThunk<UserAuthResponse>(
   'user/refreshToken',
   async () => {
-    const user: UserAuthResponse = await apiClient.post('/users/refresh-token', {});
-    return user;
+    const auth: UserAuthResponse = await apiClient.post('/users/refresh-token');
+    apiClient.setAuth(auth);
+    return auth;
   },
 );
+
+export const userGetSelf = createAsyncThunk<UserNoPII>('user/getSelf', async () => {
+  const self: UserNoPII = await apiClient.post('/users/self');
+  return self;
+});
 
 export const userSlice = createSlice({
   name: 'user',
@@ -82,7 +86,6 @@ export const userSlice = createSlice({
       .addCase(userLogin.rejected, (state, action) => {
         state.auth = fetchFailure(action.error.message);
       })
-
       // register
       .addCase(userRegister.pending, (state) => {
         state.auth = fetchRequest();
@@ -93,18 +96,6 @@ export const userSlice = createSlice({
       .addCase(userRegister.rejected, (state, action) => {
         state.auth = fetchFailure(action.error.message);
       })
-
-      // getSelf
-      .addCase(userGetSelf.pending, (state) => {
-        state.self = fetchRequest();
-      })
-      .addCase(userGetSelf.fulfilled, (state, action: PayloadAction<UserNoPII>) => {
-        state.self = fetchSuccess(action.payload);
-      })
-      .addCase(userGetSelf.rejected, (state, action) => {
-        state.self = fetchFailure(action.error.message);
-      })
-
       // logout
       .addCase(userLogout.pending, (state) => {
         state.auth = fetchRequest();
@@ -118,7 +109,6 @@ export const userSlice = createSlice({
         state.auth = fetchFailure(action.error.message);
         state.self = fetchFailure(action.error.message);
       })
-
       // refreshToken
       .addCase(userRefreshToken.pending, (state) => {
         state.auth = fetchRequest();
@@ -128,6 +118,16 @@ export const userSlice = createSlice({
       })
       .addCase(userRefreshToken.rejected, (state, action) => {
         state.auth = fetchFailure(action.error.message);
+      })
+      // getSelf
+      .addCase(userGetSelf.pending, (state) => {
+        state.self = fetchRequest();
+      })
+      .addCase(userGetSelf.fulfilled, (state, action: PayloadAction<UserNoPII>) => {
+        state.self = fetchSuccess(action.payload);
+      })
+      .addCase(userGetSelf.rejected, (state, action) => {
+        state.self = fetchFailure(action.error.message);
       });
   },
 });
@@ -135,4 +135,3 @@ export const userSlice = createSlice({
 export const { setLoginRedirectPath } = userSlice.actions;
 
 export default userSlice.reducer;
-

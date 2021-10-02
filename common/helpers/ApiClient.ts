@@ -1,7 +1,8 @@
 import config from '../../client/clientConfig';
+import { createGuid } from '../utils/baseUtils';
+import { UserAuthResponse } from '../types/entityTypes';
 
 type ApiClientOpts = {
-  token?: string;
   body?: { [k: string]: any };
   query?: { [k: string]: string };
 };
@@ -36,9 +37,15 @@ function getUrlSearchParams(query?: { [k: string]: string }): string {
   return queryParams.length ? `?${queryParams.join('&')}` : '';
 }
 
-function getRequestCredentials(route: string): { credentials?: RequestCredentials } {
-  const routes = ['login', 'register', 'refresh-token'];
-  const match = routes.find((r) => route.match(r));
+const PUBLIC_PATHS: { [k: string]: true } = {
+  '/users/register': true,
+  '/users/login': true,
+  '/users/logout': true,
+  '/users/refresh-token': true,
+};
+
+function getRequestCredentials(path: string): { credentials?: RequestCredentials } {
+  const match = PUBLIC_PATHS[path];
   return match ? { credentials: 'include' } : {};
 }
 
@@ -54,22 +61,44 @@ function getHeaders(token?: string): HeadersInit {
   return headers;
 }
 
+// @notes[ApiClient] This is a singleton class
+// @notes[ApiClient] It contains a copy of auth state
+
 class ApiClient {
-  private async call<T>(method: Method, route: string, opts?: ApiClientOpts) {
-    const token = opts && opts.token ? opts.token : undefined;
+  clientGuid: string;
+  auth: UserAuthResponse;
+
+  constructor() {
+    this.clientGuid = createGuid('client');
+    this.auth = {
+      isAuthenticated: false,
+      userId: null,
+      token: null,
+      tokenExpiration: null,
+    };
+  }
+
+  setAuth(auth: UserAuthResponse) {
+    this.auth = auth;
+  }
+
+  private async call<T>(method: Method, path: string, opts?: ApiClientOpts) {
+    const headers = !PUBLIC_PATHS[path] ? getHeaders(this.auth.token) : getHeaders();
     const body = opts && opts.body ? opts.body : undefined;
     const query = opts && opts.query ? opts.query : undefined;
-
     const params = getUrlSearchParams(query);
-    const url = `${config.api.baseUrl}/api/v1${route}${params}`;
+
+    const creds = getRequestCredentials(path);
+    console.log(creds, path);
 
     const init: RequestInit = {
+      headers,
       method: getMethod(method),
-      headers: getHeaders(token),
-      ...getRequestCredentials(route),
+      ...getRequestCredentials(path),
       ...getStringifiedBody(body),
     };
 
+    const url = `${config.api.baseUrl}/api/v1${path}${params}`;
     const res = await fetch(url, init);
     const data: T = await res.json();
 
@@ -82,24 +111,24 @@ class ApiClient {
     return data;
   }
 
-  async get<T>(route: string, opts?: ApiClientOpts) {
-    return (await this.call('get', route, opts)) as T;
+  async get<T>(path: string, opts?: ApiClientOpts) {
+    return (await this.call('get', path, opts)) as T;
   }
 
-  async post<T>(route: string, opts?: ApiClientOpts) {
-    return (await this.call('post', route, opts)) as T;
+  async post<T>(path: string, opts?: ApiClientOpts) {
+    return (await this.call('post', path, opts)) as T;
   }
 
-  async put<T>(route: string, opts?: ApiClientOpts) {
-    return (await this.call('put', route, opts)) as T;
+  async put<T>(path: string, opts?: ApiClientOpts) {
+    return (await this.call('put', path, opts)) as T;
   }
 
-  async patch<T>(route: string, opts?: ApiClientOpts) {
-    return (await this.call('patch', route, opts)) as T;
+  async patch<T>(path: string, opts?: ApiClientOpts) {
+    return (await this.call('patch', path, opts)) as T;
   }
 
-  async delete<T>(route: string, opts?: ApiClientOpts) {
-    return (await this.call('delete', route, opts)) as T;
+  async delete<T>(path: string, opts?: ApiClientOpts) {
+    return (await this.call('delete', path, opts)) as T;
   }
 }
 

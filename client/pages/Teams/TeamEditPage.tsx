@@ -14,7 +14,7 @@ import { PrivateComponentProps } from '../../routes';
 import { hasFetchSucceeded } from '../../../common/utils/asyncUtils';
 import { RootState } from '../../store/store';
 
-export const TeamEditPage = ({ user: { userId, token }, match }: PrivateComponentProps) => {
+export const TeamEditPage = ({ user: { userId }, match }: PrivateComponentProps) => {
   const { currentTeam } = useAppSelector((state: RootState) => state.teams);
 
   const dispatch = useAppDispatch();
@@ -23,11 +23,7 @@ export const TeamEditPage = ({ user: { userId, token }, match }: PrivateComponen
   const [isSaving, setIsSaving] = useState(false);
 
   const onSave = (params: TeamUpsertParams) => {
-    const extra = {
-      teamId,
-      params,
-    };
-    dispatch(updateTeam({ userId, token, extra }));
+    dispatch(updateTeam({ userId, teamId, params }));
     setIsSaving(true);
   };
 
@@ -38,10 +34,9 @@ export const TeamEditPage = ({ user: { userId, token }, match }: PrivateComponen
 
   useEffect(() => {
     if (teamId) {
-      const extra = { teamId };
-      dispatch(getTeam({ userId, token, extra }));
+      dispatch(getTeam({ userId, teamId }));
     }
-  }, [dispatch, token, userId, teamId]);
+  }, [dispatch, userId, teamId]);
 
   useEffect(() => {
     if (isSaving && hasFetchSucceeded(currentTeam) && currentTeam.data) {

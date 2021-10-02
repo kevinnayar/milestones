@@ -78,7 +78,11 @@ class UsersHandler {
       tokenExpiration: utcTimestamp + tokenExpiration,
     };
 
-    res.cookie('refresh_token', refreshToken, { maxAge: refreshTokenExpiration, httpOnly: true });
+    res.cookie('refresh_token', refreshToken, {
+      maxAge: refreshTokenExpiration,
+      httpOnly: true,
+      path: '/',
+    });
 
     return res.status(200).json(authResponse);
   };
@@ -111,7 +115,11 @@ class UsersHandler {
         tokenExpiration: utcTimestamp + tokenExpiration,
       };
 
-      res.cookie('refresh_token', refreshToken, { maxAge: refreshTokenExpiration, httpOnly: true });
+      res.cookie('refresh_token', refreshToken, {
+        maxAge: refreshTokenExpiration,
+        httpOnly: true,
+        path: '/',
+      });
 
       return res.status(200).json(authResponse);
     }
@@ -119,8 +127,10 @@ class UsersHandler {
     return badRequestException(res, 'Could not login user');
   };
 
-  logout = async (req: Request, res: Response) => {
-    res.clearCookie('refresh_token');
+  logout = async (_req: Request, res: Response) => {
+    res.clearCookie('refresh_token', {
+      path: '/',
+    });
 
     const authResponse: UserAuthResponse = {
       isAuthenticated: false,

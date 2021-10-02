@@ -19,7 +19,7 @@ export const TeamsListPage = ({ user: { userId, token } }: PrivateComponentProps
   const history = useHistory();
 
   useEffect(() => {
-    dispatch(getTeams({ userId, token }));
+    dispatch(getTeams(userId));
   }, [dispatch, token, userId]);
 
   if (allTeams.data === null) return <Loader />;

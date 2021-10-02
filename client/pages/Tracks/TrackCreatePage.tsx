@@ -13,15 +13,15 @@ import { TrackUpsertParams } from '../../../common/types/entityTypes';
 import { hasFetchSucceeded } from '../../../common/utils/asyncUtils';
 import { TrackForm } from '../../components/Tracks/TrackForm';
 
-export const TrackCreatePage = ({ user: { userId, token }, match }: PrivateComponentProps) => {
+export const TrackCreatePage = ({ user: { userId }, match }: PrivateComponentProps) => {
   const { createdTrack } = useAppSelector((state: RootState) => state.tracks);
 
   const dispatch = useAppDispatch();
   const history = useHistory();
   const teamId = match?.params?.teamId;
 
-  const onSave = (extra: TrackUpsertParams) => {
-    dispatch(createTrack({ userId, token, extra }));
+  const onSave = (params: TrackUpsertParams) => {
+    dispatch(createTrack({ userId, teamId, params }));
   };
 
   const onCancel = () => {

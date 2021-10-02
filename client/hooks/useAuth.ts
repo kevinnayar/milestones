@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { DateTime } from 'luxon';
 import { useAppSelector } from './useAppSelector';
 import { useAppDispatch } from './useAppDispatch';
 
@@ -18,7 +19,8 @@ function checkIsLoggedIn(authData: null | UserAuthResponse): boolean {
     authData.isAuthenticated === true &&
     authData.userId && typeof authData.userId === 'string' &&
     authData.token && typeof authData.token === 'string' &&
-    authData.tokenExpiration && typeof authData.tokenExpiration === 'number'
+    authData.tokenExpiration && typeof authData.tokenExpiration === 'number' &&
+    authData.tokenExpiration > DateTime.now().toMillis(),
   );
 }
 
@@ -62,7 +64,6 @@ export function useAuth(path?: string): UseAuthResult {
     }
   }, [dispatch, isLoggedIn, path, loginRedirectPath]);
 
-
   // login
   useEffect(() => {
     if (!isLoggedIn && hasFetchNotStarted(auth)) {
@@ -85,8 +86,7 @@ export function useAuth(path?: string): UseAuthResult {
   // getSelf
   useEffect(() => {
     if (isLoggedIn && !hasFetchedSelf && hasFetchNotStarted(self)) {
-      const { token } = auth.data;
-      dispatch(userGetSelf(token));
+      dispatch(userGetSelf());
     }
   }, [dispatch, auth, isLoggedIn, hasFetchedSelf, self]);
 

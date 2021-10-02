@@ -16,7 +16,7 @@ import { TracksList } from '../../components/Tracks/TracksList';
 import { PrivateComponentProps } from '../../routes';
 import { RootState } from '../../store/store';
 
-export const TeamInfoPage = ({ user: { userId, token }, match }: PrivateComponentProps) => {
+export const TeamInfoPage = ({ user: { userId }, match }: PrivateComponentProps) => {
   const { currentTeam } = useAppSelector((state: RootState) => state.teams);
   const { teamTracks } = useAppSelector((state: RootState) => state.tracks);
 
@@ -26,11 +26,10 @@ export const TeamInfoPage = ({ user: { userId, token }, match }: PrivateComponen
 
   useEffect(() => {
     if (teamId) {
-      const extra = { teamId };
-      dispatch(getTeam({ userId, token, extra }));
-      dispatch(getTracks({ userId, token, extra }));
+      dispatch(getTeam({ userId, teamId }));
+      dispatch(getTracks({ userId, teamId }));
     }
-  }, [dispatch, token, userId, teamId]);
+  }, [dispatch, userId, teamId]);
 
   if (currentTeam.data === null) return <Loader />;
 

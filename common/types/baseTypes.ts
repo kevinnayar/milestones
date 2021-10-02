@@ -27,11 +27,5 @@ export type LoginCredentials = {
   password: string;
 };
 
-export type AuthCredentials = {
-  userId: string;
-  token: string;
-};
-
-export type AuthCredentialsPlus<T> = AuthCredentials & { extra: T };
 
 

@@ -14,7 +14,7 @@ import { PrivateComponentProps } from '../../routes';
 import { hasFetchSucceeded } from '../../../common/utils/asyncUtils';
 import { RootState } from '../../store/store';
 
-export const TrackEditPage = ({ user: { userId, token }, match }: PrivateComponentProps) => {
+export const TrackEditPage = ({ user: { userId }, match }: PrivateComponentProps) => {
   const { currentTrack } = useAppSelector((state: RootState) => state.tracks);
 
   const dispatch = useAppDispatch();
@@ -25,12 +25,7 @@ export const TrackEditPage = ({ user: { userId, token }, match }: PrivateCompone
   const [isSaving, setIsSaving] = useState(false);
 
   const onSave = (params: TrackUpsertParams) => {
-    const extra = {
-      teamId,
-      trackId,
-      params,
-    };
-    dispatch(updateTrack({ userId, token, extra }));
+    dispatch(updateTrack({ userId, teamId, trackId, params }));
     setIsSaving(true);
   };
 
@@ -41,10 +36,9 @@ export const TrackEditPage = ({ user: { userId, token }, match }: PrivateCompone
 
   useEffect(() => {
     if (teamId) {
-      const extra = { teamId, trackId };
-      dispatch(getTrack({ userId, token, extra }));
+      dispatch(getTrack({ userId, teamId, trackId }));
     }
-  }, [dispatch, token, userId, teamId, trackId]);
+  }, [dispatch, userId, teamId, trackId]);
 
   useEffect(() => {
     if (isSaving && hasFetchSucceeded(currentTrack) && currentTrack.data) {

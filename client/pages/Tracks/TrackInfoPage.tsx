@@ -14,7 +14,7 @@ import { TrackForm } from '../../components/Tracks/TrackForm';
 import { PrivateComponentProps } from '../../routes';
 import { RootState } from '../../store/store';
 
-export const TrackInfoPage = ({ user: { userId, token }, match }: PrivateComponentProps) => {
+export const TrackInfoPage = ({ user: { userId }, match }: PrivateComponentProps) => {
   const { currentTrack, currentTrackReduction } = useAppSelector((state: RootState) => state.tracks);
 
   const dispatch = useAppDispatch();
@@ -24,11 +24,10 @@ export const TrackInfoPage = ({ user: { userId, token }, match }: PrivateCompone
 
   useEffect(() => {
     if (teamId && trackId) {
-      const extra = { teamId, trackId };
-      dispatch(getTrack({ userId, token, extra }));
-      dispatch(getTrackReduction({ userId, token, extra }));
+      dispatch(getTrack({ userId, teamId, trackId }));
+      dispatch(getTrackReduction({ userId, teamId, trackId }));
     }
-  }, [dispatch, token, userId, teamId, trackId]);
+  }, [dispatch, userId, teamId, trackId]);
 
   if (currentTrack.data === null) return <Loader />;
 
