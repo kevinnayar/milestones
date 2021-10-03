@@ -70,10 +70,12 @@ class ApiClient {
     const params = getUrlSearchParams(query);
     const apiPath = `/api/v1${path}`;
 
+    console.log({apiPath, cred: getRequestCredentials(apiPath)});
+
     const req: RequestInit = {
       method,
-      headers: getHeaders(path, this.auth.token),
-      ...getRequestCredentials(path),
+      headers: getHeaders(apiPath, this.auth.token),
+      ...getRequestCredentials(apiPath),
       ...getStringifiedBody(body),
     };
 

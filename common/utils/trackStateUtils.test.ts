@@ -4,16 +4,26 @@ import {
   addStartToMilestones,
   getResolvedTrackState,
   getReorderedTrackState,
+  trackStateReducer,
 } from './trackStateUtils';
-import { EntityMilestone } from '../types/entityTypes';
+import {
+  EntityMilestone,
+  TrackState,
+  TrackActionStart,
+  TrackActionUpdate,
+  TrackActionAdd,
+  TrackActionRemove,
+  TrackActionComplete,
+  TrackActionIncomplete,
+} from '../types/entityTypes';
 
 const baseMilestone: EntityMilestone = {
   id: '1',
   name: 'whatever',
   description: 'whatever',
-  status: 'INCOMPLETE',
   ranges: {
     absolute: null,
+    completed: null,
     relative: {
       start: {
         years: 0,
@@ -32,6 +42,7 @@ const milestonesInit: EntityMilestone[] = [
     id: '2',
     ranges: {
       absolute: null,
+      completed: null,
       relative: {
         start: {
           years: 0,
@@ -47,6 +58,7 @@ const milestonesInit: EntityMilestone[] = [
     id: '3',
     ranges: {
       absolute: null,
+      completed: null,
       relative: {
         start: {
           years: 0,
@@ -62,6 +74,7 @@ const milestonesInit: EntityMilestone[] = [
     id: '4',
     ranges: {
       absolute: null,
+      completed: null,
       relative: {
         start: {
           years: 0,
@@ -77,6 +90,21 @@ const milestonesInit: EntityMilestone[] = [
     },
   },
 ];
+
+const actionStart: TrackActionStart = {
+  type: 'START',
+  payload: {
+    startDate: {
+      days: 4,
+      months: 12,
+      years: 2021,
+    },
+    template: 'CHILD_MILESTONES',
+    version: 1,
+  },
+};
+
+let state: TrackState = trackStateReducer(actionStart);
 
 describe('trackStateUtils', () => {
   test('getMilestonesForTemplate', () => {
@@ -171,6 +199,7 @@ describe('trackStateUtils', () => {
       id: 'NEW',
       ranges: {
         absolute: null,
+        completed: null,
         relative: {
           start: {
             years: 0,
@@ -215,4 +244,127 @@ describe('trackStateUtils', () => {
     expect(Object.keys(reorderedTrackState.idMap).length).toEqual(Object.keys(trackState.idMap).length - 1);
     expect(reorderedTrackState.ids.length).toEqual(trackState.ids.length - 1);
   });
+
+  test('trackStateReducer: START', () => {
+    const absoluteRanges = [];
+    const completedRanges = [];
+    const idMapIds = [];
+
+    for (const milestone of Object.values(state.idMap)) {
+      absoluteRanges.push(milestone.ranges.absolute);
+      completedRanges.push(milestone.ranges.completed);
+      idMapIds.push(milestone.id);
+    }
+
+    expect(state.ids[0]).toEqual('START');
+
+    expect(state.ids.length).toEqual(12);
+    expect(Object.keys(state.idMap).length).toEqual(12);
+
+    expect(state.ids.length).toEqual(idMapIds.length);
+    expect([...state.ids].sort().join()).toEqual([...idMapIds].sort().join());
+
+    expect(absoluteRanges.every((r) => r !== null)).toEqual(true);
+    expect(completedRanges.every((r) => r === null)).toEqual(true);
+  });
+
+  test('trackStateReducer: UPDATE', () => {
+    const copied = { ...state.idMap.smiles };
+    const action: TrackActionUpdate = {
+      type: 'UPDATE',
+      payload: {
+        milestone: {
+          ...copied,
+          name: 'Frowns 🙁',
+        },
+      },
+    };
+
+    state = trackStateReducer(action, state);
+
+    expect(state.idMap.smiles.id).toEqual('smiles');
+    expect(state.idMap.smiles.name).toEqual('Frowns 🙁');
+    expect(state.ids.length).toEqual(12);
+    expect(Object.keys(state.idMap).length).toEqual(12);
+  });
+
+  test('trackStateReducer: ADD', () => {
+    const copied = { ...state.idMap.smiles };
+    const action: TrackActionAdd = {
+      type: 'ADD',
+      payload: {
+        milestone: {
+          ...copied,
+          id: 'test',
+          name: 'Test!',
+        },
+      },
+    };
+
+    state = trackStateReducer(action, state);
+
+    expect(state.ids.length).toEqual(13);
+    expect(Object.keys(state.idMap).length).toEqual(13);
+  });
+
+  test('trackStateReducer: REMOVE', () => {
+    const action: TrackActionRemove = {
+      type: 'REMOVE',
+      payload: {
+        milestoneId: 'test',
+      },
+    };
+
+    state = trackStateReducer(action, state);
+
+    expect(state.ids.length).toEqual(12);
+    expect(Object.keys(state.idMap).length).toEqual(12);
+  });
+
+  test('trackStateReducer: COMPLETE', () => {
+    const before = state.idMap.smiles;
+    expect(before.ranges.completed).toEqual(null);
+
+    const action: TrackActionComplete = {
+      type: 'COMPLETE',
+      payload: {
+        milestoneId: 'smiles',
+        completedRanges: {
+          start: 1,
+          stop: null,
+        },
+      },
+    };
+
+    state = trackStateReducer(action, state);
+
+    expect(state.ids.length).toEqual(12);
+    expect(Object.keys(state.idMap).length).toEqual(12);
+
+    const after = state.idMap.smiles;
+    expect(after.ranges.completed.start).toEqual(1);
+    expect(after.ranges.completed.stop).toEqual(null);
+  });
+
+  test('trackStateReducer: INCOMPLETE', () => {
+    const before = state.idMap.smiles;
+    expect(before.ranges.completed.start).toEqual(1);
+    expect(before.ranges.completed.stop).toEqual(null);
+
+    const action: TrackActionIncomplete = {
+      type: 'INCOMPLETE',
+      payload: {
+        milestoneId: 'smiles',
+      },
+    };
+
+    state = trackStateReducer(action, state);
+
+    expect(state.ids.length).toEqual(12);
+    expect(Object.keys(state.idMap).length).toEqual(12);
+
+    const after = state.idMap.smiles;
+    expect(after.ranges.completed).toEqual(null);
+  });
 });
+

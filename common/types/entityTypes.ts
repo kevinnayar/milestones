@@ -118,8 +118,6 @@ export type TrackUpsertParams = {
 
 
 // MILESTONES
-export type MilestoneStatus = 'NON-COMPLETABLE' | 'INCOMPLETE' | 'COMPLETE';
-
 export type EntityMilestone = {
   id: string;
   name: string;
@@ -127,14 +125,15 @@ export type EntityMilestone = {
   ranges: {
     relative: RelativeRange;
     absolute: null | AbsoluteRange;
+    completed: null | AbsoluteRange;
   };
-  status: MilestoneStatus;
 };
 
 export type ResolvedMilestone = EntityMilestone & {
   ranges: {
     relative: RelativeRange;
     absolute: AbsoluteRange;
+    completed: null | AbsoluteRange;
   };
 };
 
@@ -181,6 +180,7 @@ export type TrackActionComplete = {
   type: 'COMPLETE';
   payload: {
     milestoneId: string;
+    completedRanges: AbsoluteRange;
   };
 };
 
