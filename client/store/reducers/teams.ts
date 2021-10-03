@@ -7,7 +7,7 @@ import {
   fetchSuccess,
   fetchFailure,
 } from '../../../common/utils/asyncUtils';
-import { EntityTeam, TeamUpsertParams } from '../../../common/types/entityTypes';
+import { EntityTeam, TeamUpsertParams, UserTeamGuids } from '../../../common/types/entityTypes';
 import { FetchState } from '../../../common/types/baseTypes';
 
 export type TeamsReducer = {
@@ -30,32 +30,30 @@ export const getTeams = createAsyncThunk<EntityTeam[], string>(
   },
 );
 
-export const createTeam = createAsyncThunk<EntityTeam, {userId: string, params: TeamUpsertParams }>(
+export const createTeam = createAsyncThunk<EntityTeam, { userId: string, body: TeamUpsertParams }>(
   'teams/createTeam',
-  async ({ userId, params }) => {
+  async ({ userId, body }) => {
     const team: EntityTeam = await apiClient.post(`/users/${userId}/teams/create`, {
-      body: { ...params },
+      body,
     });
     return team;
   },
 );
 
-export const getTeam = createAsyncThunk<
-  undefined | EntityTeam,
-  { userId: string, teamId: string }
->('teams/getTeam', async ({ userId, teamId }) => {
-  const team: undefined | EntityTeam = await apiClient.post(
-    `/users/${userId}/teams/${teamId}`,
-  );
-  return team;
-});
+export const getTeam = createAsyncThunk<undefined | EntityTeam, UserTeamGuids>(
+  'teams/getTeam',
+  async ({ userId, teamId }) => {
+    const team: undefined | EntityTeam = await apiClient.post(`/users/${userId}/teams/${teamId}`);
+    return team;
+  },
+);
 
 export const updateTeam = createAsyncThunk<
   EntityTeam,
-  { userId: string, teamId: string; params: TeamUpsertParams }
->('teams/updateTeam', async ({ userId, teamId, params }) => {
+  UserTeamGuids & { body: TeamUpsertParams }
+>('teams/updateTeam', async ({ userId, teamId, body }) => {
   const team: EntityTeam = await apiClient.put(`/users/${userId}/teams/${teamId}`, {
-    body: { ...params },
+    body,
   });
   return team;
 });

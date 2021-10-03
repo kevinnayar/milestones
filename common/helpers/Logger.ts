@@ -40,9 +40,9 @@ export default class Logger {
     const messages = {
       url: req.url,
       method: req.method,
+      body: redactPII(req.body),
       params: redactPII(req.params),
       query: redactPII(req.query),
-      body: redactPII(req.body),
       utcTimestamp: DateTime.now().toMillis(),
     };
 

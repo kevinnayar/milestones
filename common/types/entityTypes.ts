@@ -59,6 +59,11 @@ export type UserAuthResponse = UserAuthResponseTrue | UserAuthResponseFalse;
 
 
 // TEAMS
+export type UserTeamGuids = {
+  userId: string;
+  teamId: string;
+};
+
 export type EntityTeam = {
   teamId: string;
   name: string;
@@ -75,6 +80,8 @@ export type TeamUpsertParams = {
 };
 
 // TRACKS
+export type UserTeamTrackGuids = UserTeamGuids & { trackId: string; };
+
 export type TrackType = 'TEMPLATE' | 'CUSTOM';
 export type TrackTemplate = 'CHILD_MILESTONES' | 'PET_MILESTONES';
 

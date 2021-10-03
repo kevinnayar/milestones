@@ -1,30 +1,12 @@
 import config from '../../client/clientConfig';
-import { createGuid } from '../utils/baseUtils';
 import { UserAuthResponse } from '../types/entityTypes';
 
-type ApiClientOpts = {
-  body?: { [k: string]: any };
-  query?: { [k: string]: string };
+export const PUBLIC_PATHS: { [k: string]: true } = {
+  '/api/v1/users/register': true,
+  '/api/v1/users/login': true,
+  '/api/v1/users/logout': true,
+  '/api/v1/users/refresh-token': true,
 };
-
-type Method =
-  | 'get'
-  | 'post'
-  | 'put'
-  | 'patch'
-  | 'delete'
-;
-
-function getMethod(key: Method): string {
-  const methods = {
-    get: 'GET',
-    post: 'POST',
-    put: 'PUT',
-    patch: 'PATCH',
-    delete: 'DELETE',
-  };
-  return methods[key];
-}
 
 function getUrlSearchParams(query?: { [k: string]: string }): string {
   if (!query) return '';
@@ -37,39 +19,39 @@ function getUrlSearchParams(query?: { [k: string]: string }): string {
   return queryParams.length ? `?${queryParams.join('&')}` : '';
 }
 
-const PUBLIC_PATHS: { [k: string]: true } = {
-  '/users/register': true,
-  '/users/login': true,
-  '/users/logout': true,
-  '/users/refresh-token': true,
-};
-
-function getRequestCredentials(path: string): { credentials?: RequestCredentials } {
-  const match = PUBLIC_PATHS[path];
-  return match ? { credentials: 'include' } : {};
-}
-
-function getStringifiedBody(body?: { [k: string]: any }): {body?: string } {
+function getStringifiedBody(body?: { [k: string]: any }): { body?: string } {
   return body ? { body: JSON.stringify(body) } : {};
 }
 
-function getHeaders(token?: string): HeadersInit {
+function getRequestCredentials(path: string): { credentials?: RequestCredentials } {
+  const isPublic = PUBLIC_PATHS[path];
+  return isPublic ? { credentials: 'include' } : {};
+}
+
+function getHeaders(path: string, token: null | string): HeadersInit {
+  const isPrivate = !PUBLIC_PATHS[path];
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(isPrivate ? { Authorization: `Bearer ${token}` } : {}),
   };
   return headers;
 }
 
-// @notes[ApiClient] This is a singleton class
-// @notes[ApiClient] It contains a copy of auth state
+type ApiClientOpts = {
+  body?: { [k: string]: any };
+  query?: { [k: string]: string };
+};
+
+type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+// @notes[apiClient] `ApiClient` is a singleton, so it's exported as an instance and not as a class
+// @notes[apiClient] Its purpose is to abstract away the logic to make authenticated API calls
+// @notes[apiClient] It contains a copy of auth state which mirrors the copy in the redux store
 
 class ApiClient {
-  clientGuid: string;
   auth: UserAuthResponse;
 
   constructor() {
-    this.clientGuid = createGuid('client');
     this.auth = {
       isAuthenticated: false,
       userId: null,
@@ -83,28 +65,25 @@ class ApiClient {
   }
 
   private async call<T>(method: Method, path: string, opts?: ApiClientOpts) {
-    const headers = !PUBLIC_PATHS[path] ? getHeaders(this.auth.token) : getHeaders();
     const body = opts && opts.body ? opts.body : undefined;
     const query = opts && opts.query ? opts.query : undefined;
     const params = getUrlSearchParams(query);
+    const apiPath = `/api/v1${path}`;
 
-    const creds = getRequestCredentials(path);
-    console.log(creds, path);
-
-    const init: RequestInit = {
-      headers,
-      method: getMethod(method),
+    const req: RequestInit = {
+      method,
+      headers: getHeaders(path, this.auth.token),
       ...getRequestCredentials(path),
       ...getStringifiedBody(body),
     };
 
-    const url = `${config.api.baseUrl}/api/v1${path}${params}`;
-    const res = await fetch(url, init);
+    const url = `${config.api.baseUrl}${apiPath}${params}`;
+    const res = await fetch(url, req);
     const data: T = await res.json();
 
     if (!res.ok) {
       // @ts-ignore
-      const message = data && data.message ? data.message : "Wasn't able to load data.";
+      const message = data && data.message ? data.message : 'Wasn\'t able to load data.';
       throw new Error(message);
     }
 
@@ -112,23 +91,23 @@ class ApiClient {
   }
 
   async get<T>(path: string, opts?: ApiClientOpts) {
-    return (await this.call('get', path, opts)) as T;
+    return (await this.call('GET', path, opts)) as T;
   }
 
   async post<T>(path: string, opts?: ApiClientOpts) {
-    return (await this.call('post', path, opts)) as T;
+    return (await this.call('POST', path, opts)) as T;
   }
 
   async put<T>(path: string, opts?: ApiClientOpts) {
-    return (await this.call('put', path, opts)) as T;
+    return (await this.call('PUT', path, opts)) as T;
   }
 
   async patch<T>(path: string, opts?: ApiClientOpts) {
-    return (await this.call('patch', path, opts)) as T;
+    return (await this.call('PATCH', path, opts)) as T;
   }
 
   async delete<T>(path: string, opts?: ApiClientOpts) {
-    return (await this.call('delete', path, opts)) as T;
+    return (await this.call('DELETE', path, opts)) as T;
   }
 }
 

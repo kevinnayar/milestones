@@ -7,7 +7,13 @@ import {
   fetchSuccess,
   fetchFailure,
 } from '../../../common/utils/asyncUtils';
-import { EntityTrack, TrackReduction, TrackUpsertParams } from '../../../common/types/entityTypes';
+import {
+  EntityTrack,
+  TrackReduction,
+  TrackUpsertParams,
+  UserTeamGuids,
+  UserTeamTrackGuids,
+} from '../../../common/types/entityTypes';
 import { FetchState } from '../../../common/types/baseTypes';
 
 export type TracksReducer = {
@@ -24,23 +30,21 @@ const initialState: TracksReducer = {
   currentTrackReduction: fetchInit(),
 };
 
-export const getTracks = createAsyncThunk<EntityTrack[], { userId: string, teamId: string }>(
+export const getTracks = createAsyncThunk<EntityTrack[], UserTeamGuids>(
   'tracks/getTracks',
   async ({ userId, teamId }) => {
-    const tracks: EntityTrack[] = await apiClient.post(
-      `/users/${userId}/teams/${teamId}/tracks`,
-    );
+    const tracks: EntityTrack[] = await apiClient.post(`/users/${userId}/teams/${teamId}/tracks`);
     return tracks;
   },
 );
 
-export const createTrack = createAsyncThunk<EntityTrack, { userId: string, teamId: string, params: TrackUpsertParams }>(
+export const createTrack = createAsyncThunk<EntityTrack, UserTeamGuids & { body: TrackUpsertParams }>(
   'tracks/createTrack',
-  async ({ userId, teamId, params }) => {
+  async ({ userId, teamId, body }) => {
     const track: EntityTrack = await apiClient.post(
       `/users/${userId}/teams/${teamId}/tracks/create`,
       {
-        body: { ...params },
+        body,
       },
     );
     return track;
@@ -49,7 +53,7 @@ export const createTrack = createAsyncThunk<EntityTrack, { userId: string, teamI
 
 export const getTrack = createAsyncThunk<
   undefined | EntityTrack,
-  { userId: string, teamId: string, trackId: string }
+  UserTeamTrackGuids
 >('tracks/getTrack', async ({ userId, teamId, trackId }) => {
   const track: undefined | EntityTrack = await apiClient.post(
     `/users/${userId}/teams/${teamId}/tracks/${trackId}`,
@@ -59,26 +63,26 @@ export const getTrack = createAsyncThunk<
 
 export const updateTrack = createAsyncThunk<
   EntityTrack,
-  { userId: string, teamId: string; trackId: string; params: TrackUpsertParams }
->('tracks/updateTrack', async ({ userId, teamId, trackId, params }) => {
+  UserTeamTrackGuids & { body: TrackUpsertParams }
+>('tracks/updateTrack', async ({ userId, teamId, trackId, body }) => {
   const track: EntityTrack = await apiClient.put(
     `/users/${userId}/teams/${teamId}/tracks/${trackId}`,
     {
-      body: { ...params },
+      body,
     },
   );
   return track;
 });
 
-export const getTrackReduction = createAsyncThunk<
-  TrackReduction,
-  { userId: string, teamId: string; trackId: string }
->('tracks/getTrackReduction', async ({ userId, teamId, trackId }) => {
-  const reduction: TrackReduction = await apiClient.post(
-    `/users/${userId}/teams/${teamId}/tracks/${trackId}/reduction`,
-  );
-  return reduction;
-});
+export const getTrackReduction = createAsyncThunk<TrackReduction, UserTeamTrackGuids>(
+  'tracks/getTrackReduction',
+  async ({ userId, teamId, trackId }) => {
+    const reduction: TrackReduction = await apiClient.post(
+      `/users/${userId}/teams/${teamId}/tracks/${trackId}/reduction`,
+    );
+    return reduction;
+  },
+);
 
 export const tracksSlice = createSlice({
   name: 'tracks',

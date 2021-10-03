@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 function titleCase(text: string): string {
-  return `${text[0].toUpperCase()}${text.slice(1).toLowerCase()}`;
+  return `${text[0].toUpperCase()}${text.slice(1)}`;
 }
 
 function writeNotesToFile(outputFile: string, mutableCommentMap: { [k: string]: string[] }) {
@@ -44,7 +44,7 @@ function insertFileCommentsInMap(rawText: string, mutableCommentMap: { [k: strin
   }
 }
 
-async function recursivelyinsertDirFileCommentsInMap(dirPath: string, mutableCommentMap: { [k: string]: string[] }) {
+async function recursivelyInsertDirFileCommentsInMap(dirPath: string, mutableCommentMap: { [k: string]: string[] }) {
   const files = fs.readdirSync(dirPath);
 
   for (const file of files) {
@@ -53,7 +53,7 @@ async function recursivelyinsertDirFileCommentsInMap(dirPath: string, mutableCom
     const isFile = Boolean(!isDir && filePath.match('.ts'));
 
     if (isFile) insertFileCommentsInMap(fs.readFileSync(filePath).toString(), mutableCommentMap);
-    if (isDir) await recursivelyinsertDirFileCommentsInMap(filePath, mutableCommentMap);
+    if (isDir) await recursivelyInsertDirFileCommentsInMap(filePath, mutableCommentMap);
   }
 }
 
@@ -68,7 +68,7 @@ async function main() {
 
     for (const dir of dirPaths) {
       const dirPath = path.join(__dirname, dir);
-      await recursivelyinsertDirFileCommentsInMap(dirPath, mutableCommentMap);
+      await recursivelyInsertDirFileCommentsInMap(dirPath, mutableCommentMap);
       console.log(`    -> completed: ${dirPath}`);
     }
 

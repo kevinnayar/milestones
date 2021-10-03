@@ -3,6 +3,7 @@ import { DateTime } from 'luxon';
 import { Request, Response, NextFunction } from 'express';
 
 import config from '../serverConfig';
+import { PUBLIC_PATHS } from '../../common/helpers/ApiClient';
 import { formatError } from '../../common/utils/baseUtils';
 import { badRequestException, unauthorizedException } from './apiExceptions';
 import { ServiceHandlerOpts } from '../serverTypes';
@@ -95,13 +96,7 @@ type ExpressRouteFn = (_req: Request, _res: Response, _next: NextFunction) => an
 export function handleRequest(route: ExpressRouteFn, opts: ServiceHandlerOpts): ExpressRouteFn {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const publicRoutes: { [k: string]: true } = {
-        '/api/v1/users/register': true,
-        '/api/v1/users/login': true,
-        '/api/v1/users/logout': true,
-        '/api/v1/users/refresh-token': true,
-      };
-      const isPrivateRoute = Boolean(!publicRoutes[req.route.path]);
+      const isPrivateRoute = Boolean(!PUBLIC_PATHS[req.route.path]);
 
       if (isPrivateRoute) {
         const token = getUserToken(req);
