@@ -11,10 +11,10 @@ EndOfMessage
 }
 
 fancy_log "✨ Creating notes" 
-#NODE_ENV=development ts-node bin/generateNotes.ts
+NODE_ENV=development ts-node bin/generateNotes.ts
 
 fancy_log "🎯 Running tests"
-#git add notes.md NOTES.md
-#jest
+git add NOTES.md
+jest
 
 
