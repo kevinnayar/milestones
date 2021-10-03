@@ -1,8 +1,9 @@
 # Notes
 
-#### Apiclient
-- This is a singleton class
-- It contains a copy of auth state
+#### ApiClient
+- `ApiClient` is a singleton, so it's exported as an instance and not as a class
+- Its purpose is to abstract away the logic to make authenticated API calls
+- It contains a copy of auth state which mirrors the copy in the redux store
 
 #### Notes
 - Notes are generated off of any comment that starts with `// @notes[NAMESPACE]`
