@@ -44,9 +44,9 @@ type ApiClientOpts = {
 
 type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
-// @notes[apiClient] `ApiClient` is a client-side class to abstract away the logic to make authenticated API calls
-// @notes[apiClient] It is a singleton, so it's exported as an instance and not as a class
-// @notes[apiClient] It contains a copy of auth state which mirrors the copy in the redux store
+// @notes[API Client] `ApiClient` is a client-side class to abstract away the logic to make authenticated API calls
+// @notes[API Client] It is a singleton, so it's exported as an instance and not as a class
+// @notes[API Client] It contains a copy of auth state which mirrors the copy in the redux store
 
 class ApiClient {
   auth: UserAuthResponse;

@@ -59,8 +59,8 @@ async function insertDirCommentsInMap(dirPath: string, mutableCommentMap: { [k: 
 
 async function main() {
   try {
-    // @notes[notes] Notes are generated off of any comment that starts with `// @notes[NAMESPACE]`
-    // @notes[notes] Namespaces are there to group related comments under one title
+    // @notes[Notes] Notes are generated off of any comment that starts with `// @notes[NAMESPACE]`
+    // @notes[Notes] Namespaces are there to group related comments under one title
 
     const dirPaths = ['./', '../client', '../server', '../common'];
     const outputFile = 'NOTES.md';
