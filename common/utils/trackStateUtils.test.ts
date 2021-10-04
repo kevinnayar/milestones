@@ -114,6 +114,10 @@ describe('trackStateUtils', () => {
     expect(milestonesChild).toBeDefined();
     expect(milestonesPet).toBeDefined();
 
+    // @ts-ignore
+    expect(() => getMilestonesForTemplate('whatever', 1)).toThrow(
+      "Unsupported track state for template: 'whatever'",
+    );
     expect(() => getMilestonesForTemplate('CHILD_MILESTONES', 2)).toThrow(
       "Unsupported track state for template: 'CHILD_MILESTONES' and version: '2'",
     );

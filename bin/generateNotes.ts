@@ -44,7 +44,7 @@ function insertFileCommentsInMap(rawText: string, mutableCommentMap: { [k: strin
   }
 }
 
-async function recursivelyInsertDirFileCommentsInMap(dirPath: string, mutableCommentMap: { [k: string]: string[] }) {
+async function insertDirCommentsInMap(dirPath: string, mutableCommentMap: { [k: string]: string[] }) {
   const files = fs.readdirSync(dirPath);
 
   for (const file of files) {
@@ -53,22 +53,22 @@ async function recursivelyInsertDirFileCommentsInMap(dirPath: string, mutableCom
     const isFile = Boolean(!isDir && filePath.match('.ts'));
 
     if (isFile) insertFileCommentsInMap(fs.readFileSync(filePath).toString(), mutableCommentMap);
-    if (isDir) await recursivelyInsertDirFileCommentsInMap(filePath, mutableCommentMap);
+    if (isDir) await insertDirCommentsInMap(filePath, mutableCommentMap);
   }
 }
 
 async function main() {
   try {
+    // @notes[notes] Notes are generated off of any comment that starts with `// @notes[NAMESPACE]`
+    // @notes[notes] Namespaces are there to group related comments under one title
+
     const dirPaths = ['./', '../client', '../server', '../common'];
     const outputFile = 'NOTES.md';
     const mutableCommentMap: { [k: string]: string[] } = {};
 
-    // @notes[notes] Notes are generated off of any comment that starts with `// @notes[NAMESPACE]`
-    // @notes[notes] Namespaces are there to group related comments under one title
-
     for (const dir of dirPaths) {
       const dirPath = path.join(__dirname, dir);
-      await recursivelyInsertDirFileCommentsInMap(dirPath, mutableCommentMap);
+      await insertDirCommentsInMap(dirPath, mutableCommentMap);
       console.log(`    -> completed: ${dirPath}`);
     }
 

@@ -23,7 +23,9 @@ try {
   fs.readdir(path.join(__dirname, '../server/services'), (err, services) => {
     if (err) throw new Error('problem running api');
 
-    // @notes[services] Each service exports a typed (`ServiceDefinition`) service handler from its `api.ts`
+    // @notes[services] Each API service exports a typed handler function `handler: (opts: ServiceHandlerOpts) => void;` from its `api.ts` file
+    // @notes[services] It expects `opts: { app: Application, client: DBClient, logger: Logger }`
+
     for (const name of services) {
       const file = `../server/services/${name}/api.ts`;
       const validFile = fs.existsSync(path.join(__dirname, file))
@@ -34,12 +36,13 @@ try {
         /* eslint-disable @typescript-eslint/no-var-requires, import/no-dynamic-require */
         const { handler } = require(validFile);
 
+        // @notes[services] Then each service is started via the `startApi` script
+        // @notes[services] A `ServiceDefinition` is defined with the service `name` (for logging) and the `handler` function is executed
+
         const service: ServiceDefinition = {
           name: `api:service:${name}`,
           handler,
         };
-
-        // @notes[services] They are passed the Express app, the DB client, and a namespaced logging utility
 
         const opts: ServiceHandlerOpts = {
           app,

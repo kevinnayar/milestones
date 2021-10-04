@@ -24,8 +24,8 @@ export const TrackEditPage = ({ user: { userId }, match }: PrivateComponentProps
 
   const [isSaving, setIsSaving] = useState(false);
 
-  const onSave = (params: TrackUpsertParams) => {
-    dispatch(updateTrack({ userId, teamId, trackId, params }));
+  const onSave = (body: TrackUpsertParams) => {
+    dispatch(updateTrack({ userId, teamId, trackId, body }));
     setIsSaving(true);
   };
 
@@ -51,7 +51,7 @@ export const TrackEditPage = ({ user: { userId }, match }: PrivateComponentProps
 
   return (
     <BasePageTemplate>
-      <PageHeader title="Update team" />
+      <PageHeader title="Edit track" />
       <PageContent>
         <TrackForm teamId={teamId} track={currentTrack.data} onSave={onSave} onCancel={onCancel} />
       </PageContent>

@@ -18,8 +18,8 @@ export const TeamCreatePage = ({ user: { userId } }: PrivateComponentProps) => {
   const dispatch = useAppDispatch();
   const history = useHistory();
 
-  const onSave = (params: TeamUpsertParams) => {
-    dispatch(createTeam({ userId, params }));
+  const onSave = (body: TeamUpsertParams) => {
+    dispatch(createTeam({ userId, body }));
   };
 
   const onCancel = () => {

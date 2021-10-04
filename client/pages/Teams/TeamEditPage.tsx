@@ -22,8 +22,8 @@ export const TeamEditPage = ({ user: { userId }, match }: PrivateComponentProps)
   const teamId = match?.params?.teamId;
   const [isSaving, setIsSaving] = useState(false);
 
-  const onSave = (params: TeamUpsertParams) => {
-    dispatch(updateTeam({ userId, teamId, params }));
+  const onSave = (body: TeamUpsertParams) => {
+    dispatch(updateTeam({ userId, teamId, body }));
     setIsSaving(true);
   };
 
@@ -49,7 +49,7 @@ export const TeamEditPage = ({ user: { userId }, match }: PrivateComponentProps)
 
   return (
     <BasePageTemplate>
-      <PageHeader title="Update team" />
+      <PageHeader title="Edit team" />
       <PageContent>
         <TeamForm team={currentTeam.data} onSave={onSave} onCancel={onCancel} />
       </PageContent>

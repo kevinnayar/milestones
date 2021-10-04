@@ -9,6 +9,7 @@ import {
 } from '../../../common/utils/asyncUtils';
 import { EntityTeam, TeamUpsertParams, UserTeamGuids } from '../../../common/types/entityTypes';
 import { FetchState } from '../../../common/types/baseTypes';
+import { userLogout } from './user';
 
 export type TeamsReducer = {
   allTeams: FetchState<EntityTeam[]>;
@@ -107,6 +108,12 @@ export const teamsSlice = createSlice({
       })
       .addCase(updateTeam.rejected, (state, action) => {
         state.currentTeam = fetchFailure(action.error.message);
+      })
+      // userLogout
+      .addCase(userLogout.fulfilled, (state) => {
+        state.allTeams = fetchInit();
+        state.createdTeam = fetchInit();
+        state.currentTeam = fetchInit();
       });
   },
 });

@@ -44,8 +44,8 @@ type ApiClientOpts = {
 
 type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
-// @notes[apiClient] `ApiClient` is a singleton, so it's exported as an instance and not as a class
-// @notes[apiClient] Its purpose is to abstract away the logic to make authenticated API calls
+// @notes[apiClient] `ApiClient` is a client-side class to abstract away the logic to make authenticated API calls
+// @notes[apiClient] It is a singleton, so it's exported as an instance and not as a class
 // @notes[apiClient] It contains a copy of auth state which mirrors the copy in the redux store
 
 class ApiClient {
@@ -69,8 +69,6 @@ class ApiClient {
     const query = opts && opts.query ? opts.query : undefined;
     const params = getUrlSearchParams(query);
     const apiPath = `/api/v1${path}`;
-
-    console.log({apiPath, cred: getRequestCredentials(apiPath)});
 
     const req: RequestInit = {
       method,

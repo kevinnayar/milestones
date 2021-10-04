@@ -15,6 +15,7 @@ import {
   UserTeamTrackGuids,
 } from '../../../common/types/entityTypes';
 import { FetchState } from '../../../common/types/baseTypes';
+import { userLogout } from './user';
 
 export type TracksReducer = {
   teamTracks: FetchState<EntityTrack[]>;
@@ -146,6 +147,13 @@ export const tracksSlice = createSlice({
       )
       .addCase(getTrackReduction.rejected, (state, action) => {
         state.currentTrackReduction = fetchFailure(action.error.message);
+      })
+      // userLogout
+      .addCase(userLogout.fulfilled, (state) => {
+        state.teamTracks = fetchInit();
+        state.createdTrack = fetchInit();
+        state.currentTrack = fetchInit();
+        state.currentTrackReduction = fetchInit();
       });
   },
 });

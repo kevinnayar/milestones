@@ -20,8 +20,8 @@ export const TrackCreatePage = ({ user: { userId }, match }: PrivateComponentPro
   const history = useHistory();
   const teamId = match?.params?.teamId;
 
-  const onSave = (params: TrackUpsertParams) => {
-    dispatch(createTrack({ userId, teamId, params }));
+  const onSave = (body: TrackUpsertParams) => {
+    dispatch(createTrack({ userId, teamId, body }));
   };
 
   const onCancel = () => {

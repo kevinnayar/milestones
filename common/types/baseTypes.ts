@@ -16,6 +16,11 @@ export type AbsoluteRange = {
   stop: null | number;
 };
 
+export type UtcTimeRange = {
+  start: number;
+  stop: number;
+};
+
 export type FetchState<T> = {
   loading: boolean;
   data: null | T;

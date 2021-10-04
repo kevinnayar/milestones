@@ -1,5 +1,9 @@
 /* eslint-disable no-param-reassign */
-import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import {
+  createSlice,
+  PayloadAction,
+  createAsyncThunk,
+} from '@reduxjs/toolkit';
 import { apiClient } from '../../../common/helpers/ApiClient';
 import {
   fetchInit,

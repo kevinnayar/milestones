@@ -33,9 +33,9 @@ function createTrackParams(teamId: string, track: Maybe<EntityTrack>): TrackUpse
       version: 1,
     },
     startDate: {
-      days: now.day,
-      months: now.month,
-      years: now.year,
+      days: 4, // now.day,
+      months: 12, // now.month,
+      years: 2021, // now.year,
     },
   };
 }

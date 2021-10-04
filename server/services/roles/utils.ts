@@ -4,7 +4,8 @@ import { dbRolesUserCan } from '../roles/db';
 import { DBClient } from '../../serverTypes';
 import { RightType } from '../../../common/types/entityTypes';
 
-// @notes[rights] There are 4 right types: `right_create`, `right_read`, `right_update`, `right_delete`
+// @notes[rightsAndRoles] There are 4 right types: `right_create`, `right_read`, `right_update`, `right_delete`
+// @notes[rightsAndRoles] These are leveraged to create 3 basic roles: `role_owner`, `role_editor`, and `role_viewer`
 
 async function canOrThrow(
   res: Response,
