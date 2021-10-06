@@ -12,6 +12,8 @@ $gray-900: #1A202C;
 
 
 $color-blue: #2196f3;
+$color-orange: rgb(239, 79, 31);
+
 $color-white: $gray-100;
 $color-black: $gray-900;
 
@@ -114,7 +116,7 @@ button {
 
 body.light {
   $color-bg: $gray-100;
-  $color-subtle-bg: $gray-300;
+  $color-subtle-bg: $gray-400;
   $color-text: $gray-800;
   $color-subtle-text: $gray-600;
   $color-border: $gray-900;
@@ -147,7 +149,7 @@ body.light {
 
 body.dark {
   $color-bg: $gray-800;
-  $color-subtle-bg: $gray-700;
+  $color-subtle-bg: $gray-600;
   $color-text: $gray-300;
   $color-subtle-text: $gray-500;
   $color-border: $gray-400;

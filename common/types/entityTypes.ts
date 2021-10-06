@@ -41,6 +41,14 @@ export type UserNoPII = {
   rightIds?: RightType[];
 };
 
+export type TeamMember = {
+  userId: string;
+  isOwner: boolean;
+  displayName: string;
+  imgUrl?: Maybe<string>;
+  utcTimeCreated: number;
+};
+
 export type UserAuthResponseTrue = {
   isAuthenticated: true;
   userId: string;

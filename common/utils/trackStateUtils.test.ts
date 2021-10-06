@@ -108,18 +108,20 @@ let state: TrackState = trackStateReducer(actionStart);
 
 describe('trackStateUtils', () => {
   test('getMilestonesForTemplate', () => {
-    const milestonesChild = getMilestonesForTemplate('CHILD_MILESTONES', 1);
-    const milestonesPet = getMilestonesForTemplate('PET_MILESTONES', 1);
+    const milestonesChildV1 = getMilestonesForTemplate('CHILD_MILESTONES', 1);
+    const milestonesChildV2 = getMilestonesForTemplate('CHILD_MILESTONES', 2);
+    const milestonesPetV1 = getMilestonesForTemplate('PET_MILESTONES', 1);
 
-    expect(milestonesChild).toBeDefined();
-    expect(milestonesPet).toBeDefined();
+    expect(milestonesChildV1).toBeDefined();
+    expect(milestonesChildV2).toBeDefined();
+    expect(milestonesPetV1).toBeDefined();
 
     // @ts-ignore
     expect(() => getMilestonesForTemplate('whatever', 1)).toThrow(
       "Unsupported track state for template: 'whatever'",
     );
-    expect(() => getMilestonesForTemplate('CHILD_MILESTONES', 2)).toThrow(
-      "Unsupported track state for template: 'CHILD_MILESTONES' and version: '2'",
+    expect(() => getMilestonesForTemplate('CHILD_MILESTONES', 3)).toThrow(
+      "Unsupported track state for template: 'CHILD_MILESTONES' and version: '3'",
     );
     expect(() => getMilestonesForTemplate('PET_MILESTONES', 2)).toThrow(
       "Unsupported track state for template: 'PET_MILESTONES' and version: '2'",

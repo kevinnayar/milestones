@@ -11,6 +11,7 @@ import { convertRowToTrack } from './utils';
 
 export async function dbCreateTrack(
   client: DBClient,
+  userId: string,
   track: EntityTrack,
   trackActionId: string,
   trackAction: null | TrackActionStart,
@@ -54,17 +55,19 @@ export async function dbCreateTrack(
       INSERT INTO track_actions (
         id,
         track_id,
+        user_id,
         action_type,
         action,
         state,
         utc_time_created
       )
-      VALUES ($1, $2, $3, $4, $5, $6)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       ;
     `;
     const trackActionValues = [
       trackActionId,
       track.trackId,
+      userId,
       trackAction.type,
       trackAction.payload,
       trackState,

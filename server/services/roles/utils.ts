@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { forbiddenException } from '../../api/apiExceptions';
-import { dbRolesUserCan } from '../roles/db';
+import { dbRolesUserCan } from './db';
 import { DBClient } from '../../serverTypes';
 import { RightType } from '../../../common/types/entityTypes';
 

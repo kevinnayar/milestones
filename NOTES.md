@@ -14,7 +14,7 @@
 - These are leveraged to create 3 basic roles: `role_owner`, `role_editor`, and `role_viewer`
 
 #### Services
-- Each API service exports a typed handler function `handler: (opts: ServiceHandlerOpts) => void;` from its `api.ts` file
+- Each API service exports a typed handler function `handler: (opts: ServiceHandlerOpts) => void` from its `api.ts` file
 - It expects `opts: { app: Application, client: DBClient, logger: Logger }`
 - Then each service is started via the `startApi` script
 - A `ServiceDefinition` is defined with the service `name` (for logging) and the `handler` function is executed

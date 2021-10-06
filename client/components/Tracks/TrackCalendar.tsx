@@ -6,7 +6,6 @@ import {
   getPeriodsForTimeRange,
   getAbsoluteRangeToMilestoneMap,
 } from '../../../common/utils/dateTimeUtils';
-import { slugify } from '../../../common/utils/baseUtils';
 import {
   TrackReduction,
   ResolvedMilestone,
@@ -41,22 +40,47 @@ type TimelineProps = {
   onSetModal: (_m: ResolvedMilestone) => void,
 };
 
+function getPaddingStartOfWeek(first: DateTime): DateTime[] {
+  let periods = [];
+  let day = first;
+
+  while (day.toFormat('ccc') !== 'Sun') {
+    day = day.minus({ day: 1 });
+    periods = [day, ...periods];
+  }
+
+  return periods;
+}
+
 const TrackTimeline = ({ periods, startTimeToMilestoneMap, onSetModal }: TimelineProps) => {
-  const format = DateTime.DATE_MED;
+  if (!periods.length) return null;
+
+  const first = periods[0];
+  const paddedPeriods = getPaddingStartOfWeek(first);
+
   return (
     <div className="track-calendar__timeline">
-      {periods.map((time) => {
-        const formatted = time.toLocaleString(format);
+      {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => <p key={d} className="weekday">{d}</p>)}
+      {[...paddedPeriods, ...periods].map((time) => {
         const milestoneMaybe = startTimeToMilestoneMap.get(time.toMillis());
-        const monthClassName = slugify(`month-of-${time.toFormat('MMM')}`);
+
+        const key = time.toFormat('kkkk-LL-dd');
+        const dayOfMonth = time.toFormat('d');
 
         return (
-          <div key={formatted} className={`day ${monthClassName}`}>
-            <p className="day__date">{formatted}</p>
+          <div key={key} className={`day ${time.toISODate() === first.toISODate() ? 'is-start-day' : ''} month-of-${time.toFormat('MMM').toLowerCase()}`}>
+            <p
+              className={`day__day-of-month  ${time < first ? 'is-before-start' : ''}`}
+            >
+              {dayOfMonth}
+            </p>
             {milestoneMaybe && (
               <i className="day__marker material-icons" onClick={() => onSetModal(milestoneMaybe)}>
                 circle
               </i>
+            )}
+            {dayOfMonth === '1' && (
+              <h4 className="day__month-and-year">{time.toFormat('LLL kkkk')}</h4>
             )}
           </div>
         );

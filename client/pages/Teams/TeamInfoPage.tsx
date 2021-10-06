@@ -5,6 +5,7 @@ import { useAppSelector } from '../../hooks/useAppSelector';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { getTeam } from '../../store/reducers/teams';
 import { getTracks } from '../../store/reducers/tracks';
+import { getMembers } from '../../store/reducers/members';
 import { BasePageTemplate } from '../../templates/BasePageTemplate';
 import { PageHeader } from '../../components/PageHeader/PageHeader';
 import { PageContent } from '../../components/PageContent/PageContent';
@@ -13,12 +14,14 @@ import { Button } from '../../components/Button/Button';
 import { NoContent } from '../../components/NoContent/NoContent';
 import { TeamForm } from '../../components/Teams/TeamForm';
 import { TracksList } from '../../components/Tracks/TracksList';
+import { MembersList } from '../../components/Members/MembersList';
 import { PrivateComponentProps } from '../../routes';
 import { RootState } from '../../store/store';
 
 export const TeamInfoPage = ({ user: { userId }, match }: PrivateComponentProps) => {
   const { currentTeam } = useAppSelector((state: RootState) => state.teams);
   const { teamTracks } = useAppSelector((state: RootState) => state.tracks);
+  const { teamMembers } = useAppSelector((state: RootState) => state.members);
 
   const dispatch = useAppDispatch();
   const history = useHistory();
@@ -28,6 +31,7 @@ export const TeamInfoPage = ({ user: { userId }, match }: PrivateComponentProps)
     if (teamId) {
       dispatch(getTeam({ userId, teamId }));
       dispatch(getTracks({ userId, teamId }));
+      dispatch(getMembers({ userId, teamId }));
     }
   }, [dispatch, userId, teamId]);
 
@@ -60,7 +64,7 @@ export const TeamInfoPage = ({ user: { userId }, match }: PrivateComponentProps)
             </div>
             <div className="section">
               <h2>Members</h2>
-              <TracksList tracks={teamTracks.data} />
+              <MembersList members={teamMembers.data} />
             </div>
           </>
         ) : (

@@ -70,11 +70,8 @@ export const AuthLoginPage = (props: RouteComponentProps) => {
   useEffect(() => { if (self.error) setError(self.error); }, [self.error]);
 
   useEffect(() => {
-    if (
-      hasFetchSucceeded(auth) && hasFetchNotStarted(self) &&
-      auth.data && auth.data.token
-    ) {
-      dispatch(userGetSelf(auth.data.token));
+    if (hasFetchSucceeded(auth) && hasFetchNotStarted(self)) {
+      dispatch(userGetSelf());
     }
   }, [dispatch, auth, self]);
 

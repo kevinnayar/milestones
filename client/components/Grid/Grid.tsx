@@ -80,5 +80,10 @@ export function gridFormatterJson(v: Record<string, unknown>) {
   return <pre>{JSON.stringify(v, null, 2)}</pre>;
 }
 
+export function gridFormatterBoolean(v: boolean) {
+  return <i className="material-icons">{v ? 'task_alt' : 'highlight_off'}</i>;
+}
+
+
 
 

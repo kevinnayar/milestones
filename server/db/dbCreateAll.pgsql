@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS tracks (
 CREATE TABLE IF NOT EXISTS track_actions (
   id VARCHAR NOT NULL UNIQUE,
   track_id VARCHAR NOT NULL,
+  user_id VARCHAR NOT NULL,
   action_type VARCHAR NOT NULL,
   action JSONB NOT NULL,
   state JSONB NOT NULL,
@@ -80,6 +81,7 @@ CREATE TABLE IF NOT EXISTS track_actions (
 );
 
 CREATE INDEX ON track_actions ("track_id");
+CREATE INDEX ON track_actions ("user_id");
 CREATE INDEX ON track_actions ("track_id", "utc_time_created");
 CREATE INDEX ON track_actions ("track_id", "action_type");
 

@@ -15,7 +15,20 @@ type TrackFormProps = {
 };
 
 function createTrackParams(teamId: string, track: Maybe<EntityTrack>): TrackUpsertParams {
-  const now = DateTime.now();
+  // const now = DateTime.now();
+  // const startDate = {
+  //   days: now.day,
+  //   months: now.month,
+  //   years: now.year,
+  // };
+  // const version = 1;
+
+  const startDate = {
+    days: 4,
+    months: 12,
+    years: 2021,
+  };
+  const version = 2;
 
   return track ? {
     teamId,
@@ -30,13 +43,9 @@ function createTrackParams(teamId: string, track: Maybe<EntityTrack>): TrackUpse
     config: {
       type: 'TEMPLATE',
       template: 'CHILD_MILESTONES',
-      version: 1,
+      version,
     },
-    startDate: {
-      days: 4, // now.day,
-      months: 12, // now.month,
-      years: 2021, // now.year,
-    },
+    startDate,
   };
 }
 

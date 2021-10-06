@@ -5,32 +5,65 @@
     display: flex;
     flex-wrap: wrap;
     padding-bottom: 17px;
+    border-top: 1px solid $color-subtle-bg;
+    border-left: 1px solid $color-subtle-bg;
+
+    .weekday {
+      border-right: 1px solid $color-subtle-bg;
+      border-bottom: 1px solid $color-subtle-bg;
+      min-width: 14.2857142857%;
+      width: 14.2857142857%;
+      min-height: 46px;
+      height: 46px;
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      justify-content: center;
+      margin: 0;
+    }
 
     .day {
-      border: 1px solid $color-bg;
-      min-width: 96px;
-      width: 96px;
+      border-right: 1px solid $color-subtle-bg;
+      border-bottom: 1px solid $color-subtle-bg;
+      min-width: 14.2857142857%;
+      width: 14.2857142857%;
       min-height: 124px;
       height: 124px;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      padding: 24px 6px;
-      border-radius: 8px;
+      padding: 24px;
+      position: relative;
+      justify-content: center;
 
-      &__date {
-        margin: 0 auto 24px;
-        font-family: $font-mono;
-        color: $color-black;
+      &__day-of-month {
+        position: absolute;
+        color: $color-text;
+        left: 24px;
+        top: 24px;
+        font-size: 1.5em;
+
+        &.is-before-start {
+          opacity: 0.3;
+        }
       }
 
       &__milestone {
         position: relative;
       }
 
+      &__month-and-year {
+        position: absolute;
+        color: $color-text;
+        left: 24px;
+        bottom: 24px; 
+        margin: 0;
+      }
+
       &__marker {
         cursor: pointer;
+        color: $color-blue;
         transition: $transition;
 
         &:hover {
@@ -59,18 +92,18 @@
       }
     }
 
-    .month-of-jan { background: rgba(237, 202, 191, 0.9); }
-    .month-of-feb { background: rgba(171, 173, 203, 0.9); }
-    .month-of-mar { background: rgba(177, 207, 153, 0.9); }
-    .month-of-apr { background: rgba(225, 188, 203, 0.9); }
-    .month-of-may { background: rgba(165, 191, 218, 0.9); }
-    .month-of-jun { background: rgba(216, 226, 178, 0.9); }
-    .month-of-jul { background: rgba(202, 171, 177, 0.9); }
-    .month-of-aug { background: rgba(161, 203, 218, 0.9); }
-    .month-of-sep { background: rgba(247, 237, 181, 0.9); }
-    .month-of-oct { background: rgba(177, 155, 190, 0.9); }
-    .month-of-nov { background: rgba(146, 194, 181, 0.9); }
-    .month-of-dec { background: rgba(236, 191, 119, 0.9); }
+    .month-of-jan { background: rgba(237, 202, 191, 0.2); }
+    .month-of-feb { background: rgba(171, 173, 203, 0.2); }
+    .month-of-mar { background: rgba(177, 207, 153, 0.2); }
+    .month-of-apr { background: rgba(225, 188, 203, 0.2); }
+    .month-of-may { background: rgba(165, 191, 218, 0.2); }
+    .month-of-jun { background: rgba(216, 226, 178, 0.2); }
+    .month-of-jul { background: rgba(202, 171, 177, 0.2); }
+    .month-of-aug { background: rgba(161, 203, 218, 0.2); }
+    .month-of-sep { background: rgba(247, 237, 181, 0.2); }
+    .month-of-oct { background: rgba(177, 155, 190, 0.2); }
+    .month-of-nov { background: rgba(146, 194, 181, 0.2); }
+    .month-of-dec { background: rgba(236, 191, 119, 0.2); }
   }
 
   &__modal-overlay {

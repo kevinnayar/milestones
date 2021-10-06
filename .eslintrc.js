@@ -25,18 +25,13 @@ module.exports = {
     'import/no-extraneous-dependencies': 1,
     'import/no-named-as-default': 2,
     'import/no-restricted-paths': [
-      1,
+      'error',
       {
         zones: [
           {
-            target: './client/*',
-            from: './shared/config',
-            message: 'Config cannot be imported directly. Use `clientConfig` instead.',
-          },
-          {
-            from: './servser/*',
-            target: './shared/config',
-            message: 'Config cannot be imported directly. Use `serverConfig` instead.',
+            target: './server',
+            from: './client',
+            message: 'Client and Server... never the twain shall meet',
           },
         ],
       },
@@ -71,12 +66,24 @@ module.exports = {
     'no-multi-spaces': 0,
     'no-multiple-empty-lines': 0,
     'no-plusplus': 0,
+    'no-restricted-imports': [
+      'error',
+      {
+        paths: [
+          {
+            name: 'ApiClient',
+            importNames: ['ApiClient'],
+            message: 'Please use Bar from /import-bar/baz/ instead.',
+          },
+        ],
+      },
+    ],
     'no-restricted-syntax': [0, 'DebuggerStatement'],
     'no-return-await': 0,
     'no-trailing-spaces': 1,
     'no-underscore-dangle': 0,
     'no-unused-vars': [
-      1,
+      0,
       {
         args: 'after-used',
         argsIgnorePattern: '^_',
@@ -149,6 +156,11 @@ module.exports = {
     },
     'import/resolve': {
       moduleDirectory: ['node_modules', 'src'],
+    },
+    'import/resolver': {
+      node: {
+        extensions: ['.ts', '.tsx'],
+      },
     },
   },
   globals: {

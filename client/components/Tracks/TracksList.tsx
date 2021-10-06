@@ -13,7 +13,7 @@ export const TracksList = (props: { tracks: null | EntityTrack[] }) => {
     ['description', 'Description', true],
     ['config', 'Configuration', true, gridFormatterJson],
     ['utcTimeCreated', 'Created on', true, gridFormatterDateTime],
-    ['startDate', 'Started on', true, gridFormatterDateTime],
+    ['startDate', 'Starts on', true, gridFormatterDateTime],
     ['utcTimeUpdated', 'Updated on', true, gridFormatterDateTime],
   ];
 

@@ -23,7 +23,7 @@ try {
   fs.readdir(path.join(__dirname, '../server/services'), (err, services) => {
     if (err) throw new Error('problem running api');
 
-    // @notes[Services] Each API service exports a typed handler function `handler: (opts: ServiceHandlerOpts) => void;` from its `api.ts` file
+    // @notes[Services] Each API service exports a typed handler function `handler: (opts: ServiceHandlerOpts) => void` from its `api.ts` file
     // @notes[Services] It expects `opts: { app: Application, client: DBClient, logger: Logger }`
 
     for (const name of services) {

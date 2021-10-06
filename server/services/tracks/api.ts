@@ -86,7 +86,7 @@ class TracksHandler {
 
     const trackState: null | TrackState = trackAction ? trackStateReducer(trackAction) : null;
 
-    await dbCreateTrack(this.client, track, trackActionId, trackAction, trackState);
+    await dbCreateTrack(this.client, userId, track, trackActionId, trackAction, trackState);
 
     return res.status(200).json(track);
   };
