@@ -1,23 +1,25 @@
+import StorageHelper from './StorageHelper';
+
 export type ThemeType = 'light' | 'dark';
 
 export default class ThemeHelper {
   themeKey = '__MILESTONES_THEME_KEY__';
-  defaultThemeMode: ThemeType = 'light';
-  storage: Storage;
+  theme: ThemeType = 'light';
+  store: StorageHelper;
 
   constructor(storage: Storage) {
-    this.storage = storage;
+    this.store = new StorageHelper(storage);
   }
 
   getLocalTheme(): ThemeType {
-    const themeMaybe: null | string = this.storage.getItem(this.themeKey);
-    const theme: ThemeType = ['light', 'dark'].includes(themeMaybe) ? themeMaybe as ThemeType : this.defaultThemeMode;
+    const themeMaybe: null | ThemeType = this.store.get(this.themeKey);
+    const theme: ThemeType = themeMaybe || this.theme;
     this.setLocalTheme(theme);
     return theme;
   }
 
   setLocalTheme(themeMode: ThemeType) {
-    this.storage.setItem(this.themeKey, themeMode);
+    this.store.set(this.themeKey, themeMode);
   }
 }
 
