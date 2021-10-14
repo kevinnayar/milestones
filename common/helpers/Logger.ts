@@ -2,12 +2,23 @@ import * as chalk from 'chalk';
 import { DateTime } from 'luxon';
 import { Request } from 'express';
 
-function redactPII<T>(inputData: T): T {
-  const redactedKeys = ['roleId', 'role_id', 'password', 'fullName', 'full_name'];
-  const redactedData = {};
+function redactPII<T extends Record<string, any>>(inputData: T): T {
+  const redactedKeys: Record<string, true> = {
+    roleId: true,
+    role_id: true,
+    password: true,
+    fullName: true,
+    full_name: true,
+  };
+  const redactedData: Record<string, any> = {};
 
-  for (const key of redactedKeys) {
-    if (key in inputData) redactedData[key] = '**REDACTED**';
+  for (const [key, value] of Object.entries(inputData)) {
+    if (redactedKeys[key]) {
+      redactedData[key] = '**REDACTED**';
+    }
+    if (typeof value === 'object' && value !== null) {
+      redactedData[key] = redactPII(value);
+    }
   }
 
   return {
@@ -15,6 +26,7 @@ function redactPII<T>(inputData: T): T {
     ...redactedData,
   };
 }
+
 
 export default class Logger {
   namespace: string;
