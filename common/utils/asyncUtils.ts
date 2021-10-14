@@ -50,3 +50,7 @@ export function hasFetchFailed<T>(fetchState: FetchState<T>): boolean {
   return !fetchState.loading && fetchState.data === null && fetchState.error !== null;
 }
 
+export async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+

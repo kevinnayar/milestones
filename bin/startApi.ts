@@ -27,14 +27,11 @@ try {
     // @notes[Services] It expects `opts: { app: Application, client: DBClient, logger: Logger }`
 
     for (const name of services) {
-      const file = `../server/services/${name}/api.ts`;
-      const validFile = fs.existsSync(path.join(__dirname, file))
-        ? path.join(__dirname, file)
-        : null;
+      const filePath = path.join(__dirname, `../server/services/${name}/api.ts`);
 
-      if (validFile) {
+      if (fs.existsSync(filePath)) {
         /* eslint-disable @typescript-eslint/no-var-requires, import/no-dynamic-require */
-        const { handler } = require(validFile);
+        const { handler } = require(filePath);
 
         // @notes[Services] Then each service is started via the `startApi` script
         // @notes[Services] A `ServiceDefinition` is defined with the service `name` (for logging) and the `handler` function is executed
@@ -44,15 +41,14 @@ try {
           handler,
         };
 
-        const opts: ServiceHandlerOpts = {
+        const serviceOpts: ServiceHandlerOpts = {
           app,
           client,
           logger: new Logger(service.name),
         };
 
-        service.handler(opts);
-
-        opts.logger.info('✅ Ready');
+        service.handler(serviceOpts);
+        serviceOpts.logger.info('✅ Ready');
       }
     }
   });

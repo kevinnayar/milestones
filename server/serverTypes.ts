@@ -9,3 +9,24 @@ export type ServiceHandlerOpts = {
   client: DBClient;
   logger: Logger;
 };
+
+type WorkerCmdStart = {
+  type: 'START';
+  data: {
+    count: number;
+    namespace: string;
+  }
+};
+
+type WorkerCmdUpdate = {
+  type: 'UPDATE';
+  data: {
+    count: number;
+  }
+};
+
+export type WorkerCmd = WorkerCmdStart | WorkerCmdUpdate;
+
+
+
+
