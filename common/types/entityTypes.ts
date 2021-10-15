@@ -90,24 +90,21 @@ export type TeamUpsertParams = {
 // TRACKS
 export type UserTeamTrackGuids = UserTeamGuids & { trackId: string; };
 
-export type TrackType = 'TEMPLATE' | 'CUSTOM';
-export type TrackTemplate = 'CHILD_MILESTONES' | 'PET_MILESTONES';
+export type TrackTemplate =
+  | 'CHILD_MILESTONES'
+  | 'PET_MILESTONES'
+  | 'CUSTOM_MILESTONES';
 
-export type TrackConfigTemplate = {
-  type: 'TEMPLATE';
+export type TrackConfig = {
   template: TrackTemplate;
   version: number;
-};
-
-export type TrackConfigCustom = {
-  type: 'CUSTOM';
 };
 
 export type EntityTrack = {
   teamId: string;
   trackId: string;
   name: string;
-  config: TrackConfigCustom | TrackConfigTemplate;
+  config: TrackConfig;
   description?: Maybe<string>;
   imgUrl?: Maybe<string>;
   startDate: SimpleDate;
@@ -118,7 +115,7 @@ export type EntityTrack = {
 export type TrackUpsertParams = {
   teamId: string;
   name: string;
-  config: TrackConfigCustom | TrackConfigTemplate;
+  config: TrackConfig;
   description?: Maybe<string>;
   imgUrl?: Maybe<string>;
   startDate: SimpleDate;

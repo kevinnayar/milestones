@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { DateTime } from 'luxon';
 import { useState } from 'react';
 import { Input } from '../Input/Input';
 import { Button } from '../Button/Button';
@@ -41,7 +40,6 @@ function createTrackParams(teamId: string, track: Maybe<EntityTrack>): TrackUpse
     name: '',
     description: '',
     config: {
-      type: 'TEMPLATE',
       template: 'CHILD_MILESTONES',
       version,
     },

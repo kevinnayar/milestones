@@ -9,36 +9,18 @@ import { Maybe } from '../../../common/types/baseTypes';
 import {
   EntityTrack,
   TrackUpsertParams,
-  TrackType,
-  TrackConfigTemplate,
-  TrackConfigCustom,
+  TrackConfig,
   TrackTemplate,
 } from '../../../common/types/entityTypes';
 
-function validateTemplateConfig(config: any): TrackConfigTemplate | TrackConfigCustom {
-  const allowedTracks: TrackType[] = ['CUSTOM', 'TEMPLATE'];
-  const type: TrackType = inStringUnionOrThrow(config.type, allowedTracks, 'A valid track type is required');
-
-  switch (type) {
-    case 'CUSTOM': {
-      return {
-        type: 'CUSTOM',
-      };
-    }
-    case 'TEMPLATE': {
-      const allowedTemplates: TrackTemplate[] = ['CHILD_MILESTONES', 'PET_MILESTONES'];
-      const template = inStringUnionOrThrow(config.template, allowedTemplates, 'A valid track template is required');
-      const version = isNumberOrThrow(config.version, 'Track version is invalid');
-      return {
-        type: 'TEMPLATE',
-        template,
-        version,
-      };
-    }
-    default: {
-      throw new Error(`Unsupported template type: '${type}'`);
-    }
-  }
+function validateTemplateConfig(config: any): TrackConfig {
+  const allowedTemplates: TrackTemplate[] = ['CHILD_MILESTONES', 'PET_MILESTONES', 'CUSTOM_MILESTONES'];
+  const template = inStringUnionOrThrow(config.template, allowedTemplates, 'A valid track template is required');
+  const version = isNumberOrThrow(config.version, 'Track version is invalid');
+  return {
+    template,
+    version,
+  };
 }
 
 export function validateTrackUpsertParams(params: any): TrackUpsertParams {
@@ -60,16 +42,10 @@ export function validateTrackUpsertParams(params: any): TrackUpsertParams {
 }
 
 export function convertRowToTrack(row: any): EntityTrack {
-  const config: TrackConfigCustom | TrackConfigTemplate =
-    row.type === 'CUSTOM'
-      ? {
-        type: 'CUSTOM',
-      }
-      : {
-        type: 'TEMPLATE',
-        template: row.template,
-        version: parseInt(row.version, 10),
-      };
+  const config: TrackConfig = {
+    template: row.template,
+    version: parseInt(row.version, 10),
+  };
 
   const track: EntityTrack = {
     trackId: row.id,

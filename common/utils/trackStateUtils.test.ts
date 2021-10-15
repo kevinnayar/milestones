@@ -1,9 +1,8 @@
 import { DateTime } from 'luxon';
+import { getMilestonesForTemplate } from './trackStateUtils.data';
 import {
-  getMilestonesForTemplate,
-  addStartToMilestones,
   getResolvedTrackState,
-  getReorderedTrackState,
+  reorderTrackState,
   trackStateReducer,
 } from './trackStateUtils';
 import {
@@ -28,7 +27,7 @@ const baseMilestone: EntityMilestone = {
       start: {
         years: 0,
         months: 0,
-        days: 2,
+        days: 0,
       },
       stop: null,
     },
@@ -47,7 +46,7 @@ const milestonesInit: EntityMilestone[] = [
         start: {
           years: 0,
           months: 0,
-          days: 4,
+          days: 2,
         },
         stop: null,
       },
@@ -63,7 +62,7 @@ const milestonesInit: EntityMilestone[] = [
         start: {
           years: 0,
           months: 0,
-          days: 6,
+          days: 4,
         },
         stop: null,
       },
@@ -79,12 +78,12 @@ const milestonesInit: EntityMilestone[] = [
         start: {
           years: 0,
           months: 0,
-          days: 8,
+          days: 6,
         },
         stop: {
           years: 0,
           months: 0,
-          days: 10,
+          days: 8,
         },
       },
     },
@@ -104,7 +103,13 @@ const actionStart: TrackActionStart = {
   },
 };
 
-let state: TrackState = trackStateReducer(actionStart);
+const emptyState = {
+  startDate: actionStart.payload.startDate,
+  ids: [],
+  idMap: {},
+};
+
+let state: TrackState = trackStateReducer(actionStart, emptyState);
 
 describe('trackStateUtils', () => {
   test('getMilestonesForTemplate', () => {
@@ -128,15 +133,8 @@ describe('trackStateUtils', () => {
     );
   });
 
-  test('addStartToMilestones', () => {
-    const milestones = addStartToMilestones(milestonesInit);
-
-    expect(milestones.length).toBe(milestonesInit.length + 1);
-    expect(milestones[0].id).toBe('START');
-  });
-
   test('getResolvedTrackState', () => {
-    const milestones = addStartToMilestones(milestonesInit);
+    const milestones = [...milestonesInit];
     const startDate = {
       days: 1,
       months: 1,
@@ -145,8 +143,8 @@ describe('trackStateUtils', () => {
     const trackState = getResolvedTrackState(startDate, milestones);
 
     // correct number of items created
-    expect(Object.keys(trackState.idMap).length).toEqual(5);
-    expect(trackState.ids.length).toEqual(5);
+    expect(Object.keys(trackState.idMap).length).toEqual(4);
+    expect(trackState.ids.length).toEqual(4);
 
     // keys created in correct order
     const keys = {
@@ -154,44 +152,39 @@ describe('trackStateUtils', () => {
       one: trackState.ids[1],
       two: trackState.ids[2],
       three: trackState.ids[3],
-      four: trackState.ids[4],
     };
 
-    expect(keys.zero).toEqual('START');
-    expect(keys.one).toEqual('1');
-    expect(keys.two).toEqual('2');
-    expect(keys.three).toEqual('3');
-    expect(keys.four).toEqual('4');
+    expect(keys.zero).toEqual('1');
+    expect(keys.one).toEqual('2');
+    expect(keys.two).toEqual('3');
+    expect(keys.three).toEqual('4');
 
-    // correct absolute time ranges - starts
+    // correct absolute time ranges - starts and stops
     expect(trackState.idMap[keys.zero].ranges.absolute.start).toEqual(
       DateTime.local(startDate.years, startDate.months, startDate.days).toMillis(),
     );
+    expect(trackState.idMap[keys.zero].ranges.absolute.stop).toEqual(null);
+
     expect(trackState.idMap[keys.one].ranges.absolute.start).toEqual(
       DateTime.local(startDate.years, startDate.months, 3).toMillis(),
     );
+    expect(trackState.idMap[keys.one].ranges.absolute.stop).toEqual(null);
+
     expect(trackState.idMap[keys.two].ranges.absolute.start).toEqual(
       DateTime.local(startDate.years, startDate.months, 5).toMillis(),
     );
+    expect(trackState.idMap[keys.two].ranges.absolute.stop).toEqual(null);
+
     expect(trackState.idMap[keys.three].ranges.absolute.start).toEqual(
       DateTime.local(startDate.years, startDate.months, 7).toMillis(),
     );
-    expect(trackState.idMap[keys.four].ranges.absolute.start).toEqual(
+    expect(trackState.idMap[keys.three].ranges.absolute.stop).toEqual(
       DateTime.local(startDate.years, startDate.months, 9).toMillis(),
-    );
-
-    // correct absolute time ranges - stops
-    expect(trackState.idMap[keys.zero].ranges.absolute.stop).toEqual(null);
-    expect(trackState.idMap[keys.one].ranges.absolute.stop).toEqual(null);
-    expect(trackState.idMap[keys.two].ranges.absolute.stop).toEqual(null);
-    expect(trackState.idMap[keys.three].ranges.absolute.stop).toEqual(null);
-    expect(trackState.idMap[keys.four].ranges.absolute.stop).toEqual(
-      DateTime.local(startDate.years, startDate.months, 11).toMillis(),
     );
   });
 
-  test('getReorderedTrackState', () => {
-    const milestones = addStartToMilestones(milestonesInit);
+  test('reorderTrackState', () => {
+    const milestones = [...milestonesInit];
     const startDate = {
       days: 1,
       months: 1,
@@ -221,7 +214,7 @@ describe('trackStateUtils', () => {
     trackState.ids.push(addedMilestone.id);
     trackState.idMap[addedMilestone.id] = addedMilestone;
 
-    let reorderedTrackState = getReorderedTrackState(trackState);
+    let reorderedTrackState = reorderTrackState(trackState);
 
     expect(Object.keys(reorderedTrackState.idMap).length).toEqual(Object.keys(trackState.idMap).length);
     expect(reorderedTrackState.ids.length).toEqual(trackState.ids.length);
@@ -243,7 +236,7 @@ describe('trackStateUtils', () => {
       idMap: newIdMap,
     };
 
-    reorderedTrackState = getReorderedTrackState(reorderedTrackState);
+    reorderedTrackState = reorderTrackState(reorderedTrackState);
 
     // trackState:          '["1","2","3","4","START","NEW"]';
     // reorderedTrackState: '["1","2","4","START","NEW"]';
@@ -262,10 +255,10 @@ describe('trackStateUtils', () => {
       idMapIds.push(milestone.id);
     }
 
-    expect(state.ids[0]).toEqual('START');
+    expect(state.ids[0]).toEqual('birth');
 
-    expect(state.ids.length).toEqual(12);
-    expect(Object.keys(state.idMap).length).toEqual(12);
+    expect(state.ids.length).toEqual(11);
+    expect(Object.keys(state.idMap).length).toEqual(11);
 
     expect(state.ids.length).toEqual(idMapIds.length);
     expect([...state.ids].sort().join()).toEqual([...idMapIds].sort().join());
@@ -290,8 +283,8 @@ describe('trackStateUtils', () => {
 
     expect(state.idMap.smiles.id).toEqual('smiles');
     expect(state.idMap.smiles.name).toEqual('Frowns 🙁');
-    expect(state.ids.length).toEqual(12);
-    expect(Object.keys(state.idMap).length).toEqual(12);
+    expect(state.ids.length).toEqual(11);
+    expect(Object.keys(state.idMap).length).toEqual(11);
   });
 
   test('trackStateReducer: ADD', () => {
@@ -309,8 +302,8 @@ describe('trackStateUtils', () => {
 
     state = trackStateReducer(action, state);
 
-    expect(state.ids.length).toEqual(13);
-    expect(Object.keys(state.idMap).length).toEqual(13);
+    expect(state.ids.length).toEqual(12);
+    expect(Object.keys(state.idMap).length).toEqual(12);
   });
 
   test('trackStateReducer: REMOVE', () => {
@@ -323,8 +316,8 @@ describe('trackStateUtils', () => {
 
     state = trackStateReducer(action, state);
 
-    expect(state.ids.length).toEqual(12);
-    expect(Object.keys(state.idMap).length).toEqual(12);
+    expect(state.ids.length).toEqual(11);
+    expect(Object.keys(state.idMap).length).toEqual(11);
   });
 
   test('trackStateReducer: COMPLETE', () => {
@@ -344,8 +337,8 @@ describe('trackStateUtils', () => {
 
     state = trackStateReducer(action, state);
 
-    expect(state.ids.length).toEqual(12);
-    expect(Object.keys(state.idMap).length).toEqual(12);
+    expect(state.ids.length).toEqual(11);
+    expect(Object.keys(state.idMap).length).toEqual(11);
 
     const after = state.idMap.smiles;
     expect(after.ranges.completed.start).toEqual(1);
@@ -366,8 +359,8 @@ describe('trackStateUtils', () => {
 
     state = trackStateReducer(action, state);
 
-    expect(state.ids.length).toEqual(12);
-    expect(Object.keys(state.idMap).length).toEqual(12);
+    expect(state.ids.length).toEqual(11);
+    expect(Object.keys(state.idMap).length).toEqual(11);
 
     const after = state.idMap.smiles;
     expect(after.ranges.completed).toEqual(null);

@@ -72,19 +72,22 @@ class TracksHandler {
 
     const trackActionId = createGuid('trackAction');
 
-    const trackAction: null | TrackActionStart =
-      params.config.type === 'TEMPLATE'
-        ? {
-          type: 'START',
-          payload: {
-            startDate: params.startDate,
-            template: params.config.template,
-            version: params.config.version,
-          },
-        }
-        : null;
+    const trackAction: TrackActionStart = {
+      type: 'START',
+      payload: {
+        startDate: params.startDate,
+        template: params.config.template,
+        version: params.config.version,
+      },
+    };
 
-    const trackState: null | TrackState = trackAction ? trackStateReducer(trackAction) : null;
+    const emptyState = {
+      startDate: params.startDate,
+      ids: [],
+      idMap: {},
+    };
+
+    const trackState: TrackState = trackStateReducer(trackAction, emptyState);
 
     await dbCreateTrack(this.client, userId, track, trackActionId, trackAction, trackState);
 
