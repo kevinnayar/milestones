@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { DateTime, DateObject } from 'luxon';
+import { DateTime } from 'luxon';
 import { Link } from 'react-router-dom';
 import { simpleDateToDateObject } from '../../../common/utils/typeUtils';
 import { SimpleDate } from '../../../common/types/baseTypes';
@@ -69,7 +69,7 @@ export function gridFormatterDateTime(v: number | SimpleDate) {
   const format = DateTime.DATE_MED;
 
   if (typeof v === 'object') {
-    const d: DateObject = simpleDateToDateObject(v);
+    const d = simpleDateToDateObject(v);
     return DateTime.fromObject(d).toLocaleString(format);
   }
 

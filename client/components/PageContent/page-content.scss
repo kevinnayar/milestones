@@ -1,8 +1,5 @@
 .page-content {
-  background: $color-bg;
   min-height: 666px;
-  border-radius: 4px;
-  padding: 3%;
 
   .form {
     form {
@@ -24,6 +21,9 @@
   }
 
   .section {
-    margin: 0 auto 72px;
+    margin: 0 auto 48px;
+    background: $color-bg;
+    border-radius: 4px;
+    padding: 3%;
   }
 }

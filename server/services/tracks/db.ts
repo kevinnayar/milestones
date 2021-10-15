@@ -17,13 +17,10 @@ export async function dbCreateTrack(
   trackAction: null | TrackActionStart,
   trackState: null | TrackState,
 ): Promise<string> {
-  const trackTemplate = track.config.type === 'TEMPLATE' ? track.config.template : null;
-  const trackVersion = track.config.type === 'TEMPLATE' ? track.config.version : null;
   const trackQuery = `
     INSERT INTO tracks (
       id,
       team_id,
-      type,
       template,
       version,
       name,
@@ -38,9 +35,8 @@ export async function dbCreateTrack(
   const trackValues = [
     track.trackId,
     track.teamId,
-    track.config.type,
-    trackTemplate,
-    trackVersion,
+    track.config.template,
+    track.config.version,
     track.name,
     track.description,
     track.startDate,

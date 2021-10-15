@@ -4,7 +4,6 @@
   &__timeline {
     display: flex;
     flex-wrap: wrap;
-    padding-bottom: 17px;
     border-top: 1px solid $color-subtle-bg;
     border-left: 1px solid $color-subtle-bg;
 
@@ -27,38 +26,53 @@
       border-bottom: 1px solid $color-subtle-bg;
       min-width: 14.2857142857%;
       width: 14.2857142857%;
-      min-height: 124px;
-      height: 124px;
+      min-height: 148px;
+      height: 148px;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      padding: 24px;
+      padding: 16px;
       position: relative;
       justify-content: center;
+      cursor: pointer;
+
+      &__month-and-year {
+        position: absolute;
+        color: $color-text;
+        left: 16px;
+        top: 16px; 
+        margin: 0;
+        font-size: 1.6em;
+      }
 
       &__day-of-month {
         position: absolute;
         color: $color-text;
-        left: 24px;
-        top: 24px;
+        left: 16px;
+        bottom: 16px;
         font-size: 1.5em;
+        margin: 0;
+      }
 
-        &.is-before-start {
+      &:hover {
+        opacity: 0.7;
+      }
+
+      &.is-before-start {
+        cursor: auto;
+
+        &:hover {
+          opacity: 1;
+        }
+
+        .day__day-of-month {
           opacity: 0.3;
         }
       }
 
       &__milestone {
         position: relative;
-      }
-
-      &__month-and-year {
-        position: absolute;
-        color: $color-text;
-        left: 24px;
-        bottom: 24px; 
-        margin: 0;
       }
 
       &__marker {
@@ -128,7 +142,7 @@
     position: relative;
     display: flex;
     padding: 24px;
-    box-shadow: 0 0 15px $color-shadow;
+    border: 1px solid $color-shadow;
 
     .modal {
       &__close {
@@ -159,10 +173,6 @@
       &__date {
         font-family: $font-mono;
         margin-bottom: 24px;
-      }
-
-      &__description {
-
       }
     }
   }

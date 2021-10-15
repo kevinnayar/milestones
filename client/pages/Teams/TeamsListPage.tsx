@@ -32,7 +32,9 @@ export const TeamsListPage = ({ user: { userId, token } }: PrivateComponentProps
         </Button>
       </PageHeader>
       <PageContent>
-        <TeamsList teams={allTeams.data} />
+        <div className="section">
+          <TeamsList teams={allTeams.data} />
+        </div>
       </PageContent>
     </BasePageTemplate>
   );

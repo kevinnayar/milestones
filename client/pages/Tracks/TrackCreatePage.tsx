@@ -48,7 +48,9 @@ export const TrackCreatePage = ({ user: { userId }, match }: PrivateComponentPro
     <BasePageTemplate>
       <PageHeader title="Create track" />
       <PageContent>
-        <TrackForm teamId={teamId} track={null} onSave={onSave} onCancel={onCancel} />
+        <div className="section">
+          <TrackForm teamId={teamId} track={null} onSave={onSave} onCancel={onCancel} />
+        </div>
       </PageContent>
     </BasePageTemplate>
   );

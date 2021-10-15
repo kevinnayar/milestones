@@ -45,7 +45,7 @@ function getPaddingStartOfWeek(first: DateTime): DateTime[] {
   let day = first;
 
   while (day.toFormat('ccc') !== 'Sun') {
-    day = day.minus({ day: 1 });
+    day = day.minus({ days: 1 });
     periods = [day, ...periods];
   }
 
@@ -67,21 +67,27 @@ const TrackTimeline = ({ periods, startTimeToMilestoneMap, onSetModal }: Timelin
         const key = time.toFormat('kkkk-LL-dd');
         const dayOfMonth = time.toFormat('d');
 
+        const onClick = () => {
+          if (time >= first) console.log(key);
+        };
+
         return (
-          <div key={key} className={`day ${time.toISODate() === first.toISODate() ? 'is-start-day' : ''} month-of-${time.toFormat('MMM').toLowerCase()}`}>
-            <p
-              className={`day__day-of-month  ${time < first ? 'is-before-start' : ''}`}
-            >
-              {dayOfMonth}
-            </p>
-            {milestoneMaybe && (
-              <i className="day__marker material-icons" onClick={() => onSetModal(milestoneMaybe)}>
-                circle
-              </i>
-            )}
+          <div
+            key={key}
+            className={`day ${time.toISODate() === first.toISODate() ? 'is-start-day' : ''} ${
+              time < first ? 'is-before-start' : ''
+            } month-of-${time.toFormat('MMM').toLowerCase()}`}
+            onClick={onClick}
+          >
             {dayOfMonth === '1' && (
               <h4 className="day__month-and-year">{time.toFormat('LLL kkkk')}</h4>
             )}
+            {milestoneMaybe && (
+              <i className="day__marker material-icons" onClick={() => onSetModal(milestoneMaybe)}>
+                star
+              </i>
+            )}
+            <p className="day__day-of-month">{dayOfMonth}</p>
           </div>
         );
       })}
@@ -99,7 +105,6 @@ export const TrackCalendar = ({ reduction }: CalendarProps) => {
   const periods = getPeriodsForTimeRange(range, 'days');
   const startTimeToMilestoneMap = getAbsoluteRangeToMilestoneMap(idMap);
   const [milestone, setMilestone] = useState<ResolvedMilestone>(null);
-
 
   return (
     <div className="track-calendar">

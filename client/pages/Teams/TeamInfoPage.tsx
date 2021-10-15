@@ -68,11 +68,13 @@ export const TeamInfoPage = ({ user: { userId }, match }: PrivateComponentProps)
             </div>
           </>
         ) : (
-          <NoContent message="This team doesn't exist.">
-            <Button icon="add" onClick={() => history.push('/teams/create')}>
-              Create a Team
-            </Button>
-          </NoContent>
+          <div className="section">
+            <NoContent message="This team doesn't exist.">
+              <Button icon="add" onClick={() => history.push('/teams/create')}>
+                Create a Team
+              </Button>
+            </NoContent>
+          </div>
         )}
       </PageContent>
     </BasePageTemplate>

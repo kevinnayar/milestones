@@ -53,7 +53,9 @@ export const TrackEditPage = ({ user: { userId }, match }: PrivateComponentProps
     <BasePageTemplate>
       <PageHeader title="Edit track" />
       <PageContent>
-        <TrackForm teamId={teamId} track={currentTrack.data} onSave={onSave} onCancel={onCancel} />
+        <div className="section">
+          <TrackForm teamId={teamId} track={currentTrack.data} onSave={onSave} onCancel={onCancel} />
+        </div>
       </PageContent>
     </BasePageTemplate>
   );

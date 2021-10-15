@@ -13,8 +13,6 @@ import { hasFetchNotStarted, hasFetchSucceeded } from '../../../common/utils/asy
 import { UserCreateParams } from '../../../common/types/entityTypes';
 import { RootState } from '../../store/store';
 
-
-
 export const AuthRegisterPage = (props: RouteComponentProps) => {
   const { auth, self, loginRedirectPath } = useAppSelector((state: RootState) => state.user);
   const dispatch = useAppDispatch();
@@ -100,7 +98,7 @@ export const AuthRegisterPage = (props: RouteComponentProps) => {
       hasFetchSucceeded(auth) && hasFetchNotStarted(self) &&
       auth.data && auth.data.token
     ) {
-      dispatch(userGetSelf(auth.data.token));
+      dispatch(userGetSelf());
     }
   }, [dispatch, auth, self]);
 

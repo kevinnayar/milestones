@@ -51,7 +51,9 @@ export const TeamEditPage = ({ user: { userId }, match }: PrivateComponentProps)
     <BasePageTemplate>
       <PageHeader title="Edit team" />
       <PageContent>
-        <TeamForm team={currentTeam.data} onSave={onSave} onCancel={onCancel} />
+        <div className="section">
+          <TeamForm team={currentTeam.data} onSave={onSave} onCancel={onCancel} />
+        </div>
       </PageContent>
     </BasePageTemplate>
   );

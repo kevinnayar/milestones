@@ -61,14 +61,16 @@ export const TrackInfoPage = ({ user: { userId }, match }: PrivateComponentProps
             )}
           </>
         ) : (
-          <NoContent message="This track doesn't exist.">
-            <Button
-              icon="add"
-              onClick={() => history.push(`${history.location.pathname}/tracks/create`)}
-            >
-              Add Track
-            </Button>
-          </NoContent>
+          <div className="section">
+            <NoContent message="This track doesn't exist.">
+              <Button
+                icon="add"
+                onClick={() => history.push(`${history.location.pathname}/tracks/create`)}
+              >
+                Add Track
+              </Button>
+            </NoContent>
+          </div>
         )}
       </PageContent>
     </BasePageTemplate>
