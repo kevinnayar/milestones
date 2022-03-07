@@ -99,7 +99,7 @@ type CalendarProps = {
   reduction: TrackReduction;
 };
 
-export const TrackCalendar = ({ reduction }: CalendarProps) => {
+export const TrackCalendarView = ({ reduction }: CalendarProps) => {
   const { idMap } = reduction.state;
   const range = getTimeRangeForTrack(idMap);
   const periods = getPeriodsForTimeRange(range, 'days');

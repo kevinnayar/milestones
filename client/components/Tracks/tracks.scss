@@ -1,3 +1,18 @@
+.track-section-buttons {
+  position: absolute;
+  right: 3%;
+  top: 48px;
+}
+
+.track-list {
+  &--item {
+    border: 1px solid $color-subtle-bg;
+    border-radius: 4px;
+    padding: 16px 24px 4px;
+    margin: 0 auto 24px;
+  }
+}
+
 .track-calendar {
   position: relative;
 

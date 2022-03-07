@@ -11,7 +11,7 @@ import { Loader } from '../../components/Loader/Loader';
 import { Button } from '../../components/Button/Button';
 import { NoContent } from '../../components/NoContent/NoContent';
 import { TrackForm } from '../../components/Tracks/TrackForm';
-import { TrackCalendar } from '../../components/Tracks/TrackCalendar';
+import { TrackSection } from '../../components/Tracks/TrackSection';
 import { PrivateComponentProps } from '../../routes';
 import { RootState } from '../../store/store';
 
@@ -54,10 +54,7 @@ export const TrackInfoPage = ({ user: { userId }, match }: PrivateComponentProps
               <TrackForm teamId={teamId} track={currentTrack.data} readOnly />
             </div>
             {currentTrackReduction.data && (
-              <div className="section">
-                <h2>Calendar</h2>
-                <TrackCalendar reduction={currentTrackReduction.data} />
-              </div>
+              <TrackSection reduction={currentTrackReduction.data} />
             )}
           </>
         ) : (

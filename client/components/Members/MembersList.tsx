@@ -20,7 +20,7 @@ export const MembersList = (props: { members: null | TeamMember[] }) => {
         <Grid
           headers={headers}
           rows={props.members}
-          linker={{ route: `${history.location.pathname}/members/`, key: 'trackId' }}
+          linker={{ route: `${history.location.pathname}/members/`, key: 'userId' }}
         />
       ) : (
         <NoContent message="You haven't added any members to this team yet.">
